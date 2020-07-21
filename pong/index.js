@@ -3,10 +3,10 @@ const score = [0, 0];
 var gameStart = false;
 var [w, h] = [800, 800];
 var [paddleSize, paddleSpeed] = [80, 20];
-var paddlePositions = [h/2 - 40, h/2 - 40];
+var paddlePositions = [h/2 - 80, h/2 - 40];
 var ballPosition = [w/2 - 50, h/2];;
 var ballDirection = -1;
-var ballVector = [-10, -3];
+var ballVector = [-10, -2];
 
 function setup() {
     cnv = createCanvas(w, h);
@@ -125,5 +125,6 @@ function updateScore() {
 function resetGame() {
     ballPosition = [w/2 - 50, h/2];
     ballVector = [-10, -3];
+    paddlePositions = [h/2 - 80, h/2 - 40];
     gameStart = false;
 }
