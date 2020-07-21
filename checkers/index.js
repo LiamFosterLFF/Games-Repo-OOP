@@ -65,19 +65,30 @@ function Piece() {
 function selectPiece() {
     const [row, col] = [floor((mouseY - offset.y)/sqSize), floor((mouseX - offset.x)/sqSize)];
 
+    if ((row + col)%2 === 1) {
 
-    if (selectedSquare.length === 0) {
-        selectedSquare = [row, col];
-    } else {
-        const pieceColor = (pieceLoc[selectedSquare[0]][selectedSquare[1]] === null) ? null : pieceLoc[selectedSquare[0]][selectedSquare[1]].color;
-        const redLegalMove = (pieceColor === "red" && selectedSquare[0] + 1 === row && abs(selectedSquare[1] - col) === 1);
-        const blackLegalMove = (pieceColor === "black" && selectedSquare[0] - 1 === row && abs(selectedSquare[1] - col) === 1);
-        if (blackLegalMove || redLegalMove) {
-            console.log("OK MOVE");
+        if (selectedSquare.length === 0) {
+            selectedSquare = [row, col];
         } else {
-            selectedSquare = [];
-        }
-    } 
+            const pieceColor = (pieceLoc[selectedSquare[0]][selectedSquare[1]] === null) ? null : pieceLoc[selectedSquare[0]][selectedSquare[1]].color;
+            const redLegalMove = (pieceColor === "red" && selectedSquare[0] - 1 === row && abs(selectedSquare[1] - col) === 1 && pieceLoc[row][col] === null);
+            const blackLegalMove = (pieceColor === "black" && selectedSquare[0] + 1 === row && abs(selectedSquare[1] - col) === 1 && pieceLoc[row][col] === null);
+            const redLegalJump = (pieceColor === "red" && selectedSquare[0] - 2 === row && abs(selectedSquare[1] - col) === 2 && pieceLoc[(row+selectedSquare[0])/2][(col+selectedSquare[1])/2] !== null && pieceLoc[row][col] === null);
+            const blackLegalJump = (pieceColor === "black" && selectedSquare[0] + 2 === row && abs(selectedSquare[1] - col) === 2 && pieceLoc[(row+selectedSquare[0])/2][(col+selectedSquare[1])/2] !== null && pieceLoc[row][col] === null);
+            if (blackLegalMove || redLegalMove) {
+                pieceLoc[row][col] = pieceLoc[selectedSquare[0]][selectedSquare[1]];
+                pieceLoc[selectedSquare[0]][selectedSquare[1]] = null;
+                selectedSquare = [];
+            } else if (redLegalJump || blackLegalJump) {
+                pieceLoc[row][col] = pieceLoc[selectedSquare[0]][selectedSquare[1]];
+                pieceLoc[selectedSquare[0]][selectedSquare[1]] = null;
+                pieceLoc[(row+selectedSquare[0])/2][(col+selectedSquare[1])/2] = null;
+                selectedSquare = [];
+            } else {
+                selectedSquare = [];
+            }
+        } 
+    }
     drawBoard();
 
 }
