@@ -48,6 +48,7 @@ function drawBoard() {
             square(sqLoc.x, sqLoc.y, sqSize);
             
             if (pieceLoc[row][col] !== null) {
+                noStroke()
                 fill((pieceLoc[row][col].color === "black") ? 0 : "#da1e1e")
                 rect(sqLoc.x, sqLoc.y, sqSize, sqSize, 50)
             }
@@ -73,8 +74,8 @@ function selectPiece() {
             const pieceColor = (pieceLoc[selectedSquare[0]][selectedSquare[1]] === null) ? null : pieceLoc[selectedSquare[0]][selectedSquare[1]].color;
             const redLegalMove = (pieceColor === "red" && selectedSquare[0] - 1 === row && abs(selectedSquare[1] - col) === 1 && pieceLoc[row][col] === null);
             const blackLegalMove = (pieceColor === "black" && selectedSquare[0] + 1 === row && abs(selectedSquare[1] - col) === 1 && pieceLoc[row][col] === null);
-            const redLegalJump = (pieceColor === "red" && selectedSquare[0] - 2 === row && abs(selectedSquare[1] - col) === 2 && pieceLoc[(row+selectedSquare[0])/2][(col+selectedSquare[1])/2] !== null && pieceLoc[row][col] === null);
-            const blackLegalJump = (pieceColor === "black" && selectedSquare[0] + 2 === row && abs(selectedSquare[1] - col) === 2 && pieceLoc[(row+selectedSquare[0])/2][(col+selectedSquare[1])/2] !== null && pieceLoc[row][col] === null);
+            const redLegalJump = (pieceColor === "red" && selectedSquare[0] - 2 === row && abs(selectedSquare[1] - col) === 2 && pieceLoc[(row+selectedSquare[0])/2][(col+selectedSquare[1])/2].color !== null && pieceLoc[(row+selectedSquare[0])/2][(col+selectedSquare[1])/2].color === "black" && pieceLoc[row][col] === null);
+            const blackLegalJump = (pieceColor === "black" && selectedSquare[0] + 2 === row && abs(selectedSquare[1] - col) === 2 && pieceLoc[(row+selectedSquare[0])/2][(col+selectedSquare[1])/2] !== null &&  pieceLoc[(row+selectedSquare[0])/2][(col+selectedSquare[1])/2].color === "red" && pieceLoc[row][col] === null);
             if (blackLegalMove || redLegalMove) {
                 pieceLoc[row][col] = pieceLoc[selectedSquare[0]][selectedSquare[1]];
                 pieceLoc[selectedSquare[0]][selectedSquare[1]] = null;
@@ -92,3 +93,11 @@ function selectPiece() {
     drawBoard();
 
 }
+
+
+//STILL TO DO:
+// double jumping
+// keeping score
+// Taking turns
+// Converting to kings
+// Win condition
