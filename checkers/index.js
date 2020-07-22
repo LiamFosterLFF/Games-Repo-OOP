@@ -7,7 +7,7 @@ let selectedSquare = [];
 const score = {red: 0, black: 0};
 let whoseTurn = "black";
 let img;
-
+let gameOver = false;
 function setup() {
     cnv = createCanvas(dim.width, dim.height);
     setPieces();
@@ -45,11 +45,14 @@ function setPieces() {
 
 
 function drawBoard() {
+    
     clear();
     background(177,98,20);
     fill(255);
     stroke(0);
     textSize(32)
+    
+
     text(`White: ${score.black} pts.`, width/3, 30);
     text(`Red: ${score.red} pts.`, width/3, height-10);
     for (let row = 0; row < 8; row++) {
@@ -77,7 +80,15 @@ function drawBoard() {
             
         }
     }
-
+    if (score.black > 11 || score.red > 11) {
+        fill(177,98,20);
+        rect(0, 0, width, 40);
+        const winner = (score.black > score.red) ? "White" : "Red";
+        textSize(32)
+        fill(255);
+        stroke(0)
+        text(`${winner} wins.`, width/3, 30);
+    }
 }
 
 function Piece() {
@@ -142,3 +153,4 @@ function isLegalMove(color, row, col) {
 // double jumping
 // Win condition
 // Take Jumping out into its own function
+// Fix jumping so it includes kings
