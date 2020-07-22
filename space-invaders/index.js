@@ -6,13 +6,15 @@ const enemyPositions = [];
 const enemyEdges = {"x": {"max": 0, "min": 0}, "y": {max: 0, min: 0}};
 const enemySpeed = {"x": 10, "y":50};
 let bullet = null;
-let bulletFlying = false;
+const offset = {"x": 70, "y": 150};
 
 function setup() {
     createCanvas(screenSize.width, screenSize.height);
+    initializeEnemies();
 }
 
 function draw() {
+    frameRate(25)
     drawBoard();
     drawCover();
     drawShip();
@@ -69,27 +71,45 @@ function checkMinMaxY(position) {
 }
 
 
+function initializeEnemies() {
+
+    for (let row = 0; row < 5; row++) {
+        enemyPositions.push([]);
+        for (let col = 0; col < 11; col++) {
+            enemyPositions[row].push(new Enemy(offset.x + 60*col, offset.y + 60*row));
+        }
+    }
+}
+
+function Enemy(x, y) {
+    this.x = x;
+    this.y = y;
+    this.dead = false;
+}
+
 function drawEnemies() {
-    const offset = {"x": 70, "y": 150};
     enemyEdges.x.min = offset.x;
     enemyEdges.x.max = offset.x;
     enemyEdges.y.max = offset.y;
     enemyEdges.y.min = offset.y;
 
     
-    for (let row = 0; row < 5; row++) {
-        enemyPositions.push([]);
-        for (let col = 0; col < 11; col++) {
-            enemyPositions[row].push({"x": offset.x + 60*col, "y": offset.y + 60*row});
-            checkMinMaxX(enemyPositions[row][col].x);
-            checkMinMaxY(enemyPositions[row][col].y);
-
-            fill(255);
-            rect(enemyPositions[row][col].x, enemyPositions[row][col].y, enemyDimensions.x, enemyDimensions.y)
-            
+    for (let row = 0; row < enemyPositions.length; row++) {
+        for (let col = 0; col < enemyPositions[row].length; col++) {
+            if (detectCollision(enemyPositions[row][col])) {
+                enemyPositions[row][col].dead = true;
+                bullet = null;
+            } else if (enemyPositions[row][col].dead === true){
+                
+            } else {
+                checkMinMaxX(enemyPositions[row][col].x);
+                checkMinMaxY(enemyPositions[row][col].y);
+    
+                fill(255);
+                rect(enemyPositions[row][col].x, enemyPositions[row][col].y, enemyDimensions.x, enemyDimensions.y)
+            }
         }
     }
-
     if (enemyEdges.x.max > width-(enemyDimensions.x + 10) || enemyEdges.x.min < 10) {
         enemySpeed.x *= -1;
         if (enemyEdges.y.max > height-(enemyDimensions.y + 200) || enemyEdges.y.min < 100) {
@@ -99,6 +119,15 @@ function drawEnemies() {
     }
     
 
+}
+
+function detectCollision(enemy) {
+    if (
+        bullet !== null && enemy.dead !== true
+        && bullet.x > enemy.x && bullet.x < enemy.x + enemyDimensions.x
+        && bullet.y > enemy.y && bullet.y < enemy.y + enemyDimensions.y
+    ) {return true}
+    return false
 }
 
 function advanceEnemiesY() {
@@ -124,15 +153,14 @@ function shoot() {
         launchBullet();
     }
 
-    if (bulletFlying === true) {
+    if (bullet !== null) {
         bullet.y -= 25;
             
-        frameRate(25);
+        // frameRate(25);
         strokeWeight(5);
         stroke(255);
         line(bullet.x, bullet.y, bullet.x, bullet.y+5)
         if (bullet.y < 0) {
-            bulletFlying = false;
             bullet = null;
         }
     }
@@ -140,15 +168,16 @@ function shoot() {
 
 function launchBullet() {
     if (bullet === null) {
-        bullet = {"x": shipPosition.x + shipDimensions.x/2, "y": shipPosition.y};
-        bulletFlying = true;
+        bullet = new Bullet(shipPosition.x + shipDimensions.x/2, shipPosition.y);
     }
 
 }
 
-function moveBullet() {
-
+function Bullet(x, y) {
+    this.x = x;
+    this.y = y;
 }
 
 
-// Bullet hits a ship, shp blows up
+// Bullet hits a ship, ship blows up
+// Bullet hits a wall, wall takes a chunk out of itself
