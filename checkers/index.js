@@ -1,9 +1,11 @@
 const dim = {width: 600, height: 600}
 var cnv;
 const pieceLoc = [];
-const offset = {x: 20, y: 20};
+const offset = {x: 40, y: 40};
 const sqSize = (dim.width - 2*offset.x)/8
 let selectedSquare = [];
+const score = {red: 0, black: 0};
+
 function setup() {
     cnv = createCanvas(dim.width, dim.height);
     setPieces();
@@ -39,6 +41,11 @@ function setPieces() {
 function drawBoard() {
     clear();
     background(177,98,20);
+    fill(255);
+    stroke(0);
+    textSize(32)
+    text(`Black: ${score.black} pts.`, width/3, 30);
+    text(`Red: ${score.red} pts.`, width/3, height-10);
     for (let row = 0; row < 8; row++) {
         for (let col = 0; col < 8; col++) {
             let sqColor = ((row + col) % 2 === 0) ? 255: "#25a243";
@@ -55,6 +62,7 @@ function drawBoard() {
             
         }
     }
+
 }
 
 function Piece() {
@@ -84,6 +92,7 @@ function selectPiece() {
                 pieceLoc[row][col] = pieceLoc[selectedSquare[0]][selectedSquare[1]];
                 pieceLoc[selectedSquare[0]][selectedSquare[1]] = null;
                 pieceLoc[(row+selectedSquare[0])/2][(col+selectedSquare[1])/2] = null;
+                (redLegalJump) ? score.red++ : score.black++;
                 selectedSquare = [];
             } else {
                 selectedSquare = [];
