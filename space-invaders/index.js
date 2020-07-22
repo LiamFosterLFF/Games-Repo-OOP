@@ -3,8 +3,8 @@ const shipDimensions = {"x": 50, "y": 20};
 const shipPosition = {"x": screenSize.width/2, "y": screenSize.height-40};
 const enemyDimensions = {"x": 40, "y": 30};
 const enemyPositions = [];
-const enemyEdges = {"max": 0, "min": 0};
-const enemyDirection = {"x": 1, "y":5};
+const enemyEdges = {"x": {"max": 0, "min": 0}, "y": {max: 0, min: 0}};
+const enemySpeed = {"x": 10, "y":50};
 let bullet = null;
 let bulletFlying = false;
 
@@ -52,44 +52,59 @@ function moveShip() {
     }
 }
 
-function checkMinMax(position) {
-    if (position > enemyEdges.max) {
-        enemyEdges.max = position;
-    } else if (position < enemyEdges.min) {
+function checkMinMaxX(position) {
+    if (position > enemyEdges.x.max) {
+        enemyEdges.x.max = position;
+    } else if (position < enemyEdges.x.min) {
+        enemyEdges.x.min = position
+    } 
+}
 
-        enemyEdges.min = position
+function checkMinMaxY(position) {
+    if (position > enemyEdges.y.max) {
+        enemyEdges.y.max = position
+    } else if (position < enemyEdges.y.min) {
+        enemyEdges.y.min = position
     }
 }
 
 
 function drawEnemies() {
     const offset = {"x": 70, "y": 150};
-    enemyEdges.min = offset.x;
-    enemyEdges.max = offset.x;
+    enemyEdges.x.min = offset.x;
+    enemyEdges.x.max = offset.x;
+    enemyEdges.y.max = offset.y;
+    enemyEdges.y.min = offset.y;
+
     
     for (let row = 0; row < 5; row++) {
         enemyPositions.push([]);
         for (let col = 0; col < 11; col++) {
             enemyPositions[row].push({"x": offset.x + 60*col, "y": offset.y + 60*row});
-            checkMinMax(enemyPositions[row][col].x)
+            checkMinMaxX(enemyPositions[row][col].x);
+            checkMinMaxY(enemyPositions[row][col].y);
+
             fill(255);
             rect(enemyPositions[row][col].x, enemyPositions[row][col].y, enemyDimensions.x, enemyDimensions.y)
             
         }
     }
 
-    if (enemyEdges.max > width-(enemyDimensions.x + 10) || enemyEdges.min < 10) {
-        console.log("hit");
-        enemyDirection.x *= -1;
+    if (enemyEdges.x.max > width-(enemyDimensions.x + 10) || enemyEdges.x.min < 10) {
+        enemySpeed.x *= -1;
+        if (enemyEdges.y.max > height-(enemyDimensions.y + 200) || enemyEdges.y.min < 100) {
+            enemySpeed.y *= -1;
+        }
         advanceEnemiesY()
     }
+    
 
 }
 
 function advanceEnemiesY() {
     for (let row = 0; row < enemyPositions.length; row++) {
         for (let col = 0; col < enemyPositions[row].length; col++) {
-            enemyPositions[row][col].y += enemyDirection.y;
+            enemyPositions[row][col].y += enemySpeed.y;
         }
         
     }
@@ -98,7 +113,7 @@ function advanceEnemiesY() {
 function moveEnemies() {
     for (let row = 0; row < enemyPositions.length; row++) {
         for (let col = 0; col < enemyPositions[row].length; col++) {
-            enemyPositions[row][col].x += enemyDirection.x;
+            enemyPositions[row][col].x += enemySpeed.x;
         }
         
     }
@@ -137,4 +152,3 @@ function moveBullet() {
 
 
 // Bullet hits a ship, shp blows up
-// Make enemy ships move
