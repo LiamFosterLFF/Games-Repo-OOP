@@ -5,6 +5,7 @@ const offset = {x: 40, y: 40};
 const sqSize = (dim.width - 2*offset.x)/8
 let selectedSquare = [];
 const score = {red: 0, black: 0};
+let whoseTurn = "black";
 
 function setup() {
     cnv = createCanvas(dim.width, dim.height);
@@ -75,8 +76,7 @@ function selectPiece() {
     const [row, col] = [floor((mouseY - offset.y)/sqSize), floor((mouseX - offset.x)/sqSize)];
 
     if ((row + col)%2 === 1) {
-
-        if (selectedSquare.length === 0) {
+        if (selectedSquare.length === 0 && pieceLoc[row][col].color === whoseTurn) {
             selectedSquare = [row, col];
         } else {
             const pieceColor = (pieceLoc[selectedSquare[0]][selectedSquare[1]] === null) ? null : pieceLoc[selectedSquare[0]][selectedSquare[1]].color;
@@ -88,12 +88,14 @@ function selectPiece() {
                 pieceLoc[row][col] = pieceLoc[selectedSquare[0]][selectedSquare[1]];
                 pieceLoc[selectedSquare[0]][selectedSquare[1]] = null;
                 selectedSquare = [];
+                whoseTurn = (whoseTurn === "black") ? "red" : "black";
             } else if (redLegalJump || blackLegalJump) {
                 pieceLoc[row][col] = pieceLoc[selectedSquare[0]][selectedSquare[1]];
                 pieceLoc[selectedSquare[0]][selectedSquare[1]] = null;
                 pieceLoc[(row+selectedSquare[0])/2][(col+selectedSquare[1])/2] = null;
                 (redLegalJump) ? score.red++ : score.black++;
                 selectedSquare = [];
+                whoseTurn = (whoseTurn === "black") ? "red" : "black";
             } else {
                 selectedSquare = [];
             }
@@ -106,7 +108,6 @@ function selectPiece() {
 
 //STILL TO DO:
 // double jumping
-// keeping score
 // Taking turns
 // Converting to kings
 // Win condition
