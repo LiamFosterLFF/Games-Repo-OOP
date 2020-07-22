@@ -6,12 +6,17 @@ const sqSize = (dim.width - 2*offset.x)/8
 let selectedSquare = [];
 const score = {red: 0, black: 0};
 let whoseTurn = "black";
+let img;
 
 function setup() {
     cnv = createCanvas(dim.width, dim.height);
     setPieces();
     drawBoard();
 
+}
+
+function preload() {
+    img = loadImage('checkers/250-2506401_clip-art-king-crown-symbol-crown-line-icon.png');
 }
 
 function draw() {
@@ -45,7 +50,7 @@ function drawBoard() {
     fill(255);
     stroke(0);
     textSize(32)
-    text(`Black: ${score.black} pts.`, width/3, 30);
+    text(`White: ${score.black} pts.`, width/3, 30);
     text(`Red: ${score.red} pts.`, width/3, height-10);
     for (let row = 0; row < 8; row++) {
         for (let col = 0; col < 8; col++) {
@@ -56,9 +61,18 @@ function drawBoard() {
             square(sqLoc.x, sqLoc.y, sqSize);
             
             if (pieceLoc[row][col] !== null) {
-                noStroke()
-                fill((pieceLoc[row][col].color === "black") ? 0 : "#da1e1e")
+                const pieceColor = (pieceLoc[row][col].color === "black") ? 255 : "#da1e1e"
+                fill(pieceColor)
                 rect(sqLoc.x, sqLoc.y, sqSize, sqSize, 50)
+
+                if ((row === 7 && pieceLoc[row][col].color === "black") || (row === 0 && pieceLoc[row][col].color === "red")) {
+                    pieceLoc[row][col].king = true;
+                }
+
+                if (pieceLoc[row][col].king) {
+                    tint(pieceColor);
+                    image(img, sqLoc.x +sqSize/4, sqLoc.y +sqSize/5, sqSize/2, sqSize/2);
+                }
             }
             
         }
@@ -69,6 +83,7 @@ function drawBoard() {
 function Piece() {
     this.color = null;
     this.name = null;
+    this.king = false;
 
 }
 
@@ -80,11 +95,10 @@ function selectPiece() {
             selectedSquare = [row, col];
         } else {
             const pieceColor = (pieceLoc[selectedSquare[0]][selectedSquare[1]] === null) ? null : pieceLoc[selectedSquare[0]][selectedSquare[1]].color;
-            const redLegalMove = (pieceColor === "red" && selectedSquare[0] - 1 === row && abs(selectedSquare[1] - col) === 1 && pieceLoc[row][col] === null);
-            const blackLegalMove = (pieceColor === "black" && selectedSquare[0] + 1 === row && abs(selectedSquare[1] - col) === 1 && pieceLoc[row][col] === null);
+
             const redLegalJump = (pieceColor === "red" && selectedSquare[0] - 2 === row && abs(selectedSquare[1] - col) === 2 && pieceLoc[(row+selectedSquare[0])/2][(col+selectedSquare[1])/2].color !== null && pieceLoc[(row+selectedSquare[0])/2][(col+selectedSquare[1])/2].color === "black" && pieceLoc[row][col] === null);
             const blackLegalJump = (pieceColor === "black" && selectedSquare[0] + 2 === row && abs(selectedSquare[1] - col) === 2 && pieceLoc[(row+selectedSquare[0])/2][(col+selectedSquare[1])/2] !== null &&  pieceLoc[(row+selectedSquare[0])/2][(col+selectedSquare[1])/2].color === "red" && pieceLoc[row][col] === null);
-            if (blackLegalMove || redLegalMove) {
+            if (isLegalMove(pieceColor, row, col)) {
                 pieceLoc[row][col] = pieceLoc[selectedSquare[0]][selectedSquare[1]];
                 pieceLoc[selectedSquare[0]][selectedSquare[1]] = null;
                 selectedSquare = [];
@@ -106,8 +120,25 @@ function selectPiece() {
 }
 
 
+function isLegalMove(color, row, col) {
+    const isKing = (pieceLoc[selectedSquare[0]][selectedSquare[1]].king);
+    if (color === "black") {
+        if (selectedSquare[0] + 1 === row || (isKing && abs(selectedSquare[1] - col) === 1)
+            && abs(selectedSquare[1] - col) === 1
+            && pieceLoc[row][col] === null
+        ) {return true}
+
+    } else if (color === "red") {
+        if (selectedSquare[0] - 1 === row || (isKing && abs(selectedSquare[1] - col) === 1)
+            && abs(selectedSquare[1] - col) === 1
+            && pieceLoc[row][col] === null
+        ) {return true}
+
+    }
+    return false;
+}
+
 //STILL TO DO:
 // double jumping
-// Taking turns
-// Converting to kings
 // Win condition
+// Take Jumping out into its own function
