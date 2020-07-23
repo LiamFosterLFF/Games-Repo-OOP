@@ -7,20 +7,21 @@ const enemyEdges = {"x": {"max": 0, "min": 0}, "y": {max: 0, min: 0}};
 const enemySpeed = {"x": 10, "y":50};
 let bullet = null;
 const offset = {"x": 70, "y": 150};
-
+const cover = [];
 function setup() {
     createCanvas(screenSize.width, screenSize.height);
     initializeEnemies();
+    initializeCover();
 }
 
 function draw() {
-    frameRate(25)
+    frameRate()
     drawBoard();
     drawCover();
     drawShip();
     moveShip();
     drawEnemies();
-    moveEnemies();
+    // moveEnemies();
     shoot();
 }
 
@@ -30,10 +31,53 @@ function drawBoard() {
     background(0);
 }
 
-function drawCover() {
+function initializeCover() {
     for (let i = 0; i < 4; i++) {
-        fill(86, 252, 3);
-        rect(50 + i*(width/4), height-100, 80, 40);
+        const block = [];
+        for (let j = 0; j < 100; j++) {
+            const line = [];
+            for (let k = 0; k < 3; k++) {
+                line.push(new Cover(50 + i*(width/4)+j, height-(100+k*20), 50 + i*(width/4)+j, height-(80+k*20)));
+            }
+            block.push(line)
+        }
+        cover.push(block)
+    }
+}
+
+function drawCover() {
+    strokeWeight(1)
+    for (let block = 0; block < cover.length; block++) {
+        for (let ln = 0; ln < cover[block].length; ln++) {
+            for (let row = 0; row < cover[block][ln].length; row++) {
+                
+                const bit = cover[block][ln][row];
+                if (detectCollisionCover(bit)) {
+                    cover[block][ln][row].blown = true;
+                    for (let i = 0; i < 4; i++) {
+                        cover[block][ln+i][row].blown = true;
+                        cover[block][ln+i][row].blown = true;      
+                    }
+                    bullet = null;
+                } else if (cover[block][ln][row].blown === true) {
+
+                } else {
+                    stroke(86, 252, 3);
+                    line(bit.x1, bit.y1, bit.x2, bit.y2)
+                }
+                
+            }
+        }
+    }
+    noStroke();
+
+    function detectCollisionCover(bit) {
+        if (
+            bullet !== null && bit.blown !== true
+            && bullet.x >= bit.x1 && bullet.x <= bit.x2
+            && bullet.y >= bit.y1 && bullet.y <= bit.y2
+        ) {return true}
+        return false
     }
 }
 
@@ -87,6 +131,14 @@ function Enemy(x, y) {
     this.dead = false;
 }
 
+function Cover(x1, y1, x2, y2) {
+    this.x1 = x1;
+    this.y1 = y1;
+    this.x2 = x2;
+    this.y2 = y2;
+    this.blown = false;
+}
+
 function drawEnemies() {
     enemyEdges.x.min = offset.x;
     enemyEdges.x.max = offset.x;
@@ -130,6 +182,8 @@ function detectCollision(enemy) {
     return false
 }
 
+
+
 function advanceEnemiesY() {
     for (let row = 0; row < enemyPositions.length; row++) {
         for (let col = 0; col < enemyPositions[row].length; col++) {
@@ -154,7 +208,7 @@ function shoot() {
     }
 
     if (bullet !== null) {
-        bullet.y -= 25;
+        bullet.y -= bullet.speed;
             
         // frameRate(25);
         strokeWeight(5);
@@ -176,8 +230,10 @@ function launchBullet() {
 function Bullet(x, y) {
     this.x = x;
     this.y = y;
+    this.speed = 10;
 }
 
 
-// Bullet hits a ship, ship blows up
 // Bullet hits a wall, wall takes a chunk out of itself
+// Enemies fire bullets
+// Keep Score
