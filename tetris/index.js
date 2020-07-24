@@ -56,7 +56,7 @@ function drawScreen() {
     function drawPiece() {
         if (piece === null) {
             const pieceTypes = ["I", "J", "L", "O", "S", "Z"]
-            piece = new Piece(pieceTypes[floor(random(pieceTypes.length))]);
+            piece = new Piece(pieceTypes[floor(random()*pieceTypes.length)]);
         }
         console.log(piece.shape);
         for (let row = 0; row < piece.shape.length; row++) {
@@ -83,7 +83,15 @@ function Block() {
 }
 
 function Piece(type) {
-    this.color = "#f5603d";
+    this.colors = {
+        I: "#00faff",
+        J: "#074afd",
+        L: "#24f22f",
+        O: "#fff727",
+        S: "#954ff6",
+        Z: "#f5603d"
+    };
+    this.color = this.colors[type]
     this.x = 4;
     this.y = 0;
 
