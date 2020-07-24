@@ -8,6 +8,8 @@ const enemySpeed = {"x": 10, "y":50};
 let bullet = null;
 const offset = {"x": 70, "y": 150};
 const cover = [];
+const enemyBullets = [];
+
 function setup() {
     createCanvas(screenSize.width, screenSize.height);
     initializeEnemies();
@@ -21,7 +23,7 @@ function draw() {
     drawShip();
     moveShip();
     drawEnemies();
-    // moveEnemies();
+    moveEnemies();
     shoot();
 }
 
@@ -173,6 +175,10 @@ function drawEnemies() {
 
 }
 
+function launchEnemyBullet() {
+
+}
+
 function detectCollision(enemy) {
     if (
         bullet !== null && enemy.dead !== true
@@ -234,6 +240,6 @@ function Bullet(x, y) {
 }
 
 
-// Bullet hits a wall, wall takes a chunk out of itself
 // Enemies fire bullets
 // Keep Score
+// Clean up functions
