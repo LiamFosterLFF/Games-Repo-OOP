@@ -57,6 +57,7 @@ function drawScreen() {
         if (piece === null) {
             piece = new Piece();
         }
+        console.log(piece.shape);
         for (let row = 0; row < piece.shape.length; row++) {
             for (let col = 0; col < piece.shape[row].length; col++) {
                 const square = piece.shape[row][col]
@@ -86,19 +87,33 @@ function Piece() {
     this.y = 0;
     this.w = 3;
     this.h = 3;
-    this.shape = [[true, true, false], [false, true, true], [false, false, false]];
+    this.shapeNo = 0;
+    this.spinShapes = [
+        [[true, true, false], [false, true, true], [false, false, false]], 
+        [[false, false, true], [false, true, true], [false, true, false]]
+    ];
+
+    this.shape = this.spinShapes[this.shapeNo];
+
+    this.spin = function() {
+        this.shapeNo = (this.shapeNo + 1)% (Object.keys(this.spinShapes).length);
+        this.shape = this.spinShapes[this.shapeNo];
+    }
+
 }
 
 
 
-// function gravityDrop() {
-//     dot.y += gravity;
-// }
+// Add ability to spin pieces
 
-// function keyPressed() {
-//     if (keyIsDown(LEFT_ARROW)) {
-//         dot.x -= dot.w;
-//     } else if (keyIsDown(RIGHT_ARROW)) {
-//         dot.x += dot.w;
-//     }
-// }
+function keyPressed() {
+    // if (keyIsDown(LEFT_ARROW)) {
+    //     dot.x -= dot.w;
+    // } else if (keyIsDown(RIGHT_ARROW)) {
+    //     dot.x += dot.w;
+    // }
+    if (keyIsDown(32)) {
+        piece.spin();
+        drawScreen();
+    }
+}
