@@ -55,7 +55,8 @@ function drawScreen() {
 
     function drawPiece() {
         if (piece === null) {
-            piece = new Piece();
+            const pieceTypes = ["I", "J", "L", "O", "S", "Z"]
+            piece = new Piece(pieceTypes[floor(random(pieceTypes.length))]);
         }
         console.log(piece.shape);
         for (let row = 0; row < piece.shape.length; row++) {
@@ -81,23 +82,48 @@ function Block() {
     this.h = blockDims.h;
 }
 
-function Piece() {
+function Piece(type) {
     this.color = "#f5603d";
     this.x = 4;
     this.y = 0;
-    this.w = 3;
-    this.h = 3;
+
     this.shapeNo = 0;
-    this.spinShapes = [
-        [[true, true, false], [false, true, true], [false, false, false]], 
-        [[false, false, true], [false, true, true], [false, true, false]]
-    ];
+    this.spinShapes = {
+        I: [
+            [[false, false, false, false], [false, false, false, false], [true, true, true, true], [false, false, false, false]],
+            [[false, false, true, false], [false, false, true, false], [false, false, true, false], [false, false, true, false]]
+        ],
+        J: [
+            [[false, false, false], [true, true, true], [false, false, true]],
+            [[false, true, false], [false, true, false], [true, true, false]],
+            [[true, false, false], [true, true, true], [false, false, false]],
+            [[false, true, true], [false, true, false], [false, true, false]]
+        ],
+        L: [
+            [[false, false, false], [true, true, true], [true, false, false]],
+            [[true, true, false], [false, true, false], [false, true, false]],
+            [[false, false, true], [true, true, true], [false, false, false]],
+            [[false, true, false], [false, true, false], [false, true, true]]
+        ],
+        O: [
+            [[true, true], [true, true]]
+        ],
+        S: [
+            [[false, true, true], [true, true, false], [false, false, false]], 
+            [[false, true, false], [false, true, true], [false, false, true]]
+        ],
+        Z: [
+            [[true, true, false], [false, true, true], [false, false, false]], 
+            [[false, false, true], [false, true, true], [false, true, false]]
+        ]
+    };
 
-    this.shape = this.spinShapes[this.shapeNo];
-
+    this.shape = this.spinShapes[type][this.shapeNo];
+    this.w = this.shape[0].length;
+    this.h = this.shape.length;
     this.spin = function() {
-        this.shapeNo = (this.shapeNo + 1)% (Object.keys(this.spinShapes).length);
-        this.shape = this.spinShapes[this.shapeNo];
+        this.shapeNo = (this.shapeNo + 1)% (Object.keys(this.spinShapes[type]).length);
+        this.shape = this.spinShapes[type][this.shapeNo];
     }
 
 }
