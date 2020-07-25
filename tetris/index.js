@@ -185,9 +185,9 @@ function Piece(type) {
 
 
 function keyPressed() {
-    if (keyIsDown(LEFT_ARROW) && piece.x > 0) {
+    if (keyIsDown(LEFT_ARROW) && canMoveLeft()) {
         piece.x -= 1;
-    } else if (keyIsDown(RIGHT_ARROW) && piece.x + piece.w < 10) {
+    } else if (keyIsDown(RIGHT_ARROW) && canMoveRight()) {
         piece.x += 1;
     }
     if (keyIsDown(32)) {
@@ -196,15 +196,38 @@ function keyPressed() {
     drawScreen();
 
     function canMoveLeft() {
-        if (piece.x > 0) {
-            return true;
-        }
         for (let row = 0; row < piece.shape.length; row++) {
-            const squareIsSolid = (piece.shape[row][0] === true);
-            if (squareIsSolid) {
+            for (let col = 0; col < piece.shape[row].length; col++) {
+                const squareIsSolid = (piece.shape[row][col] === true);
+                if (squareIsSolid) {
+                    if (piece.x + col -1 < 0) {
+                        return false;
+                    }
+                    if (blockMap[piece.y+row][piece.x+col-1] !== null) {
+                        return false;
+                    }
+                }
             }
         }
-        return false;
+        return true;
+    }
+
+    function canMoveRight() {
+        for (let row = 0; row < piece.shape.length; row++) {
+            for (let col = 0; col < piece.shape[row].length; col++) {
+                const squareIsSolid = (piece.shape[row][col] === true);
+                if (squareIsSolid) {
+                    if (piece.x + col + 1 > 10) {
+                        console.log("Right Wall");
+                        return false;
+                    }
+                    if (blockMap[piece.y+row][piece.x+col+1] !== null) {
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
     }
 }
 
