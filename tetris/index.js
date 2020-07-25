@@ -185,20 +185,32 @@ function Piece(type) {
 
 
 function keyPressed() {
-    if (keyIsDown(LEFT_ARROW)) {
+    if (keyIsDown(LEFT_ARROW) && piece.x > 0) {
         piece.x -= 1;
-    } else if (keyIsDown(RIGHT_ARROW)) {
+    } else if (keyIsDown(RIGHT_ARROW) && piece.x + piece.w < 10) {
         piece.x += 1;
     }
     if (keyIsDown(32)) {
         piece.spin();
     }
     drawScreen();
+
+    function canMoveLeft() {
+        if (piece.x > 0) {
+            return true;
+        }
+        for (let row = 0; row < piece.shape.length; row++) {
+            const squareIsSolid = (piece.shape[row][0] === true);
+            if (squareIsSolid) {
+            }
+        }
+        return false;
+    }
 }
 
 
-// PIeces can't go below bottom row
-// Pieces fit into space based on lowest piece hung on sth
+// Pieces can't go over sides
+// Pieces can't bump against each other
 // Next piece shows up in a preview spot
 // Can move/drop pieces by pressing down, double drop to place now
 // If row is full, empty pieces
