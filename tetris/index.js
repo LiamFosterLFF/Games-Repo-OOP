@@ -199,6 +199,8 @@ function keyPressed() {
         piece.x -= 1;
     } else if (keyIsDown(RIGHT_ARROW) && canMoveRight()) {
         piece.x += 1;
+    } else if (keyIsDown(DOWN_ARROW)) {
+        piece.y += 1;
     }
     if (keyIsDown(32) && canSpin()) {
         piece.spin();
