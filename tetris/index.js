@@ -3,7 +3,7 @@ const dims = {x: 600, y: 800}
 const screen = {x: dims.x/4, y: dims.y/7, w: dims.x/2, h: dims.y *(3/4)};
 const blockDims = {w: screen.w/10, h: screen.h/20};
 var piece = null;
-let gameSpeed = 1000;
+let gameSpeed = 500;
 const blockMap = new Array(20).fill(null).map((row) => new Array(10).fill(null))
 
 function setup() {
@@ -27,23 +27,25 @@ function gravity() {
 
 
 function draw() {
-    frameRate(1);
     drawScreen();
 
-    // drawPiece();
-    // gravityDrop();
+
 }
 
 
 
 
 function drawScreen() {
+    clear();
     background("#d8d1cf");
     fill(0);
     rect(screen.x, screen.y, screen.w, screen.h);
     drawGrid();
     drawBlocks();
     drawPiece();
+    if (pieceLanded()) {
+        addPieceToBlocks();
+    }
 
     function drawGrid() {
         for (let row = 0; row < 20; row++) {
@@ -61,12 +63,10 @@ function drawScreen() {
             for (let col = 0; col < blockMap[row].length; col++) {
                 const block = blockMap[row][col]
                 if (block !== null) {
-                    fill(block.color)
-                    rect(screen.x + row*block.w, screen.y + col*block.h, block.w, block.h)
+                    fill(block.color);
+                    rect(screen.x + col*block.w, screen.y + row*block.h, block.w, block.h);
                 }
-                
             }
-            
         }
     }
 
@@ -81,18 +81,49 @@ function drawScreen() {
                 }
             }
         }
+        
+    }
 
-        if (piece.y + piece.h >= 20) {
-            blockMap[piece.y][piece.x] = new Block()
+    function pieceLanded() {
+        for (let row = 0; row < piece.shape.length; row++) {
+            for (let col = 0; col < piece.shape[row].length; col++) {
+                const invertedRow = piece.shape.length - row - 1;
+                const squareIsSolid = (piece.shape[invertedRow][col] === true);
+                if (squareIsSolid) {
+                    const rowBelow = piece.y + invertedRow + 1;
+                    if (rowBelow > 19) {
+                        return true;
+                    } else {
+                        const squareBelow = blockMap[rowBelow][piece.x + col]
+                        const areaBelowSquareIsSolid = (squareBelow !== null)
+                        if (areaBelowSquareIsSolid) {
+                            return true;
+                        }
+
+                    }
+                }
+            }
         }
+        return false
+    }
+
+    function addPieceToBlocks() {
+        for (let row = 0; row < piece.shape.length; row++) {
+            for (let col = 0; col < piece.shape[row].length; col++) {
+                if (piece.shape[row][col] === true) {
+                    blockMap[piece.y + row][piece.x + col] = new Block(piece.color);
+                }
+            }
+        }
+        createPiece();
     }
 
 }
 
 
 
-function Block() {
-    this.color = "#f5603d";
+function Block(color) {
+    this.color = color;
     this.w = blockDims.w;
     this.h = blockDims.h;
 }
@@ -168,7 +199,6 @@ function keyPressed() {
 
 // PIeces can't go below bottom row
 // Pieces fit into space based on lowest piece hung on sth
-// Pieces drop 1 row /s, increasing speed as time goes on
 // Next piece shows up in a preview spot
 // Can move/drop pieces by pressing down, double drop to place now
 // If row is full, empty pieces
@@ -176,3 +206,4 @@ function keyPressed() {
 // GAme over, both points and liness
 // Can hold a piece
 // Predictive dropping
+// Pieces speed up over time
