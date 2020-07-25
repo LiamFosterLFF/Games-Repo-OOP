@@ -5,6 +5,7 @@ const blockDims = {w: screen.w/10, h: screen.h/20};
 var piece = null;
 var previewPiece = null;
 let gameSpeed = 500;
+let gameOver = false;
 const blockMap = new Array(20).fill(null).map((row) => new Array(10).fill(null))
 
 function setup() {
@@ -38,7 +39,9 @@ function gravity() {
 
 
 function draw() {
-    drawScreen();
+    if (!gameOver) {
+        drawScreen();
+    }
 
 
 }
@@ -124,11 +127,16 @@ function drawScreen() {
             for (let col = 0; col < piece.shape[row].length; col++) {
                 const square = piece.shape[row][col]
                 if (square === true) {
+                    if (blockMap[piece.y+row][piece.x+col] !== null) {
+                        gameOver = true;
+                    };
                     fill(piece.color)
                     rect(screen.x + (col+piece.x)*blockDims.w, screen.y + (row+piece.y)*blockDims.h, screen.w/10, screen.h/20)
                 }
             }
         }
+
+
         
     }
 
