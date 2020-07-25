@@ -58,6 +58,7 @@ function drawScreen() {
     if (pieceLanded()) {
         addPieceToBlocks();
     }
+    checkBlocksForLines();
 
 
     function drawPreviewBoxAndScreen() {
@@ -172,6 +173,24 @@ function drawScreen() {
             }
         }
     updatePiece();
+    }
+
+    function checkBlocksForLines() {
+        for (let row = 0; row < blockMap.length; row++) {
+            if(rowFull(blockMap[row])) {
+                blockMap.splice(row, 1);
+                blockMap.unshift(new Array(10).fill(null))
+            }
+        }
+
+        function rowFull(row) {
+            for (let col = 0; col < row.length; col++) {
+                if (row[col] === null) {
+                    return false;
+                }
+            }
+            return true;
+        }
     }
 
 }
@@ -315,11 +334,11 @@ function keyPressed() {
 }
 
 
-// Next piece shows up in a preview spot
-// Can drop pieces by holding down, double drop to place now
-// If row is full, empty pieces
-// Keep score
-// GAme over, both points and liness
-// Can hold a piece
+// Can drop pieces fast by holding down, double drop to place now
+//          Dropping pieces also can shift down into illegal territory (add a checkfunction)
+//      Add a pause before committing the piece to its final destination
 // Predictive dropping
+// Keep score
+// Can hold a piece
 // Pieces speed up over time
+// 
