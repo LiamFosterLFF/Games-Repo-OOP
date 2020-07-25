@@ -129,6 +129,7 @@ function Block(color) {
 }
 
 function Piece(type) {
+    this.type = type;
     this.colors = {
         I: "#00faff",
         J: "#074afd",
@@ -172,12 +173,21 @@ function Piece(type) {
         ]
     };
 
-    this.shape = this.spinShapes[type][this.shapeNo];
+    this.shape = this.spinShapes[this.type][this.shapeNo];
     this.w = this.shape[0].length;
     this.h = this.shape.length;
+
     this.spin = function() {
-        this.shapeNo = (this.shapeNo + 1)% (Object.keys(this.spinShapes[type]).length);
-        this.shape = this.spinShapes[type][this.shapeNo];
+        this.shape = this.getNextSpinShape();
+        this.shapeNo = this.getNextShapeNo();
+    }
+    this.getNextSpinShape = function() {
+        const nextShapeNo = this.getNextShapeNo();
+        return this.spinShapes[type][nextShapeNo];
+    }
+
+    this.getNextShapeNo = function() {
+        return ((this.shapeNo + 1) % (Object.keys(this.spinShapes[type]).length));
     }
 
 }
@@ -190,7 +200,7 @@ function keyPressed() {
     } else if (keyIsDown(RIGHT_ARROW) && canMoveRight()) {
         piece.x += 1;
     }
-    if (keyIsDown(32)) {
+    if (keyIsDown(32) && canSpin()) {
         piece.spin();
     }
     drawScreen();
@@ -229,11 +239,25 @@ function keyPressed() {
         }
         return true;
     }
+
+    function canSpin() {
+        const nextShape = piece.getNextSpinShape();
+        for (let row = 0; row < nextShape.length; row++) {
+            for (let col = 0; col < nextShape[row].length; col++) {
+                const squareIsSolid = (nextShape[row][col] === true);
+                if (squareIsSolid) {
+                    if (blockMap[piece.y+row][piece.x+col] !== null) {
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
+    }
 }
 
 
-// Pieces can't go over sides
-// Pieces can't bump against each other
+// Pieces can't spin if blocked
 // Next piece shows up in a preview spot
 // Can move/drop pieces by pressing down, double drop to place now
 // If row is full, empty pieces
