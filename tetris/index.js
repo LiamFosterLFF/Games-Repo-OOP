@@ -3,18 +3,29 @@ const dims = {x: 600, y: 800}
 const screen = {x: dims.x/4, y: dims.y/7, w: dims.x/2, h: dims.y *(3/4)};
 const blockDims = {w: screen.w/10, h: screen.h/20};
 var piece = null;
+var previewPiece = null;
 let gameSpeed = 500;
 const blockMap = new Array(20).fill(null).map((row) => new Array(10).fill(null))
 
 function setup() {
     createCanvas(dims.x, dims.y);
-    createPiece();
+    initializePieces();
     gravity();
 }
 
 function createPiece() {
-    const pieceTypes = ["I", "J", "L", "O", "S", "Z"]
-    piece = new Piece(pieceTypes[floor(random()*pieceTypes.length)]);
+    const pieceTypes = ["I", "J", "L", "O", "S", "Z"];
+    return new Piece(pieceTypes[floor(random()*pieceTypes.length)]);
+}
+
+function initializePieces() {
+    previewPiece = createPiece();
+    piece = createPiece();
+}
+
+function updatePiece() {
+    piece = previewPiece;
+    previewPiece = createPiece();
 }
 
 function gravity() {
@@ -37,14 +48,51 @@ function draw() {
 
 function drawScreen() {
     clear();
-    background("#d8d1cf");
-    fill(0);
-    rect(screen.x, screen.y, screen.w, screen.h);
+    drawPreviewBoxAndScreen();
     drawGrid();
     drawBlocks();
     drawPiece();
     if (pieceLanded()) {
         addPieceToBlocks();
+    }
+
+
+    function drawPreviewBoxAndScreen() {
+        const previewBox = {x: 3*dims.x/4 + 20, y: 1*dims.y/7, w: blockDims.w*4, h: blockDims.h*4}
+        drawBackdrop();
+        drawPreviewBoxGrid();
+        drawPreviewPiece();
+
+        function drawBackdrop() {
+            background("#d8d1cf");
+            fill(0);
+            rect(screen.x, screen.y, screen.w, screen.h);
+        }
+
+        function drawPreviewBoxGrid() {
+            rect(previewBox.x, previewBox.y, previewBox.w, previewBox.h);
+            for (let row = 0; row < 5; row++) {
+                stroke("#5c5858");
+                line(previewBox.x, previewBox.y + row*blockDims.h, previewBox.x + previewBox.w, previewBox.y + row*blockDims.h);
+            }
+            for (let col = 0; col < 5; col++) {
+                stroke("#5c5858");
+                line(previewBox.x + col*blockDims.w, previewBox.y, previewBox.x + col*blockDims.w, previewBox.y + previewBox.h);
+            }
+        }
+
+        function drawPreviewPiece() {
+            for (let row = 0; row < previewPiece.shape.length; row++) {
+                for (let col = 0; col < previewPiece.shape[row].length; col++) {
+                    const square = previewPiece.shape[row][col]
+                    if (square === true) {
+                        fill(previewPiece.color)
+                        rect(previewBox.x + (col)*blockDims.w, previewBox.y + (row)*blockDims.h, blockDims.w, blockDims.h)
+                    }
+                }
+            }
+            
+        }
     }
 
     function drawGrid() {
@@ -115,7 +163,7 @@ function drawScreen() {
                 }
             }
         }
-        createPiece();
+    updatePiece();
     }
 
 }
@@ -259,9 +307,8 @@ function keyPressed() {
 }
 
 
-// Pieces can't spin if blocked
 // Next piece shows up in a preview spot
-// Can move/drop pieces by pressing down, double drop to place now
+// Can drop pieces by holding down, double drop to place now
 // If row is full, empty pieces
 // Keep score
 // GAme over, both points and liness
