@@ -7,6 +7,7 @@ var previewPiece = null;
 let gameSpeed = 500;
 let gameOver = false;
 const blockMap = new Array(20).fill(null).map((row) => new Array(10).fill(null))
+let score = 0;
 
 function setup() {
     createCanvas(dims.x, dims.y);
@@ -53,6 +54,7 @@ function drawScreen() {
     clear();
     drawPreviewBoxAndScreen();
     drawGrid();
+    displayScore();
     drawBlocks();
     drawPiece();
     if (pieceLanded()) {
@@ -108,6 +110,13 @@ function drawScreen() {
             stroke("#5c5858");
             line(col*screen.w/10 + screen.x, screen.y, col*screen.w/10 + screen.x, screen.y+screen.h);
         }
+    }
+
+    function displayScore() {
+        fill(0);
+        stroke(0);
+        textSize(32);
+        text(`Score: ${score}`, width*13/32, height/8)
     }
 
     function drawBlocks() {
@@ -176,12 +185,16 @@ function drawScreen() {
     }
 
     function checkBlocksForLines() {
+        let lineCounter = 0;
+        const lineScores = [0, 40, 100, 300, 1200];
         for (let row = 0; row < blockMap.length; row++) {
             if(rowFull(blockMap[row])) {
                 blockMap.splice(row, 1);
                 blockMap.unshift(new Array(10).fill(null))
+                lineCounter++;
             }
         }
+        score += lineScores[lineCounter]
 
         function rowFull(row) {
             for (let col = 0; col < row.length; col++) {
@@ -339,6 +352,7 @@ function keyPressed() {
 //      Add a pause before committing the piece to its final destination
 // Predictive dropping
 // Keep score
+// Increase levels
 // Can hold a piece
 // Pieces speed up over time
 // 
