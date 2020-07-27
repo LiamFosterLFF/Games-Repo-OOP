@@ -4,6 +4,7 @@ const screen = {x: dims.x/4, y: dims.y/7, w: dims.x/2, h: dims.y *(3/4)};
 const blockDims = {w: screen.w/10, h: screen.h/20};
 var piece = null;
 var previewPiece = null;
+var heldPiece = null;
 let gameSpeed = 500;
 let gameOver = false;
 const blockMap = new Array(20).fill(null).map((row) => new Array(10).fill(null))
@@ -43,16 +44,13 @@ function draw() {
     if (!gameOver) {
         drawScreen();
     }
-
-
 }
-
-
 
 
 function drawScreen() {
     clear();
-    drawPreviewBoxAndScreen();
+    drawBackdrop();
+    drawPreviewBoxAndHoldingBox();
     drawGrid();
     displayScore();
     drawBlocks();
@@ -62,38 +60,43 @@ function drawScreen() {
     }
     checkBlocksForLines();
 
+    function drawBackdrop() {
+        background("#d8d1cf");
+        fill(0);
+        rect(screen.x, screen.y, screen.w, screen.h);
+    }
 
-    function drawPreviewBoxAndScreen() {
-        const previewBox = {x: 3*dims.x/4 + 20, y: 1*dims.y/7, w: blockDims.w*4, h: blockDims.h*4}
-        drawBackdrop();
-        drawPreviewBoxGrid();
-        drawPreviewPiece();
-
-        function drawBackdrop() {
-            background("#d8d1cf");
-            fill(0);
-            rect(screen.x, screen.y, screen.w, screen.h);
+    function drawPreviewBoxAndHoldingBox() {
+        const previewBox = {x: 3*dims.x/4 + 20, y: 1*dims.y/7, w: blockDims.w*4, h: blockDims.h*4};
+        const holdingBox = {x: 10, y: 1*dims.y/7, w: blockDims.w*4, h: blockDims.h*4};
+        drawBoxGrid(previewBox);
+        drawBoxGrid(holdingBox);
+        drawBoxPiece(previewBox, previewPiece);
+        if (heldPiece !== null) {
+            drawBoxPiece(holdingBox, heldPiece);
         }
 
-        function drawPreviewBoxGrid() {
-            rect(previewBox.x, previewBox.y, previewBox.w, previewBox.h);
+        
+
+        function drawBoxGrid(box) {
+            rect(box.x, box.y, box.w, box.h);
             for (let row = 0; row < 5; row++) {
                 stroke("#5c5858");
-                line(previewBox.x, previewBox.y + row*blockDims.h, previewBox.x + previewBox.w, previewBox.y + row*blockDims.h);
+                line(box.x, box.y + row*blockDims.h, box.x + box.w, box.y + row*blockDims.h);
             }
             for (let col = 0; col < 5; col++) {
                 stroke("#5c5858");
-                line(previewBox.x + col*blockDims.w, previewBox.y, previewBox.x + col*blockDims.w, previewBox.y + previewBox.h);
+                line(box.x + col*blockDims.w, box.y, box.x + col*blockDims.w, box.y + box.h);
             }
         }
 
-        function drawPreviewPiece() {
-            for (let row = 0; row < previewPiece.shape.length; row++) {
-                for (let col = 0; col < previewPiece.shape[row].length; col++) {
-                    const square = previewPiece.shape[row][col]
+        function drawBoxPiece(box, piece) {
+            for (let row = 0; row < piece.shape.length; row++) {
+                for (let col = 0; col < piece.shape[row].length; col++) {
+                    const square = piece.shape[row][col]
                     if (square === true) {
-                        fill(previewPiece.color)
-                        rect(previewBox.x + (col)*blockDims.w, previewBox.y + (row)*blockDims.h, blockDims.w, blockDims.h)
+                        fill(piece.color)
+                        rect(box.x + (col)*blockDims.w, box.y + (row)*blockDims.h, blockDims.w, blockDims.h)
                     }
                 }
             }
@@ -293,6 +296,11 @@ function keyPressed() {
     if (keyIsDown(32) && canSpin()) {
         piece.spin();
     }
+
+    if (keyIsDown(16)) {
+        handleHeldPiece();
+    }
+
     drawScreen();
 
     function canMoveLeft() {
@@ -344,6 +352,16 @@ function keyPressed() {
         }
         return true;
     }
+
+    function handleHeldPiece() {
+        if (heldPiece === null) {
+            heldPiece = previewPiece;
+            previewPiece = createPiece();
+        } else {
+            previewPiece = heldPiece;
+            heldPiece = null;
+        }
+    }
 }
 
 
@@ -353,6 +371,5 @@ function keyPressed() {
 // Predictive dropping
 // Keep score
 // Increase levels
-// Can hold a piece
 // Pieces speed up over time
 // 
