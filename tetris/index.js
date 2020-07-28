@@ -1,8 +1,9 @@
 var cnv;
 const dims = {x: 600, y: 800}
 const screen = {x: dims.x/4, y: dims.y/7, w: dims.x/2, h: dims.y *(3/4)};
-const blockDims = {w: screen.w/10, h: screen.h/20};
-var piece = null;
+const gridDims = {w: 10, h: 20};
+const blockDims = {w: screen.w/gridDims.w, h: screen.h/gridDims.h};
+var currentPiece = null;
 var previewPiece = null;
 var heldPiece = null;
 let gameSpeed = 500;
@@ -26,12 +27,12 @@ const design = {
         textSize: 32
     },
     pieces: {
-    I: "#00faff",
-    J: "#074afd",
-    L: "#24f22f",
-    O: "#fff727",
-    S: "#954ff6",
-    Z: "#f5603d"
+    I: "rgba(0,250,255, .5)",
+    J: "rgb(7,74,253)",
+    L: "rgb(36,242,47)",
+    O: "rgb(255,247,39)",
+    S: "rgb(149,79,246)",
+    Z: "rgb(245,96,61)"
     }
 }
 
@@ -48,11 +49,11 @@ function createPiece() {
 
 function initializePieces() {
     previewPiece = createPiece();
-    piece = createPiece();
+    currentPiece = createPiece();
 }
 
 function updatePiece() {
-    piece = previewPiece;
+    currentPiece = previewPiece;
     previewPiece = createPiece();
 }
 
@@ -60,13 +61,18 @@ function gravity() {
     setInterval(dropPiece, gameSpeed)
 
     function dropPiece() {
-        piece.y += 1;
+        currentPiece.y += 1;
     }
+}
+
+function rgbToRgba(color) {
+    const colorPercents = color.split("(")[1].split(")")[0]
+    return `rgba(${colorPercents},0.5)`
 }
 
 function arrowMovement() {
     if (keyIsDown(DOWN_ARROW)) {
-        piece.y += 1;
+        currentPiece.y += 1;
     }
 }
 
@@ -85,9 +91,10 @@ function drawScreen() {
     drawGrid();
     displayScore();
     drawBlocks();
-    drawPiece();
-    if (pieceLanded()) {
-        addPieceToBlocks();
+    drawPiece(currentPiece);
+    drawProjectedPiece(currentPiece);
+    if (pieceLanded(currentPiece)) {
+        addPieceToBlocks(currentPiece);
     }
     checkBlocksForLines();
     arrowMovement();
@@ -168,7 +175,8 @@ function drawScreen() {
         }
     }
 
-    function drawPiece() {
+
+    function drawPiece(piece) {
         
         for (let row = 0; row < piece.shape.length; row++) {
             for (let col = 0; col < piece.shape[row].length; col++) {
@@ -177,6 +185,7 @@ function drawScreen() {
                     if (blockMap[piece.y+row][piece.x+col] !== null) {
                         gameOver = true;
                     };
+                    console.log(piece.color);
                     fill(piece.color)
                     rect(screen.x + (col+piece.x)*blockDims.w, screen.y + (row+piece.y)*blockDims.h, screen.w/10, screen.h/20)
                 }
@@ -187,7 +196,25 @@ function drawScreen() {
         
     }
 
-    function pieceLanded() {
+    function drawProjectedPiece(piece) {
+        const remainingYBlocks = (gridDims.h - (piece.y+piece.h))
+        var projectedPiece = Object.assign({}, piece);
+        projectedPiece.color = rgbToRgba(piece.color);
+        console.log(projectedPiece.color);
+        for (let i = 0; i < remainingYBlocks + 1; i++) {
+            if (pieceLanded(projectedPiece)) {
+                drawPiece(projectedPiece)
+            } else {
+                projectedPiece.y += 1
+            }
+            
+        }
+    }
+
+
+
+
+    function pieceLanded(piece) {
         for (let row = 0; row < piece.shape.length; row++) {
             for (let col = 0; col < piece.shape[row].length; col++) {
                 const invertedRow = piece.shape.length - row - 1;
@@ -210,7 +237,7 @@ function drawScreen() {
         return false
     }
 
-    function addPieceToBlocks() {
+    function addPieceToBlocks(piece) {
         for (let row = 0; row < piece.shape.length; row++) {
             for (let col = 0; col < piece.shape[row].length; col++) {
                 if (piece.shape[row][col] === true) {
@@ -313,14 +340,14 @@ function Piece(type) {
 
 
 function keyPressed() {
-    if (keyIsDown(LEFT_ARROW) && canMoveLeft()) {
-        piece.x -= 1;
+    if (keyIsDown(LEFT_ARROW) && canMoveLeft(currentPiece)) {
+        currentPiece.x -= 1;
     }
-    if (keyIsDown(RIGHT_ARROW) && canMoveRight()) {
-        piece.x += 1;
+    if (keyIsDown(RIGHT_ARROW) && canMoveRight(currentPiece)) {
+        currentPiece.x += 1;
     }
-    if (keyIsDown(UP_ARROW) && canSpin()) {
-        piece.spin();
+    if (keyIsDown(UP_ARROW) && canSpin(currentPiece)) {
+        currentPiece.spin();
     }
     if (keyIsDown(16)) {
         handleHeldPiece();
@@ -328,7 +355,7 @@ function keyPressed() {
 
     drawScreen();
 
-    function canMoveLeft() {
+    function canMoveLeft(piece) {
         for (let row = 0; row < piece.shape.length; row++) {
             for (let col = 0; col < piece.shape[row].length; col++) {
                 const squareIsSolid = (piece.shape[row][col] === true);
@@ -345,7 +372,7 @@ function keyPressed() {
         return true;
     }
 
-    function canMoveRight() {
+    function canMoveRight(piece) {
         for (let row = 0; row < piece.shape.length; row++) {
             for (let col = 0; col < piece.shape[row].length; col++) {
                 const squareIsSolid = (piece.shape[row][col] === true);
@@ -362,7 +389,7 @@ function keyPressed() {
         }
         return true;
     }
-    function canSpin() {
+    function canSpin(piece) {
         const nextShape = piece.getNextSpinShape();
         for (let row = 0; row < nextShape.length; row++) {
             for (let col = 0; col < nextShape[row].length; col++) {
