@@ -9,6 +9,23 @@ let gameSpeed = 500;
 let gameOver = false;
 const blockMap = new Array(20).fill(null).map((row) => new Array(10).fill(null))
 let score = 0;
+const colors = {
+    background: "#d8d1cf", 
+    gridLines: "#5c5858", 
+    screenOutline: "#98a0a0",
+    screenFill: 255, 
+    boxOutline: "#98a0a0", 
+    boxFill: 255, 
+    score: {fill: 0, stroke: 0},
+    pieces: {
+    I: "#00faff",
+    J: "#074afd",
+    L: "#24f22f",
+    O: "#fff727",
+    S: "#954ff6",
+    Z: "#f5603d"
+    }
+}
 
 function setup() {
     createCanvas(dims.x, dims.y);
@@ -74,10 +91,10 @@ function drawScreen() {
 
 
     function drawBackdrop() {
-        background("#d8d1cf");
+        background(colors.background);
         strokeWeight(8);
-        stroke(152,160,160);
-        fill(255);
+        stroke(colors.screenOutline);
+        fill(colors.screenFill);
         rect(screen.x, screen.y, screen.w, screen.h);
         noStroke();
     }
@@ -85,8 +102,8 @@ function drawScreen() {
     function drawPreviewBoxAndHoldingBox() {
         const previewBox = {x: 3*dims.x/4 + 20, y: 1*dims.y/7, w: blockDims.w*4, h: blockDims.h*4};
         const holdingBox = {x: 10, y: 1*dims.y/7, w: blockDims.w*4, h: blockDims.h*4};
-        drawBoxGrid(previewBox);
-        drawBoxGrid(holdingBox);
+        drawBox(previewBox);
+        drawBox(holdingBox);
         drawBoxPiece(previewBox, previewPiece);
         if (heldPiece !== null) {
             drawBoxPiece(holdingBox, heldPiece);
@@ -94,10 +111,10 @@ function drawScreen() {
 
         
 
-        function drawBoxGrid(box) {
+        function drawBox(box) {
             strokeWeight(8);
-            stroke(152,160,160);
-            fill(255)
+            stroke(colors.boxOutline);
+            fill(colors.boxFill)
             rect(box.x, box.y, box.w, box.h);
             strokeWeight(1)
 
@@ -119,18 +136,18 @@ function drawScreen() {
 
     function drawGrid() {
         for (let row = 1; row < 20; row++) {
-            stroke("#5c5858");
+            stroke(colors.gridLines);
             line(screen.x + 4, row*screen.h/20 + screen.y, screen.x+screen.w-4, row*screen.h/20 + screen.y);
         }
         for (let col = 1; col < 10; col++) {
-            stroke("#5c5858");
+            stroke(colors.gridLines);
             line(col*screen.w/10 + screen.x, screen.y + 4, col*screen.w/10 + screen.x, screen.y+screen.h - 4);
         }
     }
 
     function displayScore() {
-        fill(0);
-        stroke(0);
+        fill(colors.score.fill);
+        stroke(colors.score.stroke);
         textSize(32);
         text(`Score: ${score}`, width*13/32, height/8)
     }
@@ -234,14 +251,7 @@ function Block(color) {
 
 function Piece(type) {
     this.type = type;
-    this.colors = {
-        I: "#00faff",
-        J: "#074afd",
-        L: "#24f22f",
-        O: "#fff727",
-        S: "#954ff6",
-        Z: "#f5603d"
-    };
+    this.colors = colors.pieces;
     this.color = this.colors[type]
     this.x = 4;
     this.y = 0;
