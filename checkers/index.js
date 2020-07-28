@@ -154,3 +154,11 @@ function isLegalMove(color, row, col) {
 // Win condition
 // Take Jumping out into its own function
 // Fix jumping so it includes kings
+// Clean up functions
+// Bug : Can jump directly on enemies
+// Bug : Kings can't jump? Or kill forwards
+// Show whose turn it is
+// Drag n drop? 
+// Aesthetic: Double stack for kings
+// Aesthetic: Show dead pieces
+// Aesthetic : Show pieces tht can move

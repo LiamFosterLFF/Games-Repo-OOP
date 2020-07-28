@@ -39,6 +39,16 @@ function gravity() {
     }
 }
 
+function arrowMovement() {
+
+    if (keyIsDown(DOWN_ARROW)) {
+        piece.y += 1;
+    }
+
+
+
+    
+}
 
 function draw() {
     if (!gameOver) {
@@ -48,6 +58,7 @@ function draw() {
 
 
 function drawScreen() {
+    frameRate(15)
     clear();
     drawBackdrop();
     drawPreviewBoxAndHoldingBox();
@@ -59,6 +70,8 @@ function drawScreen() {
         addPieceToBlocks();
     }
     checkBlocksForLines();
+    arrowMovement();
+
 
     function drawBackdrop() {
         background("#d8d1cf");
@@ -288,15 +301,13 @@ function Piece(type) {
 function keyPressed() {
     if (keyIsDown(LEFT_ARROW) && canMoveLeft()) {
         piece.x -= 1;
-    } else if (keyIsDown(RIGHT_ARROW) && canMoveRight()) {
-        piece.x += 1;
-    } else if (keyIsDown(DOWN_ARROW)) {
-        piece.y += 1;
     }
-    if (keyIsDown(32) && canSpin()) {
+    if (keyIsDown(RIGHT_ARROW) && canMoveRight()) {
+        piece.x += 1;
+    }
+    if (keyIsDown(UP_ARROW) && canSpin()) {
         piece.spin();
     }
-
     if (keyIsDown(16)) {
         handleHeldPiece();
     }
@@ -337,7 +348,6 @@ function keyPressed() {
         }
         return true;
     }
-
     function canSpin() {
         const nextShape = piece.getNextSpinShape();
         for (let row = 0; row < nextShape.length; row++) {
@@ -365,7 +375,7 @@ function keyPressed() {
 }
 
 
-// Can drop pieces fast by holding down, double drop to place now
+
 //          Dropping pieces also can shift down into illegal territory (add a checkfunction)
 //      Add a pause before committing the piece to its final destination
 // Predictive dropping
@@ -373,3 +383,18 @@ function keyPressed() {
 // Increase levels
 // Pieces speed up over time
 // 
+// Bugs: 
+//      -- Pieces are dropping through rows for some reason
+//      -- Pieces movement isn't smooth
+// 
+// Aesthetics: 
+//      - Add a sidebar to delineate edges of screen
+//      - Add a game over screen
+//      - Fix preview and holding boxes so the piece appears in the middle
+//      - Clean up functions?
+//
+// Adding AI: 
+//      - Check every row to find open single squares
+//      - Try to keep row count low
+//      -
+//      -

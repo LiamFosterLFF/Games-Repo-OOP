@@ -243,3 +243,12 @@ function Bullet(x, y) {
 // Enemies fire bullets
 // Keep Score
 // Clean up functions
+// Add Sprites
+// Add special enemies
+// Increase explosion radius for enemy bombs
+// Add levels
+// Add score
+// Enemies speed up over time
+// Add lives & game over
+// Add screen border
+// Add start screen - insert coin

@@ -128,3 +128,12 @@ function resetGame() {
     paddlePositions = [h/2 - 80, h/2 - 40];
     gameStart = false;
 }
+
+// Change serve after win
+// Add sounds - bounce, start, point, win
+// Show score between points
+// Win condition? 
+// Countdown to start
+
+
+// AI : 

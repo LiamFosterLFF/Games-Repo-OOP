@@ -119,3 +119,14 @@ function Food() {
         rect(this.x, this.y, scl, scl);
     }
 }
+
+// Bug: Can hit wall when small
+// Bug: Can go backward when small
+// Add a win condition
+// Increase speed as keep winning?
+// Keep a length counter
+// Fix colors
+// Adjustable size?
+
+
+// AI : Hamiltonian and other

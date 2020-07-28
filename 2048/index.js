@@ -173,3 +173,9 @@ function drawBoard() {
         }
     }
 }
+
+
+// Add animations for moving and popping in
+// Aesthetic: Fix colors and edges so it looks like the real thing
+// Bug : Numbers run off the edge of page4
+// Game over condition

@@ -161,3 +161,13 @@ function countMines(cellArr) {
 
 
 // Aesthetics: Add color-shift on hover
+// Game over - Show all mines and start over button
+// Bug: Fix colors so they look less bad
+// Bug: Fix stroke color on numbers
+// Can adjust game size
+// Add flagging - disables clicks
+// Add questionable flag
+// Add timer
+// Add flag count/minecount
+// Add buttons
+//AI : 

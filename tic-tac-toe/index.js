@@ -80,3 +80,6 @@ function checkGameOver() {
     }
     return true;
 }
+
+// Game over - need to stop, ask if replaying
+
