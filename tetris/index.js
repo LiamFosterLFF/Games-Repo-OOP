@@ -75,8 +75,11 @@ function drawScreen() {
 
     function drawBackdrop() {
         background("#d8d1cf");
-        fill(0);
+        strokeWeight(8);
+        stroke(152,160,160);
+        fill(255);
         rect(screen.x, screen.y, screen.w, screen.h);
+        noStroke();
     }
 
     function drawPreviewBoxAndHoldingBox() {
@@ -92,15 +95,12 @@ function drawScreen() {
         
 
         function drawBoxGrid(box) {
+            strokeWeight(8);
+            stroke(152,160,160);
+            fill(255)
             rect(box.x, box.y, box.w, box.h);
-            for (let row = 0; row < 5; row++) {
-                stroke("#5c5858");
-                line(box.x, box.y + row*blockDims.h, box.x + box.w, box.y + row*blockDims.h);
-            }
-            for (let col = 0; col < 5; col++) {
-                stroke("#5c5858");
-                line(box.x + col*blockDims.w, box.y, box.x + col*blockDims.w, box.y + box.h);
-            }
+            strokeWeight(1)
+
         }
 
         function drawBoxPiece(box, piece) {
@@ -118,13 +118,13 @@ function drawScreen() {
     }
 
     function drawGrid() {
-        for (let row = 0; row < 20; row++) {
+        for (let row = 1; row < 20; row++) {
             stroke("#5c5858");
-            line(screen.x, row*screen.h/20 + screen.y, screen.x+screen.w, row*screen.h/20 + screen.y);
+            line(screen.x + 4, row*screen.h/20 + screen.y, screen.x+screen.w-4, row*screen.h/20 + screen.y);
         }
-        for (let col = 0; col < 10; col++) {
+        for (let col = 1; col < 10; col++) {
             stroke("#5c5858");
-            line(col*screen.w/10 + screen.x, screen.y, col*screen.w/10 + screen.x, screen.y+screen.h);
+            line(col*screen.w/10 + screen.x, screen.y + 4, col*screen.w/10 + screen.x, screen.y+screen.h - 4);
         }
     }
 
@@ -376,8 +376,7 @@ function keyPressed() {
 
 
 
-//          Dropping pieces also can shift down into illegal territory (add a checkfunction)
-//      Add a pause before committing the piece to its final destination
+// Add a pause before committing the piece to its final destination
 // Predictive dropping
 // Keep score
 // Increase levels
