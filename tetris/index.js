@@ -26,14 +26,7 @@ const design = {
         stroke: 0, 
         textSize: 32
     },
-    pieces: {
-    I: "rgba(0,250,255, .5)",
-    J: "rgb(7,74,253)",
-    L: "rgb(36,242,47)",
-    O: "rgb(255,247,39)",
-    S: "rgb(149,79,246)",
-    Z: "rgb(245,96,61)"
-    }
+    
 }
 
 function setup() {
@@ -91,9 +84,10 @@ function drawScreen() {
     drawGrid();
     displayScore();
     drawBlocks();
-    drawPiece(currentPiece);
+    currentPiece.show();
     drawProjectedPiece(currentPiece);
     if (pieceLanded(currentPiece)) {
+        noLoop();
         addPieceToBlocks(currentPiece);
     }
     checkBlocksForLines();
@@ -274,6 +268,7 @@ function drawScreen() {
 
 
 
+
 function Block(color) {
     this.color = color;
     this.w = blockDims.w;
@@ -282,10 +277,28 @@ function Block(color) {
 
 function Piece(type) {
     this.type = type;
-    this.colors = design.pieces;
-    this.color = this.colors[type]
+    this.colors = {
+        I: "rgb(0,250,255)",
+        J: "rgb(7,74,253)",
+        L: "rgb(36,242,47)",
+        O: "rgb(255,247,39)",
+        S: "rgb(149,79,246)",
+        Z: "rgb(245,96,61)"
+    };
+    this.projectionColors = {
+        I: "rgba(0,250,255, 0.5)",
+        J: "rgba(7,74,253, 0.5)",
+        L: "rgba(36,242,47, 0.5)",
+        O: "rgba(255,247,39, 0.5)",
+        S: "rgba(149,79,246, 0.5)",
+        Z: "rgba(245,96,61, 0.5)"
+    };
+    this.color = this.colors[type];
+    this.projectionColor = this.projectionColors[type];
     this.x = 4;
     this.y = 0;
+
+    this.projectedPiece = {x: 0, y: 0}
 
     this.shapeNo = 0;
     this.spinShapes = {
@@ -321,6 +334,43 @@ function Piece(type) {
     this.shape = this.spinShapes[this.type][this.shapeNo];
     this.w = this.shape[0].length;
     this.h = this.shape.length;
+
+    this.show = function() {
+        for (let row = 0; row < this.shape.length; row++) {
+            for (let col = 0; col < this.shape[row].length; col++) {
+                const square = this.shape[row][col]
+                if (square === true) {
+                    if (blockMap[this.y+row][this.x+col] !== null) {
+                        gameOver = true;
+                    };
+                    fill(this.color)
+                    rect(screen.x + (col+this.x)*blockDims.w, screen.y + (row+this.y)*blockDims.h, screen.w/10, screen.h/20)
+                }
+            }
+        }
+    }
+
+    this.showProjection = function() {
+        const remainingYBlocks = (gridDims.h - (piece.y+piece.h))
+        var projectedPiece = Object.assign({}, piece);
+        projectedPiece.color = rgbToRgba(piece.color);
+        for (let i = 0; i < remainingYBlocks + 1; i++) {
+            if (pieceLanded(projectedPiece)) {
+                drawPiece(projectedPiece)
+            } else {
+                projectedPiece.y += 1
+            } 
+        }  
+    }
+
+    this.calculateProjection = function() {
+
+    }
+
+    this.calculateProjectionColor = function() {
+
+    }
+
 
     this.spin = function() {
         this.shape = this.getNextSpinShape();
