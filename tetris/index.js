@@ -22,7 +22,11 @@ function startGravity() {
     }, gameSpeed)
 }
 
-
+function draw() {
+    if (!gameOver) {
+        drawScreen();
+    }
+}
 
 function arrowMovement() {
     if (keyIsDown(DOWN_ARROW)) {
@@ -46,82 +50,13 @@ function keyPressed() {
     }
 }
 
-function draw() {
-    if (!gameOver) {
-        drawScreen();
-    }
-}
-
-
 function drawScreen() {
     frameRate(15)
     clear();
     board.show();
 
     arrowMovement();
-
-
-
-
-    function pieceLanded(piece) {
-        for (let row = 0; row < piece.shape.length; row++) {
-            for (let col = 0; col < piece.shape[row].length; col++) {
-                const invertedRow = piece.shape.length - row - 1;
-                const squareIsSolid = (piece.shape[invertedRow][col] === true);
-                if (squareIsSolid) {
-                    const rowBelow = piece.y + invertedRow + 1;
-                    if (rowBelow > 19) {
-                        return true;
-                    } else {
-                        const squareBelow = blockMap[rowBelow][piece.x + col]
-                        const areaBelowSquareIsSolid = (squareBelow !== null)
-                        if (areaBelowSquareIsSolid) {
-                            return true;
-                        }
-
-                    }
-                }
-            }
-        }
-        return false
-    }
-
-    function addPieceToBlocks(piece) {
-        for (let row = 0; row < piece.shape.length; row++) {
-            for (let col = 0; col < piece.shape[row].length; col++) {
-                if (piece.shape[row][col] === true) {
-                    blockMap[piece.y + row][piece.x + col] = new Block(piece.color);
-                }
-            }
-        }
-    updatePiece();
-    }
-
-    function checkBlocksForLines() {
-        let lineCounter = 0;
-        const lineScores = [0, 40, 100, 300, 1200];
-        for (let row = 0; row < blockMap.length; row++) {
-            if(rowFull(blockMap[row])) {
-                blockMap.splice(row, 1);
-                blockMap.unshift(new Array(10).fill(null))
-                lineCounter++;
-            }
-        }
-        score += lineScores[lineCounter]
-
-        function rowFull(row) {
-            for (let col = 0; col < row.length; col++) {
-                if (row[col] === null) {
-                    return false;
-                }
-            }
-            return true;
-        }
-    }
-
 }
-
-
 
 
 function Block(color) {
@@ -171,12 +106,16 @@ function Board() {
         const score = this.score;
         const previewPiece = this.previewPiece;
         const heldPiece = this.heldPiece;
+
         drawBackdrop();
         drawBlocks();
         this.currentPiece.show();
+        showProjection(this.currentPiece);
+
         if (this.currentPiece.landed(blockMap)) {
             this.addPieceToBlockMap(this.currentPiece);
         }
+
         this.checkBlocksForLines();
 
         function drawBackdrop() {
@@ -237,6 +176,8 @@ function Board() {
                 }
             }
 
+            
+
             function displayScore() {
                 fill(design.score.fill);
                 stroke(design.score.stroke);
@@ -245,6 +186,27 @@ function Board() {
             }
         }
 
+        function showProjection(piece) {
+            const projectionColors = {
+                I: "rgba(0,250,255,.1)",
+                J: "rgba(7,74,253,.1)",
+                L: "rgba(36,242,47,.1)",
+                O: "rgba(255,247,39,.1)",
+                S: "rgba(149,79,246,.1)",
+                Z: "rgba(245,96,61,.1)"
+            };
+            const remainingYBlocks = (gridDims.h - (piece.y+piece.h))
+            var projectedPiece = Object.assign({}, piece);
+            projectedPiece.color = projectionColors[projectedPiece.type];
+            for (let i = 0; i < remainingYBlocks + 1; i++) {
+                if (projectedPiece.landed()) {
+                    projectedPiece.show();
+                } else {
+                    projectedPiece.y += 1
+                } 
+            }  
+        }
+        
         function drawBlocks() {
             for (let row = 0; row < blockMap.length; row++) {
                 for (let col = 0; col < blockMap[row].length; col++) {
@@ -258,6 +220,9 @@ function Board() {
         }
     }
 
+    
+
+    
     this.addPieceToBlockMap = function(piece) {
         for (let row = 0; row < piece.shape.length; row++) {
             for (let col = 0; col < piece.shape[row].length; col++) {
@@ -320,14 +285,7 @@ function Piece() {
         S: "rgb(149,79,246)",
         Z: "rgb(245,96,61)"
     };
-    this.projectionColors = {
-        I: "rgba(0,250,255, 0.5)",
-        J: "rgba(7,74,253, 0.5)",
-        L: "rgba(36,242,47, 0.5)",
-        O: "rgba(255,247,39, 0.5)",
-        S: "rgba(149,79,246, 0.5)",
-        Z: "rgba(245,96,61, 0.5)"
-    };
+    
     this.color = this.colors[this.type];
     this.x = 4;
     this.y = 0;
@@ -384,26 +342,7 @@ function Piece() {
         }
     }
 
-    this.showProjection = function() {
-        const remainingYBlocks = (gridDims.h - (piece.y+piece.h))
-        var projectedPiece = Object.assign({}, piece);
-        projectedPiece.color = rgbToRgba(piece.color);
-        for (let i = 0; i < remainingYBlocks + 1; i++) {
-            if (pieceLanded(projectedPiece)) {
-                drawPiece(projectedPiece)
-            } else {
-                projectedPiece.y += 1
-            } 
-        }  
-    }
 
-    this.calculateProjection = function() {
-
-    }
-
-    this.calculateProjectionColor = function() {
-
-    }
 
 
 
@@ -514,88 +453,7 @@ function Piece() {
         return true;
     }
 
-
-
-
 }
-
-
-
-// function keyPressed() {
-//     if (keyIsDown(LEFT_ARROW) && canMoveLeft(currentPiece)) {
-//         currentPiece.x -= 1;
-//     }
-//     if (keyIsDown(RIGHT_ARROW) && canMoveRight(currentPiece)) {
-//         currentPiece.x += 1;
-//     }
-//     if (keyIsDown(UP_ARROW) && canSpin(currentPiece)) {
-//         currentPiece.spin();
-//     }
-//     if (keyIsDown(16)) {
-//         handleHeldPiece();
-//     }
-
-//     drawScreen();
-
-//     function canMoveLeft(piece) {
-//         for (let row = 0; row < piece.shape.length; row++) {
-//             for (let col = 0; col < piece.shape[row].length; col++) {
-//                 const squareIsSolid = (piece.shape[row][col] === true);
-//                 if (squareIsSolid) {
-//                     if (piece.x + col -1 < 0) {
-//                         return false;
-//                     }
-//                     if (blockMap[piece.y+row][piece.x+col-1] !== null) {
-//                         return false;
-//                     }
-//                 }
-//             }
-//         }
-//         return true;
-//     }
-
-//     function canMoveRight(piece) {
-//         for (let row = 0; row < piece.shape.length; row++) {
-//             for (let col = 0; col < piece.shape[row].length; col++) {
-//                 const squareIsSolid = (piece.shape[row][col] === true);
-//                 if (squareIsSolid) {
-//                     if (piece.x + col + 1 > 10) {
-//                         console.log("Right Wall");
-//                         return false;
-//                     }
-//                     if (blockMap[piece.y+row][piece.x+col+1] !== null) {
-//                         return false;
-//                     }
-//                 }
-//             }
-//         }
-//         return true;
-//     }
-//     function canSpin(piece) {
-//         const nextShape = piece.getNextSpinShape();
-//         for (let row = 0; row < nextShape.length; row++) {
-//             for (let col = 0; col < nextShape[row].length; col++) {
-//                 const squareIsSolid = (nextShape[row][col] === true);
-//                 if (squareIsSolid) {
-//                     if (blockMap[piece.y+row][piece.x+col] !== null) {
-//                         return false;
-//                     }
-//                 }
-//             }
-//         }
-//         return true;
-//     }
-
-//     function handleHeldPiece() {
-//         if (heldPiece === null) {
-//             heldPiece = previewPiece;
-//             previewPiece = createPiece();
-//         } else {
-//             previewPiece = heldPiece;
-//             heldPiece = null;
-//         }
-//     }
-// }
 
 
 
