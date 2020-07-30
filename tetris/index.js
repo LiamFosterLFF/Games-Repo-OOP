@@ -10,25 +10,6 @@ var heldPiece = null;
 let gameSpeed = 500;
 let gameOver = false;
 const blockMap = new Array(20).fill(null).map((row) => new Array(10).fill(null))
-let score = 0;
-const design = {
-    background: "#d8d1cf", 
-    screen: {
-        gridLines: "#5c5858", 
-        outline: "#98a0a0",
-        fill: 255, 
-    },
-    box: {
-        outline: "#98a0a0", 
-        fill: 255
-    },
-    score: {
-        fill: 0, 
-        stroke: 0, 
-        textSize: 32
-    },
-    
-}
 
 function setup() {
     createCanvas(dims.x, dims.y);
@@ -39,8 +20,7 @@ function setup() {
 }
 
 function createPiece() {
-    const pieceTypes = ["I", "J", "L", "O", "S", "Z"];
-    return new Piece(pieceTypes[floor(random()*pieceTypes.length)]);
+    return new Piece();
 }
 
 function initializePieces() {
@@ -83,13 +63,7 @@ function drawScreen() {
     frameRate(15)
     clear();
     board.show();
-    // drawBackdrop();
-    // drawPreviewBoxAndHoldingBox();
-    // drawGrid();
-    // displayScore();
-    // drawBlocks();
     currentPiece.show();
-    // drawProjectedPiece(currentPiece);
     // if (pieceLanded(currentPiece)) {
     //     noLoop();
     //     addPieceToBlocks(currentPiece);
@@ -98,80 +72,7 @@ function drawScreen() {
     // arrowMovement();
 
 
-    function drawBackdrop() {
-        background(design.background);
-        strokeWeight(8);
-        stroke(design.screen.outline);
-        fill(design.screen.fill);
-        const strokeWidth = 4;
-        rect(screen.x - strokeWidth, screen.y - strokeWidth, screen.w + 2*strokeWidth, screen.h + 2*strokeWidth);
-        noStroke();
-    }
 
-    function drawPreviewBoxAndHoldingBox() {
-        const previewBox = {x: 3*dims.x/4 + 20, y: 1*dims.y/7, w: blockDims.w*4, h: blockDims.h*4};
-        const holdingBox = {x: 10, y: 1*dims.y/7, w: blockDims.w*4, h: blockDims.h*4};
-        drawBox(previewBox);
-        drawBox(holdingBox);
-        drawBoxPiece(previewBox, previewPiece);
-        if (heldPiece !== null) {
-            drawBoxPiece(holdingBox, heldPiece);
-        }
-
-        
-
-        function drawBox(box) {
-            strokeWeight(8);
-            stroke(design.box.outline);
-            fill(design.box.fill)
-            rect(box.x, box.y, box.w, box.h);
-            strokeWeight(1)
-
-        }
-
-        function drawBoxPiece(box, piece) {
-            for (let row = 0; row < piece.shape.length; row++) {
-                for (let col = 0; col < piece.shape[row].length; col++) {
-                    const square = piece.shape[row][col]
-                    if (square === true) {
-                        fill(piece.color)
-                        rect(box.x + (col)*blockDims.w, box.y + (row)*blockDims.h, blockDims.w, blockDims.h)
-                    }
-                }
-            }
-            
-        }
-    }
-
-    function drawGrid() {
-        for (let row = 1; row < 20; row++) {
-            stroke(design.screen.gridLines);
-            line(screen.x, row*screen.h/20 + screen.y, screen.x+screen.w, row*screen.h/20 + screen.y);
-        }
-        for (let col = 1; col < 10; col++) {
-            stroke(design.screen.gridLines);
-            line(col*screen.w/10 + screen.x, screen.y, col*screen.w/10 + screen.x, screen.y+screen.h);
-        }
-    }
-
-    function displayScore() {
-        fill(design.score.fill);
-        stroke(design.score.stroke);
-        textSize(design.score.textSize);
-        text(`Score: ${score}`, width*13/32, height/8)
-    }
-
-    function drawBlocks() {
-        for (let row = 0; row < blockMap.length; row++) {
-            for (let col = 0; col < blockMap[row].length; col++) {
-                const block = blockMap[row][col]
-                if (block !== null) {
-                    fill(block.color);
-                    rect(screen.x + col*block.w, screen.y + row*block.h, block.w, block.h);
-                }
-            }
-        }
-    }
 
     function pieceLanded(piece) {
         for (let row = 0; row < piece.shape.length; row++) {
@@ -245,9 +146,9 @@ function Board() {
     this.screen = {x: this.dims.x/4, y: this.dims.y/7, w: this.dims.x/2, h: this.dims.y *(3/4)};
     this.gridDims = {w: 10, h: 20};
     this.blockDims = {w: this.screen.w/this.gridDims.w, h: this.screen.h/this.gridDims.h};
-    this.blockMap = new Array(20).fill(null).map((row) => new Array(10).fill(null))
-    
-        
+    this.blockMap = new Array(20).fill(null).map((row) => new Array(10).fill(null)); 
+    this.score = 0;
+    this.currentPiece = createPiece();
     
     this.design = {
         background: "#d8d1cf", 
@@ -270,6 +171,7 @@ function Board() {
             textSize: 32
         }
     }
+
     this.show = function() {
         const design = this.design;
         const screen = this.screen;
@@ -277,14 +179,16 @@ function Board() {
         const blockDims = this.blockDims;
         const gridDims = this.gridDims;
         const blockMap = this.blockMap;
-        this.blockMap[0][0] = new Block("rgb(0,250,255)")
+        const score = this.score;
+
         drawBackdrop();
-        drawPreviewAndHoldingBoxes();
         drawBlocks();
+
         function drawBackdrop() {
             background(design.background);
             drawScreen();
             drawGrid();
+            drawPreviewAndHoldingBoxes();
             displayScore();
             function drawScreen() {
                 strokeWeight(design.screen.strokeWeight);
@@ -307,43 +211,42 @@ function Board() {
                     line(col*screen.w/10 + screen.x, screen.y, col*screen.w/10 + screen.x, screen.y+screen.h);
                 }
             }
+            function drawPreviewAndHoldingBoxes() {
+                const previewBox = {x: 3*dims.x/4 + 20, y: 1*dims.y/7, w: blockDims.w*4, h: blockDims.h*4};
+                const holdingBox = {x: 10, y: 1*dims.y/7, w: blockDims.w*4, h: blockDims.h*4};
+                drawBox(previewBox);
+                drawBox(holdingBox);
+                drawBoxPiece(previewBox, previewPiece);
+                if (heldPiece !== null) {
+                    drawBoxPiece(holdingBox, heldPiece);
+                }
+        
+                function drawBox(box) {
+                    strokeWeight(8);
+                    stroke(design.box.outline);
+                    fill(design.box.fill)
+                    rect(box.x, box.y, box.w, box.h);
+                    strokeWeight(1)
+                }
+        
+                function drawBoxPiece(box, piece) {
+                    for (let row = 0; row < piece.shape.length; row++) {
+                        for (let col = 0; col < piece.shape[row].length; col++) {
+                            const square = piece.shape[row][col]
+                            if (square === true) {
+                                fill(piece.color)
+                                rect(box.x + (col)*blockDims.w, box.y + (row)*blockDims.h, blockDims.w, blockDims.h)
+                            }
+                        }
+                    }
+                }
+            }
 
             function displayScore() {
                 fill(design.score.fill);
                 stroke(design.score.stroke);
                 textSize(design.score.textSize);
                 text(`Score: ${score}`, width*13/32, height/8)
-            }
-        }
-
-        function drawPreviewAndHoldingBoxes() {
-            const previewBox = {x: 3*dims.x/4 + 20, y: 1*dims.y/7, w: blockDims.w*4, h: blockDims.h*4};
-            const holdingBox = {x: 10, y: 1*dims.y/7, w: blockDims.w*4, h: blockDims.h*4};
-            drawBox(previewBox);
-            drawBox(holdingBox);
-            drawBoxPiece(previewBox, previewPiece);
-            if (heldPiece !== null) {
-                drawBoxPiece(holdingBox, heldPiece);
-            }
-    
-            function drawBox(box) {
-                strokeWeight(8);
-                stroke(design.box.outline);
-                fill(design.box.fill)
-                rect(box.x, box.y, box.w, box.h);
-                strokeWeight(1)
-            }
-    
-            function drawBoxPiece(box, piece) {
-                for (let row = 0; row < piece.shape.length; row++) {
-                    for (let col = 0; col < piece.shape[row].length; col++) {
-                        const square = piece.shape[row][col]
-                        if (square === true) {
-                            fill(piece.color)
-                            rect(box.x + (col)*blockDims.w, box.y + (row)*blockDims.h, blockDims.w, blockDims.h)
-                        }
-                    }
-                }
             }
         }
 
@@ -359,10 +262,13 @@ function Board() {
             }
         }
     }
+
+
 }
 
-function Piece(type) {
-    this.type = type;
+function Piece() {
+    this.pieceTypes = ["I", "J", "L", "O", "S", "Z"];
+    this.type = this.pieceTypes[floor(random()*this.pieceTypes.length)];
     this.colors = {
         I: "rgb(0,250,255)",
         J: "rgb(7,74,253)",
@@ -379,7 +285,7 @@ function Piece(type) {
         S: "rgba(149,79,246, 0.5)",
         Z: "rgba(245,96,61, 0.5)"
     };
-    this.color = this.colors[type];
+    this.color = this.colors[this.type];
     this.x = 4;
     this.y = 0;
 
