@@ -296,15 +296,15 @@ function Board() {
         }
     }
 
-    // function handleHeldPiece() {
-    //     if (heldPiece === null) {
-    //         heldPiece = previewPiece;
-    //         previewPiece = createPiece();
-    //     } else {
-    //         previewPiece = heldPiece;
-    //         heldPiece = null;
-    //     }
-    // }
+    this.toggleHeldPiece = function() {
+        if (this.heldPiece === null) {
+            this.heldPiece = this.previewPiece;
+            this.previewPiece = new Piece();
+        } else {
+            this.previewPiece = this.heldPiece;
+            this.heldPiece = null;
+        }
+    }
     
 
 }
