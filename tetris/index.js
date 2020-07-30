@@ -245,6 +245,7 @@ function Board() {
     this.screen = {x: this.dims.x/4, y: this.dims.y/7, w: this.dims.x/2, h: this.dims.y *(3/4)};
     this.gridDims = {w: 10, h: 20};
     this.blockDims = {w: this.screen.w/this.gridDims.w, h: this.screen.h/this.gridDims.h};
+    this.blockMap = new Array(20).fill(null).map((row) => new Array(10).fill(null))
     
         
     
@@ -275,10 +276,11 @@ function Board() {
         const dims = this.dims;
         const blockDims = this.blockDims;
         const gridDims = this.gridDims;
-
+        const blockMap = this.blockMap;
+        this.blockMap[0][0] = new Block("rgb(0,250,255)")
         drawBackdrop();
         drawPreviewAndHoldingBoxes();
-        
+        drawBlocks();
         function drawBackdrop() {
             background(design.background);
             drawScreen();
@@ -344,31 +346,19 @@ function Board() {
                 }
             }
         }
+
+        function drawBlocks() {
+            for (let row = 0; row < blockMap.length; row++) {
+                for (let col = 0; col < blockMap[row].length; col++) {
+                    const block = blockMap[row][col]
+                    if (block !== null) {
+                        fill(block.color);
+                        rect(screen.x + col*block.w, screen.y + row*block.h, block.w, block.h);
+                    }
+                }
+            }
+        }
     }
-
-
-    
-    
-    
-    
-
-    
-
-    
-
-    
-
-    // function drawBlocks() {
-    //     for (let row = 0; row < blockMap.length; row++) {
-    //         for (let col = 0; col < blockMap[row].length; col++) {
-    //             const block = blockMap[row][col]
-    //             if (block !== null) {
-    //                 fill(block.color);
-    //                 rect(screen.x + col*block.w, screen.y + row*block.h, block.w, block.h);
-    //             }
-    //         }
-    //     }
-    // }
 }
 
 function Piece(type) {
