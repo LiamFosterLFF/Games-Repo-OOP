@@ -57,10 +57,7 @@ function drawScreen() {
     frameRate(15)
     clear();
     board.show();
-    // if (pieceLanded(currentPiece)) {
-    //     noLoop();
-    //     addPieceToBlocks(currentPiece);
-    // }
+
     // checkBlocksForLines();
     // arrowMovement();
 
@@ -139,7 +136,6 @@ function Board() {
     this.screen = {x: this.dims.x/4, y: this.dims.y/7, w: this.dims.x/2, h: this.dims.y *(3/4)};
     this.gridDims = {w: 10, h: 20};
     this.blockDims = {w: this.screen.w/this.gridDims.w, h: this.screen.h/this.gridDims.h};
-    this.blockMap = new Array(20).fill(null).map((row) => new Array(10).fill(null)); 
     this.score = 0;
     this.currentPiece = new Piece();
     this.heldPiece = new Piece();
@@ -172,13 +168,14 @@ function Board() {
         const dims = this.dims;
         const blockDims = this.blockDims;
         const gridDims = this.gridDims;
-        const blockMap = this.blockMap;
         const score = this.score;
 
         drawBackdrop();
         drawBlocks();
         this.currentPiece.show();
-
+        if (this.currentPiece.landed(blockMap)) {
+            this.addPieceToBlockMap(this.currentPiece);
+        }
         function drawBackdrop() {
             background(design.background);
             drawScreen();
@@ -256,64 +253,41 @@ function Board() {
                 }
             }
         }
-
-        function pieceLanded(piece) {
-            for (let row = 0; row < piece.shape.length; row++) {
-                for (let col = 0; col < piece.shape[row].length; col++) {
-                    const invertedRow = piece.shape.length - row - 1;
-                    const squareIsSolid = (piece.shape[invertedRow][col] === true);
-                    if (squareIsSolid) {
-                        const rowBelow = piece.y + invertedRow + 1;
-                        if (rowBelow > 19) {
-                            return true;
-                        } else {
-                            const squareBelow = blockMap[rowBelow][piece.x + col]
-                            const areaBelowSquareIsSolid = (squareBelow !== null)
-                            if (areaBelowSquareIsSolid) {
-                                return true;
-                            }
-    
-                        }
-                    }
-                }
-            }
-            return false
-        }
-    
-        function addPieceToBlocks(piece) {
-            for (let row = 0; row < piece.shape.length; row++) {
-                for (let col = 0; col < piece.shape[row].length; col++) {
-                    if (piece.shape[row][col] === true) {
-                        blockMap[piece.y + row][piece.x + col] = new Block(piece.color);
-                    }
-                }
-            }
-        updatePiece();
-        }
-    
-        function checkBlocksForLines() {
-            let lineCounter = 0;
-            const lineScores = [0, 40, 100, 300, 1200];
-            for (let row = 0; row < blockMap.length; row++) {
-                if(rowFull(blockMap[row])) {
-                    blockMap.splice(row, 1);
-                    blockMap.unshift(new Array(10).fill(null))
-                    lineCounter++;
-                }
-            }
-            score += lineScores[lineCounter]
-    
-            function rowFull(row) {
-                for (let col = 0; col < row.length; col++) {
-                    if (row[col] === null) {
-                        return false;
-                    }
-                }
-                return true;
-            }
-        }
     }
 
+    this.addPieceToBlockMap = function(piece) {
+        for (let row = 0; row < piece.shape.length; row++) {
+            for (let col = 0; col < piece.shape[row].length; col++) {
+                if (piece.shape[row][col] === true) {
+                    blockMap[piece.y + row][piece.x + col] = new Block(piece.color);
+                }
+            }
+        }
+    updatePiece();
+
+    }
+
+    this.checkBlocksForLines = function() {
+        let lineCounter = 0;
+        const lineScores = [0, 40, 100, 300, 1200];
+        for (let row = 0; row < blockMap.length; row++) {
+            if(rowFull(blockMap[row])) {
+                blockMap.splice(row, 1);
+                blockMap.unshift(new Array(10).fill(null))
+                lineCounter++;
+            }
+        }
+        score += lineScores[lineCounter]
+
+        function rowFull(row) {
+            for (let col = 0; col < row.length; col++) {
+                if (row[col] === null) {
+                    return false;
+                }
+            }
+            return true;
+        }
+    }
 
 }
 
@@ -425,6 +399,29 @@ function Piece() {
 
     this.getNextShapeNo = function() {
         return ((this.shapeNo + 1) % (Object.keys(this.spinShapes[type]).length));
+    }
+
+    this.landed = function() {
+        for (let row = 0; row < this.shape.length; row++) {
+            for (let col = 0; col < this.shape[row].length; col++) {
+                const invertedRow = this.shape.length - row - 1;
+                const squareIsSolid = (this.shape[invertedRow][col] === true);
+                if (squareIsSolid) {
+                    const rowBelow = this.y + invertedRow + 1;
+                    if (rowBelow > 19) {
+                        return true;
+                    } else {
+                        const squareBelow = blockMap[rowBelow][this.x + col]
+                        const areaBelowSquareIsSolid = (squareBelow !== null)
+                        if (areaBelowSquareIsSolid) {
+                            return true;
+                        }
+
+                    }
+                }
+            }
+        }
+        return false
     }
 
 }
