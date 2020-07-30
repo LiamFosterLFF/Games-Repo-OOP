@@ -17,27 +17,12 @@ function setup() {
 
 
 
-function initializePieces() {
-    previewPiece = createPiece();
-    currentPiece = createPiece();
-}
-
-function updatePiece() {
-    currentPiece = previewPiece;
-    previewPiece = createPiece();
-}
-
 function gravity() {
     setInterval(dropPiece, gameSpeed)
 
     function dropPiece() {
         board.currentPiece.y += 1;
     }
-}
-
-function rgbToRgba(color) {
-    const colorPercents = color.split("(")[1].split(")")[0]
-    return `rgba(${colorPercents},0.5)`
 }
 
 function arrowMovement() {
@@ -138,7 +123,7 @@ function Board() {
     this.blockDims = {w: this.screen.w/this.gridDims.w, h: this.screen.h/this.gridDims.h};
     this.score = 0;
     this.currentPiece = new Piece();
-    this.heldPiece = new Piece();
+    this.previewPiece = new Piece();
     this.design = {
         background: "#d8d1cf", 
         screen: {
@@ -263,8 +248,12 @@ function Board() {
                 }
             }
         }
-    updatePiece();
+    this.updatePiece();
+    }
 
+    this.updatePiece = function() {
+        this.currentPiece = this.previewPiece;
+        this.previewPiece = new Piece();
     }
 
     this.checkBlocksForLines = function() {
