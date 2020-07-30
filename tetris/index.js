@@ -3,10 +3,8 @@ const dims = {x: 600, y: 800}
 const screen = {x: dims.x/4, y: dims.y/7, w: dims.x/2, h: dims.y *(3/4)};
 const gridDims = {w: 10, h: 20};
 const blockDims = {w: screen.w/gridDims.w, h: screen.h/gridDims.h};
-var currentPiece = null;
 var board = null;
 var previewPiece = null;
-var heldPiece = null;
 let gameSpeed = 500;
 let gameOver = false;
 const blockMap = new Array(20).fill(null).map((row) => new Array(10).fill(null))
@@ -14,14 +12,10 @@ const blockMap = new Array(20).fill(null).map((row) => new Array(10).fill(null))
 function setup() {
     createCanvas(dims.x, dims.y);
     board = new Board();
-
-    initializePieces();
     gravity();
 }
 
-function createPiece() {
-    return new Piece();
-}
+
 
 function initializePieces() {
     previewPiece = createPiece();
@@ -37,7 +31,7 @@ function gravity() {
     setInterval(dropPiece, gameSpeed)
 
     function dropPiece() {
-        currentPiece.y += 1;
+        board.currentPiece.y += 1;
     }
 }
 
@@ -63,7 +57,6 @@ function drawScreen() {
     frameRate(15)
     clear();
     board.show();
-    currentPiece.show();
     // if (pieceLanded(currentPiece)) {
     //     noLoop();
     //     addPieceToBlocks(currentPiece);
@@ -148,8 +141,8 @@ function Board() {
     this.blockDims = {w: this.screen.w/this.gridDims.w, h: this.screen.h/this.gridDims.h};
     this.blockMap = new Array(20).fill(null).map((row) => new Array(10).fill(null)); 
     this.score = 0;
-    this.currentPiece = createPiece();
-    
+    this.currentPiece = new Piece();
+    this.heldPiece = new Piece();
     this.design = {
         background: "#d8d1cf", 
         screen: {
@@ -172,6 +165,7 @@ function Board() {
         }
     }
 
+ 
     this.show = function() {
         const design = this.design;
         const screen = this.screen;
@@ -183,12 +177,13 @@ function Board() {
 
         drawBackdrop();
         drawBlocks();
+        this.currentPiece.show();
 
         function drawBackdrop() {
             background(design.background);
             drawScreen();
             drawGrid();
-            drawPreviewAndHoldingBoxes();
+            // drawPreviewAndHoldingBoxes();
             displayScore();
             function drawScreen() {
                 strokeWeight(design.screen.strokeWeight);
@@ -259,6 +254,62 @@ function Board() {
                         rect(screen.x + col*block.w, screen.y + row*block.h, block.w, block.h);
                     }
                 }
+            }
+        }
+
+        function pieceLanded(piece) {
+            for (let row = 0; row < piece.shape.length; row++) {
+                for (let col = 0; col < piece.shape[row].length; col++) {
+                    const invertedRow = piece.shape.length - row - 1;
+                    const squareIsSolid = (piece.shape[invertedRow][col] === true);
+                    if (squareIsSolid) {
+                        const rowBelow = piece.y + invertedRow + 1;
+                        if (rowBelow > 19) {
+                            return true;
+                        } else {
+                            const squareBelow = blockMap[rowBelow][piece.x + col]
+                            const areaBelowSquareIsSolid = (squareBelow !== null)
+                            if (areaBelowSquareIsSolid) {
+                                return true;
+                            }
+    
+                        }
+                    }
+                }
+            }
+            return false
+        }
+    
+        function addPieceToBlocks(piece) {
+            for (let row = 0; row < piece.shape.length; row++) {
+                for (let col = 0; col < piece.shape[row].length; col++) {
+                    if (piece.shape[row][col] === true) {
+                        blockMap[piece.y + row][piece.x + col] = new Block(piece.color);
+                    }
+                }
+            }
+        updatePiece();
+        }
+    
+        function checkBlocksForLines() {
+            let lineCounter = 0;
+            const lineScores = [0, 40, 100, 300, 1200];
+            for (let row = 0; row < blockMap.length; row++) {
+                if(rowFull(blockMap[row])) {
+                    blockMap.splice(row, 1);
+                    blockMap.unshift(new Array(10).fill(null))
+                    lineCounter++;
+                }
+            }
+            score += lineScores[lineCounter]
+    
+            function rowFull(row) {
+                for (let col = 0; col < row.length; col++) {
+                    if (row[col] === null) {
+                        return false;
+                    }
+                }
+                return true;
             }
         }
     }
