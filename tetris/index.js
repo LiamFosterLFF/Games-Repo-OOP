@@ -7,27 +7,42 @@ var board = null;
 var previewPiece = null;
 let gameSpeed = 500;
 let gameOver = false;
+var gravity;
 const blockMap = new Array(20).fill(null).map((row) => new Array(10).fill(null))
 
 function setup() {
     createCanvas(dims.x, dims.y);
     board = new Board();
-    gravity();
+    startGravity();
 }
 
-
-
-function gravity() {
-    setInterval(dropPiece, gameSpeed)
-
-    function dropPiece() {
+function startGravity() {
+    gravity = setInterval(() => {
         board.currentPiece.y += 1;
-    }
+    }, gameSpeed)
 }
+
+
 
 function arrowMovement() {
     if (keyIsDown(DOWN_ARROW)) {
-        currentPiece.y += 1;
+        board.currentPiece.moveDown();
+    }
+    if (keyIsDown(RIGHT_ARROW)) {
+        board.currentPiece.moveRight();
+    }
+    if (keyIsDown(LEFT_ARROW)) {
+        board.currentPiece.moveLeft();
+    }
+}
+
+
+function keyPressed() {
+    if (keyIsDown(UP_ARROW)) {
+        board.currentPiece.spin();
+    }
+    if (keyIsDown(16)) {
+        board.toggleHeldPiece();
     }
 }
 
@@ -43,8 +58,7 @@ function drawScreen() {
     clear();
     board.show();
 
-    // checkBlocksForLines();
-    // arrowMovement();
+    arrowMovement();
 
 
 
@@ -124,6 +138,7 @@ function Board() {
     this.score = 0;
     this.currentPiece = new Piece();
     this.previewPiece = new Piece();
+    this.heldPiece = null;
     this.design = {
         background: "#d8d1cf", 
         screen: {
@@ -154,18 +169,21 @@ function Board() {
         const blockDims = this.blockDims;
         const gridDims = this.gridDims;
         const score = this.score;
-
+        const previewPiece = this.previewPiece;
+        const heldPiece = this.heldPiece;
         drawBackdrop();
         drawBlocks();
         this.currentPiece.show();
         if (this.currentPiece.landed(blockMap)) {
             this.addPieceToBlockMap(this.currentPiece);
         }
+        this.checkBlocksForLines();
+
         function drawBackdrop() {
             background(design.background);
             drawScreen();
             drawGrid();
-            // drawPreviewAndHoldingBoxes();
+            drawPreviewAndHoldingBoxes();
             displayScore();
             function drawScreen() {
                 strokeWeight(design.screen.strokeWeight);
@@ -266,17 +284,28 @@ function Board() {
                 lineCounter++;
             }
         }
-        score += lineScores[lineCounter]
+        this.score += lineScores[lineCounter]
 
         function rowFull(row) {
             for (let col = 0; col < row.length; col++) {
                 if (row[col] === null) {
-                    return false;
+                    return false; 
                 }
             }
             return true;
         }
     }
+
+    // function handleHeldPiece() {
+    //     if (heldPiece === null) {
+    //         heldPiece = previewPiece;
+    //         previewPiece = createPiece();
+    //     } else {
+    //         previewPiece = heldPiece;
+    //         heldPiece = null;
+    //     }
+    // }
+    
 
 }
 
@@ -377,18 +406,7 @@ function Piece() {
     }
 
 
-    this.spin = function() {
-        this.shape = this.getNextSpinShape();
-        this.shapeNo = this.getNextShapeNo();
-    }
-    this.getNextSpinShape = function() {
-        const nextShapeNo = this.getNextShapeNo();
-        return this.spinShapes[type][nextShapeNo];
-    }
 
-    this.getNextShapeNo = function() {
-        return ((this.shapeNo + 1) % (Object.keys(this.spinShapes[type]).length));
-    }
 
     this.landed = function() {
         for (let row = 0; row < this.shape.length; row++) {
@@ -413,53 +431,22 @@ function Piece() {
         return false
     }
 
-}
-
-
-
-function keyPressed() {
-    if (keyIsDown(LEFT_ARROW) && canMoveLeft(currentPiece)) {
-        currentPiece.x -= 1;
-    }
-    if (keyIsDown(RIGHT_ARROW) && canMoveRight(currentPiece)) {
-        currentPiece.x += 1;
-    }
-    if (keyIsDown(UP_ARROW) && canSpin(currentPiece)) {
-        currentPiece.spin();
-    }
-    if (keyIsDown(16)) {
-        handleHeldPiece();
-    }
-
-    drawScreen();
-
-    function canMoveLeft(piece) {
-        for (let row = 0; row < piece.shape.length; row++) {
-            for (let col = 0; col < piece.shape[row].length; col++) {
-                const squareIsSolid = (piece.shape[row][col] === true);
-                if (squareIsSolid) {
-                    if (piece.x + col -1 < 0) {
-                        return false;
-                    }
-                    if (blockMap[piece.y+row][piece.x+col-1] !== null) {
-                        return false;
-                    }
-                }
-            }
+    this.moveRight = function() {
+        if (this.canMoveRight()) {
+            this.x += 1
         }
-        return true;
     }
 
-    function canMoveRight(piece) {
-        for (let row = 0; row < piece.shape.length; row++) {
-            for (let col = 0; col < piece.shape[row].length; col++) {
-                const squareIsSolid = (piece.shape[row][col] === true);
+    this.canMoveRight = function() {
+        for (let row = 0; row < this.shape.length; row++) {
+            for (let col = 0; col < this.shape[row].length; col++) {
+                const squareIsSolid = (this.shape[row][col] === true);
                 if (squareIsSolid) {
-                    if (piece.x + col + 1 > 10) {
+                    if (this.x + col + 1 > 10) {
                         console.log("Right Wall");
                         return false;
                     }
-                    if (blockMap[piece.y+row][piece.x+col+1] !== null) {
+                    if (blockMap[this.y+row][this.x+col+1] !== null) {
                         return false;
                     }
                 }
@@ -467,13 +454,58 @@ function keyPressed() {
         }
         return true;
     }
-    function canSpin(piece) {
-        const nextShape = piece.getNextSpinShape();
+
+    this.moveLeft = function() {
+        if (this.canMoveLeft()) {
+            this.x -= 1
+        }
+    }
+
+    this.canMoveLeft = function() {
+        for (let row = 0; row < this.shape.length; row++) {
+            for (let col = 0; col < this.shape[row].length; col++) {
+                const squareIsSolid = (this.shape[row][col] === true);
+                if (squareIsSolid) {
+                    if (this.x + col -1 < 0) {
+                        return false;
+                    }
+                    if (blockMap[this.y+row][this.x+col-1] !== null) {
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
+    }
+
+    this.moveDown = function() {
+        clearInterval(gravity)
+        this.y += 1
+        startGravity();
+    }
+
+    this.spin = function() {
+        if (this.canSpin()) {
+            this.shape = this.getNextSpinShape();
+            this.shapeNo = this.getNextShapeNo();
+        }
+    }
+    this.getNextSpinShape = function() {
+        const nextShapeNo = this.getNextShapeNo();
+        return this.spinShapes[this.type][nextShapeNo];
+    }
+
+    this.getNextShapeNo = function() {
+        return ((this.shapeNo + 1) % (Object.keys(this.spinShapes[this.type]).length));
+    }
+
+    this.canSpin = function() {
+        const nextShape = this.getNextSpinShape();
         for (let row = 0; row < nextShape.length; row++) {
             for (let col = 0; col < nextShape[row].length; col++) {
                 const squareIsSolid = (nextShape[row][col] === true);
                 if (squareIsSolid) {
-                    if (blockMap[piece.y+row][piece.x+col] !== null) {
+                    if (blockMap[this.y+row][this.x+col] !== null) {
                         return false;
                     }
                 }
@@ -482,16 +514,88 @@ function keyPressed() {
         return true;
     }
 
-    function handleHeldPiece() {
-        if (heldPiece === null) {
-            heldPiece = previewPiece;
-            previewPiece = createPiece();
-        } else {
-            previewPiece = heldPiece;
-            heldPiece = null;
-        }
-    }
+
+
+
 }
+
+
+
+// function keyPressed() {
+//     if (keyIsDown(LEFT_ARROW) && canMoveLeft(currentPiece)) {
+//         currentPiece.x -= 1;
+//     }
+//     if (keyIsDown(RIGHT_ARROW) && canMoveRight(currentPiece)) {
+//         currentPiece.x += 1;
+//     }
+//     if (keyIsDown(UP_ARROW) && canSpin(currentPiece)) {
+//         currentPiece.spin();
+//     }
+//     if (keyIsDown(16)) {
+//         handleHeldPiece();
+//     }
+
+//     drawScreen();
+
+//     function canMoveLeft(piece) {
+//         for (let row = 0; row < piece.shape.length; row++) {
+//             for (let col = 0; col < piece.shape[row].length; col++) {
+//                 const squareIsSolid = (piece.shape[row][col] === true);
+//                 if (squareIsSolid) {
+//                     if (piece.x + col -1 < 0) {
+//                         return false;
+//                     }
+//                     if (blockMap[piece.y+row][piece.x+col-1] !== null) {
+//                         return false;
+//                     }
+//                 }
+//             }
+//         }
+//         return true;
+//     }
+
+//     function canMoveRight(piece) {
+//         for (let row = 0; row < piece.shape.length; row++) {
+//             for (let col = 0; col < piece.shape[row].length; col++) {
+//                 const squareIsSolid = (piece.shape[row][col] === true);
+//                 if (squareIsSolid) {
+//                     if (piece.x + col + 1 > 10) {
+//                         console.log("Right Wall");
+//                         return false;
+//                     }
+//                     if (blockMap[piece.y+row][piece.x+col+1] !== null) {
+//                         return false;
+//                     }
+//                 }
+//             }
+//         }
+//         return true;
+//     }
+//     function canSpin(piece) {
+//         const nextShape = piece.getNextSpinShape();
+//         for (let row = 0; row < nextShape.length; row++) {
+//             for (let col = 0; col < nextShape[row].length; col++) {
+//                 const squareIsSolid = (nextShape[row][col] === true);
+//                 if (squareIsSolid) {
+//                     if (blockMap[piece.y+row][piece.x+col] !== null) {
+//                         return false;
+//                     }
+//                 }
+//             }
+//         }
+//         return true;
+//     }
+
+//     function handleHeldPiece() {
+//         if (heldPiece === null) {
+//             heldPiece = previewPiece;
+//             previewPiece = createPiece();
+//         } else {
+//             previewPiece = heldPiece;
+//             heldPiece = null;
+//         }
+//     }
+// }
 
 
 
