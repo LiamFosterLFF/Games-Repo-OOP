@@ -244,17 +244,20 @@ function Board() {
     this.dims = {x: 600, y: 800}
     this.screen = {x: this.dims.x/4, y: this.dims.y/7, w: this.dims.x/2, h: this.dims.y *(3/4)};
     this.gridDims = {w: 10, h: 20};
-    const blockDims = {w: this.screen.w/this.gridDims.w, h: this.screen.h/this.gridDims.h};
+    this.blockDims = {w: this.screen.w/this.gridDims.w, h: this.screen.h/this.gridDims.h};
     
         
     
     this.design = {
         background: "#d8d1cf", 
         screen: {
-            gridLines: "#5c5858", 
             outline: "#98a0a0",
             fill: 255, 
-            strokeWeight: 8
+            strokeWeight: 8,
+            grid: {
+                gridLines: "#5c5858", 
+                strokeWeight: 1
+            }
         },
         box: {
             outline: "#98a0a0", 
@@ -267,79 +270,93 @@ function Board() {
         }
     }
     this.show = function() {
-        this.drawBackdrop();
+        const design = this.design;
+        const screen = this.screen;
+        const dims = this.dims;
+        const blockDims = this.blockDims;
+        const gridDims = this.gridDims;
 
+        drawBackdrop();
+        drawPreviewAndHoldingBoxes();
         
-            
-        
-    }
+        function drawBackdrop() {
+            background(design.background);
+            drawScreen();
+            drawGrid();
+            displayScore();
+            function drawScreen() {
+                strokeWeight(design.screen.strokeWeight);
+                stroke(design.screen.outline);
+                fill(design.screen.fill);
+                const strokeWidth = design.screen.strokeWeight/2;
+                rect(screen.x - strokeWidth, screen.y - strokeWidth, screen.w + 2*strokeWidth, screen.h + 2*strokeWidth);
+                noStroke();
+            }
 
+            function drawGrid() {
+                for (let row = 1; row < 20; row++) {
+                    stroke(design.screen.grid.gridLines);
+                    strokeWeight(design.screen.grid.strokeWeight);
+                    line(screen.x, row*screen.h/20 + screen.y, screen.x+screen.w, row*screen.h/20 + screen.y);
+                }
+                for (let col = 1; col < 10; col++) {
+                    stroke(design.screen.grid.gridLines);
+                    strokeWeight(design.screen.grid.strokeWeight);
+                    line(col*screen.w/10 + screen.x, screen.y, col*screen.w/10 + screen.x, screen.y+screen.h);
+                }
+            }
 
-    this.drawBackdrop = function() {
-        background(this.design.background);
-        strokeWeight(this.this.design.strokeWeight);
-        stroke(this.design.screen.outline);
-        fill(this.design.screen.fill);
-        const strokeWidth = this.design.strokeWeight/2;
-        rect(screen.x - strokeWidth, screen.y - strokeWidth, screen.w + 2*strokeWidth, screen.h + 2*strokeWidth);
-        noStroke();
-    }
-    
-    
-    
-
-    this.drawPreviewBoxAndHoldingBox = function() {
-        const previewBox = {x: 3*this.dims.x/4 + 20, y: 1*this.dims.y/7, w: this.blockDims.w*4, h: blockDims.h*4};
-        const holdingBox = {x: 10, y: 1*this.dims.y/7, w: this.blockDims.w*4, h: blockDims.h*4};
-        drawBox(previewBox);
-        drawBox(holdingBox);
-        drawBoxPiece(previewBox, previewPiece);
-        if (heldPiece !== null) {
-            drawBoxPiece(holdingBox, heldPiece);
+            function displayScore() {
+                fill(design.score.fill);
+                stroke(design.score.stroke);
+                textSize(design.score.textSize);
+                text(`Score: ${score}`, width*13/32, height/8)
+            }
         }
 
-        
+        function drawPreviewAndHoldingBoxes() {
+            const previewBox = {x: 3*dims.x/4 + 20, y: 1*dims.y/7, w: blockDims.w*4, h: blockDims.h*4};
+            const holdingBox = {x: 10, y: 1*dims.y/7, w: blockDims.w*4, h: blockDims.h*4};
+            drawBox(previewBox);
+            drawBox(holdingBox);
+            drawBoxPiece(previewBox, previewPiece);
+            if (heldPiece !== null) {
+                drawBoxPiece(holdingBox, heldPiece);
+            }
+    
+            function drawBox(box) {
+                strokeWeight(8);
+                stroke(design.box.outline);
+                fill(design.box.fill)
+                rect(box.x, box.y, box.w, box.h);
+                strokeWeight(1)
+            }
+    
+            function drawBoxPiece(box, piece) {
+                for (let row = 0; row < piece.shape.length; row++) {
+                    for (let col = 0; col < piece.shape[row].length; col++) {
+                        const square = piece.shape[row][col]
+                        if (square === true) {
+                            fill(piece.color)
+                            rect(box.x + (col)*blockDims.w, box.y + (row)*blockDims.h, blockDims.w, blockDims.h)
+                        }
+                    }
+                }
+            }
+        }
+    }
 
-    //     function drawBox(box) {
-    //         strokeWeight(8);
-    //         stroke(design.box.outline);
-    //         fill(design.box.fill)
-    //         rect(box.x, box.y, box.w, box.h);
-    //         strokeWeight(1)
 
-    //     }
+    
+    
+    
+    
 
-    //     function drawBoxPiece(box, piece) {
-    //         for (let row = 0; row < piece.shape.length; row++) {
-    //             for (let col = 0; col < piece.shape[row].length; col++) {
-    //                 const square = piece.shape[row][col]
-    //                 if (square === true) {
-    //                     fill(piece.color)
-    //                     rect(box.x + (col)*blockDims.w, box.y + (row)*blockDims.h, blockDims.w, blockDims.h)
-    //                 }
-    //             }
-    //         }
-            
-    //     }
-    // }
+    
 
-    // function drawGrid() {
-    //     for (let row = 1; row < 20; row++) {
-    //         stroke(design.screen.gridLines);
-    //         line(screen.x, row*screen.h/20 + screen.y, screen.x+screen.w, row*screen.h/20 + screen.y);
-    //     }
-    //     for (let col = 1; col < 10; col++) {
-    //         stroke(design.screen.gridLines);
-    //         line(col*screen.w/10 + screen.x, screen.y, col*screen.w/10 + screen.x, screen.y+screen.h);
-    //     }
-    // }
+    
 
-    // function displayScore() {
-    //     fill(design.score.fill);
-    //     stroke(design.score.stroke);
-    //     textSize(design.score.textSize);
-    //     text(`Score: ${score}`, width*13/32, height/8)
-    // }
+    
 
     // function drawBlocks() {
     //     for (let row = 0; row < blockMap.length; row++) {
