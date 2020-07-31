@@ -125,7 +125,7 @@ function Board() {
                 this.addPieceToBlockMap(this.currentPiece);
                 this.updatePiece();
                 calledAlready = false;
-            }, 1000);
+            }, 500);
             
         }
 
@@ -491,14 +491,17 @@ function Piece() {
 // Pieces speed up over time
 // 
 // Bugs: 
-//      -- Pieces are dropping through rows for some reason
-//      -- Colors are off on predictive ropping (alpha)
+//      -- Colors are off on predictive dropping (alpha)
+//      -- Left and right speeds are a little fast
+//      -- T-spins don't work so good (can't check row below)
+//      -- Piece should set after it is pushed downward to last row
 // 
 // Aesthetics: 
 //      - Add a sidebar to delineate edges of screen
 //      - Add a game over screen
 //      - Fix preview and holding boxes so the piece appears in the middle
 //      - Clean up functions?
+//      - Animation for lines being filled (and pieces being set)
 //
 // Adding AI: 
 //      - Check every row to find open single squares

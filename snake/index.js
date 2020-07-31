@@ -55,8 +55,7 @@ function Snake() {
         this.x = this.x + this.xspeed*scl;
         this.y = this.y + this.yspeed*scl;
 
-        this.x = constrain(this.x, 0, width-scl);
-        this.y = constrain(this.y, 0, height-scl);
+
         
         this.tail.push(createVector(this.x, this.y))
         this.tail.shift()
@@ -83,6 +82,9 @@ function Snake() {
     }
 
     this.die = function() {
+        if (this.x > width || this.y > height || this.x < 0 || this.y < 0) {
+            return true;
+        }
         for (i = 0; i < this.tail.length -1; i++) {
             const t = this.tail[i]
             if (this.x === t.x && this.y === t.y) {
