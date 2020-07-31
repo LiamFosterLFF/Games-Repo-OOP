@@ -8,6 +8,8 @@ var previewPiece = null;
 let gameSpeed = 500;
 let gameOver = false;
 var gravity;
+var gravityTimeout;
+
 const blockMap = new Array(20).fill(null).map((row) => new Array(10).fill(null))
 let calledAlready = false;
 
@@ -19,7 +21,11 @@ function setup() {
 
 function startGravity() {
     gravity = setInterval(() => {
-        board.currentPiece.y += 1;
+        if (board.currentPiece.canMoveDown()) {
+            clearTimeout(gravityTimeout);
+            calledAlready = false;
+            board.currentPiece.y += 1;
+        }
     }, gameSpeed)
 }
 
@@ -114,13 +120,10 @@ function Board() {
         showProjection(this.currentPiece);
 
         if (this.currentPiece.landed(blockMap) && !calledAlready) {
-            console.log("HIT");
             calledAlready = true;
-            clearInterval(gravity);
-            setTimeout(() => {
+            gravityTimeout = setTimeout(() => {
                 this.addPieceToBlockMap(this.currentPiece);
                 this.updatePiece();
-                startGravity();
                 calledAlready = false;
             }, 1000);
             
@@ -364,7 +367,6 @@ function Piece() {
                 if (squareIsSolid) {
                     const rowBelow = this.y + invertedRow + 1;
                     if (rowBelow > 19) {
-                        console.log(this.shape, row, col);
                         return true;
                     } else {
                         const squareBelow = blockMap[rowBelow][this.x + col]
@@ -428,9 +430,28 @@ function Piece() {
     }
 
     this.moveDown = function() {
-        clearInterval(gravity)
-        this.y += 1
-        startGravity();
+        if (this.canMoveDown()) {
+            clearInterval(gravity)
+            this.y += 1
+            startGravity();
+        }
+    }
+
+    this.canMoveDown = function() {
+        for (let row = 0; row < this.shape.length; row++) {
+            for (let col = 0; col < this.shape[row].length; col++) {
+                const squareIsSolid = (this.shape[row][col] === true);
+                if (squareIsSolid) {
+                    if (this.y + row >= 19) {
+                        return false;
+                    }
+                    if (blockMap[this.y+row+1][this.x+col] !== null) {
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
     }
 
     this.spin = function() {
@@ -466,16 +487,12 @@ function Piece() {
 }
 
 
-
-// Add a pause before committing the piece to its final destination
-// Predictive dropping
-// Keep score
 // Increase levels
 // Pieces speed up over time
 // 
 // Bugs: 
 //      -- Pieces are dropping through rows for some reason
-//      -- Pieces movement isn't smooth
+//      -- Colors are off on predictive ropping (alpha)
 // 
 // Aesthetics: 
 //      - Add a sidebar to delineate edges of screen
