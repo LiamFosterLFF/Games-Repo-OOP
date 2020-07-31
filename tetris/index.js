@@ -9,6 +9,7 @@ let gameSpeed = 500;
 let gameOver = false;
 var gravity;
 const blockMap = new Array(20).fill(null).map((row) => new Array(10).fill(null))
+let calledAlready = false;
 
 function setup() {
     createCanvas(dims.x, dims.y);
@@ -112,8 +113,17 @@ function Board() {
         this.currentPiece.show();
         showProjection(this.currentPiece);
 
-        if (this.currentPiece.landed(blockMap)) {
-            this.addPieceToBlockMap(this.currentPiece);
+        if (this.currentPiece.landed(blockMap) && !calledAlready) {
+            console.log("HIT");
+            calledAlready = true;
+            clearInterval(gravity);
+            setTimeout(() => {
+                this.addPieceToBlockMap(this.currentPiece);
+                this.updatePiece();
+                startGravity();
+                calledAlready = false;
+            }, 1000);
+            
         }
 
         this.checkBlocksForLines();
@@ -220,7 +230,6 @@ function Board() {
         }
     }
 
-    
 
     
     this.addPieceToBlockMap = function(piece) {
@@ -231,7 +240,7 @@ function Board() {
                 }
             }
         }
-    this.updatePiece();
+    
     }
 
     this.updatePiece = function() {
@@ -355,6 +364,7 @@ function Piece() {
                 if (squareIsSolid) {
                     const rowBelow = this.y + invertedRow + 1;
                     if (rowBelow > 19) {
+                        console.log(this.shape, row, col);
                         return true;
                     } else {
                         const squareBelow = blockMap[rowBelow][this.x + col]
