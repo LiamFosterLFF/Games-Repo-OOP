@@ -47,19 +47,17 @@ function Snake() {
     this.tail = [createVector(this.x, this.y)];
 
     this.dir = function(x, y) {
-        this.xspeed = x;
-        this.yspeed = y;
+        if (this.xspeed !== -x && this.yspeed !== -y) {
+            this.xspeed = x;
+            this.yspeed = y;
+        }
     }
 
     this.update = function() {
         this.x = this.x + this.xspeed*scl;
         this.y = this.y + this.yspeed*scl;
-
-
-        
         this.tail.push(createVector(this.x, this.y))
         this.tail.shift()
-
     }
 
     this.show = function() {
@@ -99,9 +97,7 @@ function Snake() {
         this.y = 0;
         this.xspeed = 1;
         this.yspeed = 0;
-
         this.tail = [createVector(this.x, this.y)];
-
     }
 }
 
@@ -122,7 +118,6 @@ function Food() {
     }
 }
 
-// Bug: Can hit wall when small
 // Bug: Can go backward when small
 // Add a win condition
 // Increase speed as keep winning?
