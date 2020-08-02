@@ -52,7 +52,7 @@ function Snake() {
 
     function createHamiltonianCycle() {
         const startingPoint = [[0,0], [0,1], [1,1], [1,0]];
-        const startingPointNo = 1;
+        const startingPointNo = 0;
         const hCycle = startingPoint;
         const frontier = {};
         primsMazeIterator(startingPoint, startingPointNo);
@@ -99,19 +99,29 @@ function Snake() {
                     }
                 }
             }
-            // if (x - 1 >= 0 && block[x-1][y].up === false) {
-        
-            // }
-            // if (x + 1 < 40 && block[x+1][y].down === false) {
-                
-            // }
-            // if (y - 1 >= 0 && block[x][y-1].left === false) {
-                
-            // }
-            // if (y + 1 < 40 && block[x][y+1].right === false) {
-                
-            // }
-            // return cycle;
+            const frontierCellsArr = Object.keys(frontier);
+            const nextFrontierCell = frontierCellsArr[floor(random(frontierCellsArr.length))];
+            const noOfDirChoices = frontier[nextFrontierCell].length;
+            const cellConnxnDir = frontier[nextFrontierCell][floor(random(noOfDirChoices))];
+            console.log(nextFrontierCell, cellConnxnDir);
+            let cellToConnectWith = null;
+            if (cellConnxnDir === "down") {
+                cellToConnectWith = Number(nextFrontierCell) + w;
+            } 
+            if(cellConnxnDir === "left") {
+                cellToConnectWith = Number(nextFrontierCell) - 1;
+            } 
+            if(cellConnxnDir === "up") {
+                cellToConnectWith = Number(nextFrontierCell) - w;
+            } 
+            if(cellConnxnDir === "right") {
+                cellToConnectWith = Number(nextFrontierCell) + 1;
+            }
+            console.log(cellToConnectWith);
+            const topLeftPoint = [nextFrontierCell%w, floor(nextFrontierCell/w)]
+            const [cy, cx] = topLeftPoint;
+            const cellPoints = [topLeftPoint, [cy, cx+1], [cy+1, cx+1], [cy+1, cx]];
+            console.log(cellPoints);
         }
         console.log(frontier);
         return hCycle;
