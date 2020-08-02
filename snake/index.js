@@ -7,12 +7,14 @@ function setup() {
     s = new Snake();
     f = new Food();
     frameRate(10);
+    // console.log(s.hamiltonianCycle);
+
 }
 
 function draw() {
     background(50)
-    s.update();
     s.show();
+    s.update();
     f.show();
     
     if (s.die()) {
@@ -23,6 +25,7 @@ function draw() {
         s.grow()
         f.update()
     };
+
 }
 
 function keyPressed() {
@@ -45,6 +48,75 @@ function Snake() {
     this.yspeed = 0;
 
     this.tail = [createVector(this.x, this.y)];
+    this.hamiltonianCycle = createHamiltonianCycle();
+
+    function createHamiltonianCycle() {
+        const startingPoint = [[0,0], [0,1], [1,1], [1,0]];
+        const startingPointNo = 1;
+        const hCycle = startingPoint;
+        const frontier = {};
+        primsMazeIterator(startingPoint, startingPointNo);
+        
+        function primsMazeIterator(point, pointNo) {
+            const [w, h] = [width/scl, height/scl];
+            for (let i = 0; i < 4; i++) {
+                const corner = point[i];
+                const [y, x] = corner
+                if (i === 0) { //Top Bar
+                    if(y-1 >=0) { //Not on edge, then add to frontier (or add to existing frontier entry)
+                        if (frontier[pointNo-w] === undefined) {
+                            frontier[pointNo-w] = ["down"];
+                        } else {
+                            frontier[pointNo-w].push("down");
+                        }
+                    }
+                }
+                if (i === 1) { //Right Bar
+                    if(x+1 < 40) { //Not on edge, then add to frontier (or add to existing frontier entry)
+                        if (frontier[pointNo+1] === undefined) {
+                            frontier[pointNo+1] = ["left"];
+                        } else {
+                            frontier[pointNo+1].push("left");
+                        }
+                    }
+                }
+                if (i === 2) { //Bottom Bar
+                    if(y+1 < 40) { //Not on edge, then add to frontier (or add to existing frontier entry)
+                        if (frontier[pointNo+w] === undefined) {
+                            frontier[pointNo+w] = ["up"];
+                        } else {
+                            frontier[pointNo+w].push("up");
+                        }
+                    }
+                }
+                if (i === 3) { //Right Bar
+                    if(x-1 >= 0) { //Not on edge, then add to frontier (or add to existing frontier entry)
+                        if (frontier[pointNo-1] === undefined) {
+                            frontier[pointNo-1] = ["right"];
+                        } else {
+                            frontier[pointNo-1].push("right");
+                        }
+                    }
+                }
+            }
+            // if (x - 1 >= 0 && block[x-1][y].up === false) {
+        
+            // }
+            // if (x + 1 < 40 && block[x+1][y].down === false) {
+                
+            // }
+            // if (y - 1 >= 0 && block[x][y-1].left === false) {
+                
+            // }
+            // if (y + 1 < 40 && block[x][y+1].right === false) {
+                
+            // }
+            // return cycle;
+        }
+        console.log(frontier);
+        return hCycle;
+    }
+
 
     this.dir = function(x, y) {
         if (this.xspeed !== -x && this.yspeed !== -y) {
@@ -99,6 +171,8 @@ function Snake() {
         this.yspeed = 0;
         this.tail = [createVector(this.x, this.y)];
     }
+
+
 }
 
 function Food() {
@@ -118,7 +192,6 @@ function Food() {
     }
 }
 
-// Bug: Can go backward when small
 // Add a win condition
 // Increase speed as keep winning?
 // Keep a length counter
