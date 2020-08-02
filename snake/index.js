@@ -103,27 +103,51 @@ function Snake() {
             const nextFrontierCell = frontierCellsArr[floor(random(frontierCellsArr.length))];
             const noOfDirChoices = frontier[nextFrontierCell].length;
             const cellConnxnDir = frontier[nextFrontierCell][floor(random(noOfDirChoices))];
-            console.log(nextFrontierCell, cellConnxnDir);
+            const nextFrontierCellTopLeftPoint = [floor(nextFrontierCell/w), nextFrontierCell%w]
+            const [cy, cx] = nextFrontierCellTopLeftPoint;
+            const nextCellPoints = [nextFrontierCellTopLeftPoint, [cy, cx+1], [cy+1, cx+1], [cy+1, cx]];
+
             let cellToConnectWith = null;
             if (cellConnxnDir === "down") {
                 cellToConnectWith = Number(nextFrontierCell) + w;
+                const cellToConnectWithTopLefttPoint = [floor(cellToConnectWith/w), cellToConnectWith%w];
+                const cycleInsertionPointIndex = cycleInsertionPointIndexFinder(hCycle, cellToConnectWithTopLeftPoint);
+                hCycle.splice(cycleInsertionPointIndex+1, 0, nextCellPoints[0], nextCellPoints[1])
+                
             } 
             if(cellConnxnDir === "left") {
                 cellToConnectWith = Number(nextFrontierCell) - 1;
+                const cellToConnectWithTopRightPoint = [floor(cellToConnectWith/w), cellToConnectWith%w + 1];
+                const cycleInsertionPointIndex = cycleInsertionPointIndexFinder(hCycle, cellToConnectWithTopRightPoint);
+                hCycle.splice(cycleInsertionPointIndex+1, 0, nextCellPoints[1], nextCellPoints[2])
+
             } 
             if(cellConnxnDir === "up") {
                 cellToConnectWith = Number(nextFrontierCell) - w;
+                const cellToConnectWithBottomRightPoint = [floor(cellToConnectWith/w) + 1, cellToConnectWith%w + 1];
+                const cycleInsertionPointIndex = cycleInsertionPointIndexFinder(hCycle, cellToConnectWithBottomRightPoint);
+                hCycle.splice(cycleInsertionPointIndex+1, 0, nextCellPoints[2], nextCellPoints[3])
+
             } 
             if(cellConnxnDir === "right") {
                 cellToConnectWith = Number(nextFrontierCell) + 1;
+                const cellToConnectWithBottomLeftPoint = [floor(cellToConnectWith/w) + 1, cellToConnectWith%w];
+                const cycleInsertionPointIndex = cycleInsertionPointIndexFinder(hCycle, cellToConnectWithBottomLefttPoint);
+                hCycle.splice(cycleInsertionPointIndex+1, 0, nextCellPoints[2], nextCellPoints[0])
+
             }
-            console.log(cellToConnectWith);
-            const topLeftPoint = [nextFrontierCell%w, floor(nextFrontierCell/w)]
-            const [cy, cx] = topLeftPoint;
-            const cellPoints = [topLeftPoint, [cy, cx+1], [cy+1, cx+1], [cy+1, cx]];
-            console.log(cellPoints);
+            const cellConnectionPoints = []
+
         }
-        console.log(frontier);
+
+        function cycleInsertionPointIndexFinder(arr, subArr) {
+            for (let i = 0; i < arr.length; i++) {
+                if (arr[i][0] === subArr[0] && arr[i][1] === subArr[1]) {
+                    return i;
+                }
+            }
+        }
+
         return hCycle;
     }
 
