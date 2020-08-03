@@ -65,9 +65,10 @@ function primsAlgorithm() {
             frontier[`${cell[0]}, ${cell[1]+1}`] = ["left"];
         }
 
-        console.log(frontier);
+        const randomCell = Object.keys(frontier)[floor(random(Object.keys(frontier).length))];
+        const randomConnxnDirection = frontier[randomCell][floor(random(frontier[randomCell].length))];
+        console.log(randomConnxnDirection);
     }
-    // Starts from first cell, adds to already checked, adds all adjacent cells to frontier (a dictinonary, with all possible connxn directions)
     // Randomly selects an adjacent cell from frontier, randomly selects direction to connect to path
         // Base condition : There are no cells left in frontier to check
     // Deletes cell from frontier, calls PrimsIterator recursively on selected cell
