@@ -60,6 +60,8 @@ function Snake() {
         primsMazeIterator(startingPoint, startingPointNo);
         
         function primsMazeIterator(point, pointNo) {
+
+            // 
             counter++
             pointNo = Number(pointNo)
             const [w, h] = [width/scl, height/scl];
