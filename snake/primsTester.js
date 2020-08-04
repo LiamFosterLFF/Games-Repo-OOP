@@ -1,11 +1,13 @@
 const blockMap = [];
 const dims = {row: 20/2, col: 20/2};
+const hCycle = [];
 
 function setup() {
     createCanvas(400, 400);
     background(0);
     fillBlockMap()
-    primsAlgorithm();
+    primsAlgorithm(dims.col, dims. row);
+    hamiltonianLoopMaker([0, 0])
 }
 
 function draw() {
@@ -45,7 +47,7 @@ function drawGrid(){
 }
 
 
-function primsAlgorithm() {
+function primsAlgorithm(w, h) {
     let counter = 0;
     const alreadyTraversed = {};
     const frontier = {};
@@ -65,7 +67,7 @@ function primsAlgorithm() {
         }
 
         //Up, from connecting/frontier cell's perspective
-        if (alreadyTraversed[`${cell[0]+1}, ${cell[1]}`] === "" || cell[0]+1 >= dims.row) { // Already been traversed or off the grid, do nothing
+        if (alreadyTraversed[`${cell[0]+1}, ${cell[1]}`] === "" || cell[0]+1 >= h) { // Already been traversed or off the grid, do nothing
 
         } else if (frontier[`${cell[0]+1}, ${cell[1]}`] === undefined) { //Not yet in frontier, create an object with coordinates for key and array with offset for value
             frontier[`${cell[0]+1}, ${cell[1]}`] = ["Up"];
@@ -83,7 +85,7 @@ function primsAlgorithm() {
         }
 
         //Left, from connecting/frontier cell's perspective
-        if (alreadyTraversed[`${cell[0]}, ${cell[1]+1}`] === "" || cell[1]+1 >= dims.col) { // Already been traversed or off the grid, do nothing
+        if (alreadyTraversed[`${cell[0]}, ${cell[1]+1}`] === "" || cell[1]+1 >= w) { // Already been traversed or off the grid, do nothing
 
         } else if (frontier[`${cell[0]}, ${cell[1]+1}`] === undefined) { //Not yet in frontier, create an object with coordinates for key and array with offset for value
             frontier[`${cell[0]}, ${cell[1]+1}`] = ["Left"];
@@ -127,7 +129,50 @@ function primsAlgorithm() {
     }
 }
 
-function leftTurnMazeSolver() {
+function hamiltonianLoopMaker(location, finish) {
+    let counter = 0;
+
+
+    // Maintain own position, by rotating through an array with turn directions
+    // Starting from right (starts inverted, so facing down)
+
+    const dirArr = ["left", "down", "right", "up"];
+    // Object containing the translations for movement that each of the directions correspond to
+    const dirTrans = {"left": [0, -1], "down": [1, 0], "right": [0, 1], "up": [-1, 0]};
+
+    while (counter < 1000) {
+        console.log(counter++);
+        const [y, x] = location;
+        const block = blockMap[y][x];
+        if (block[dirArr[0]] === true){ // Right, according to perspective of snake
+            const r = dirTrans[dirArr[0]];
+            location = [Number(y) + Number(r[0]), Number(x) + Number(r[1])];
+            shiftDirArr(1);
+        } else if (block[dirArr[1]] === true) { // Forward, according to perspective of snake
+            const d = dirTrans[dirArr[1]];
+            location = [Number(y) + Number(d[0]), Number(x) + Number(d[1])];
+        } else if (block[dirArr[2]] === true){ // Left, according to perspective of snake
+            const l = dirTrans[dirArr[2]];
+            location = [Number(y) + Number(l[0]), Number(x) + Number(l[1])];
+            shiftDirArr(3);
+        } else if (block[dirArr[3]] === true) { // Back, according to perspective of snake
+            const b = dirTrans[dirArr[3]];
+            location = [Number(y) + Number(b[0]), Number(x) + Number(b[1])];
+            shiftDirArr(2);
+        }
+        console.log(location);
+    }
+    
+    console.log(location, dirArr);
+
+
+    function shiftDirArr(x) {
+        for (let i = 0; i < x; i++) {
+            const el = dirArr.pop();
+            dirArr.unshift(el)
+        }
+    }
+
     // Checks if can turn left, if can, go left +2, start over
     // If cannot, check forward, if can, forward 2
     // If not, go forward 1, check right, if can, right 2
