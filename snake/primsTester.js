@@ -131,45 +131,63 @@ function primsAlgorithm(w, h) {
 
 function hamiltonianLoopMaker(location, finish) {
     let counter = 0;
-
+    const hLoop = [[0,0]];
 
     // Maintain own position, by rotating through an array with turn directions
     // Starting from right (starts inverted, so facing down)
-
     const dirArr = ["left", "down", "right", "up"];
+    const facing = ["down", "right", "up", "left"];
+
     // Object containing the translations for movement that each of the directions correspond to
     const dirTrans = {"left": [0, -1], "down": [1, 0], "right": [0, 1], "up": [-1, 0]};
 
-    while (counter < 1000) {
+    while (counter < 100) {
         console.log(counter++);
         const [y, x] = location;
-        const block = blockMap[y][x];
+        const [mapY, mapX] = [floor(location[0]/2), floor(location[1]/2)];
+        const block = blockMap[mapY][mapX];
         if (block[dirArr[0]] === true){ // Right, according to perspective of snake
             const r = dirTrans[dirArr[0]];
             location = [Number(y) + Number(r[0]), Number(x) + Number(r[1])];
             shiftDirArr(1);
-        } else if (block[dirArr[1]] === true) { // Forward, according to perspective of snake
+        } else if (block[dirArr[1]] === true || canMoveForwardInSquare(y, x)) { // Forward, according to perspective of snake
             const d = dirTrans[dirArr[1]];
             location = [Number(y) + Number(d[0]), Number(x) + Number(d[1])];
-        } else if (block[dirArr[2]] === true){ // Left, according to perspective of snake
+        } else { // Left, according to perspective of snake
             const l = dirTrans[dirArr[2]];
             location = [Number(y) + Number(l[0]), Number(x) + Number(l[1])];
             shiftDirArr(3);
-        } else if (block[dirArr[3]] === true) { // Back, according to perspective of snake
-            const b = dirTrans[dirArr[3]];
-            location = [Number(y) + Number(b[0]), Number(x) + Number(b[1])];
-            shiftDirArr(2);
         }
         console.log(location);
     }
     
-    console.log(location, dirArr);
+
+    function canMoveForwardInSquare(y, x) {
+        console.log(facing, y, x);
+        if (facing[0] === "down" && Number(y)%2 === 0) {
+            console.log("hit");
+            return true;
+        } else if (facing[0] === "right" && Number(x)%2 === 0) {
+            console.log("hit2");
+            return true;
+        } else if (facing[0] === "up" && Number(y)%2 === 1) {
+            console.log("hit3");
+            return true;
+        } else if (facing[0] === "left" && Number(x)%2 === 1) {
+            console.log("hit4");
+            return true;
+        }
+        return false;
+    }
+
 
 
     function shiftDirArr(x) {
         for (let i = 0; i < x; i++) {
             const el = dirArr.pop();
-            dirArr.unshift(el)
+            dirArr.unshift(el);
+            const el2 = facing.pop();
+            facing.unshift(el2);
         }
     }
 
