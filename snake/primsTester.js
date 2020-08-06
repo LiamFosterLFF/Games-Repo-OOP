@@ -141,8 +141,8 @@ function hamiltonianLoopMaker(location, finish) {
     // Object containing the translations for movement that each of the directions correspond to
     const dirTrans = {"left": [0, -1], "down": [1, 0], "right": [0, 1], "up": [-1, 0]};
 
-    while (counter < 100) {
-        console.log(counter++);
+    while (!(location[0] === 0 && location[1] === 1)) {
+        counter++;
         const [y, x] = location;
         const [mapY, mapX] = [floor(location[0]/2), floor(location[1]/2)];
         const block = blockMap[mapY][mapX];
@@ -158,23 +158,18 @@ function hamiltonianLoopMaker(location, finish) {
             location = [Number(y) + Number(l[0]), Number(x) + Number(l[1])];
             shiftDirArr(3);
         }
-        console.log(location);
+        hLoop.push(location)
     }
-    
+    console.log(hLoop);
 
     function canMoveForwardInSquare(y, x) {
-        console.log(facing, y, x);
         if (facing[0] === "down" && Number(y)%2 === 0) {
-            console.log("hit");
             return true;
         } else if (facing[0] === "right" && Number(x)%2 === 0) {
-            console.log("hit2");
             return true;
         } else if (facing[0] === "up" && Number(y)%2 === 1) {
-            console.log("hit3");
             return true;
         } else if (facing[0] === "left" && Number(x)%2 === 1) {
-            console.log("hit4");
             return true;
         }
         return false;
