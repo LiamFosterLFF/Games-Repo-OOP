@@ -5,8 +5,8 @@ let button;
 
 function setup() {
     createCanvas(400, 400)
-    s = new Snake();
     f = new Food();
+    s = new Snake();
     frameRate(10);
     button = createButton('switch to auto');
     button.position(width/2-65/2, 450, 65);
@@ -258,14 +258,18 @@ function Snake() {
         for (let i = 0; i < cardinalIndices.length; i++) {
             const index = cardinalIndices[i];
             if (index !== -1 && abs(index - randomPointIndex) !== 1) { // nextdoor point is in cycle but not directly beside, 
-                console.log(index, randomPointIndex);
+                const food = [f.x/scl, f.y/scl];
+                const lowerIndex = (index < randomPointIndex) ? index: randomPointIndex;
+                const higherIndex = (index < randomPointIndex) ? randomPointIndex: index;
+                const pathSegment = origHCycle.slice(lowerIndex, higherIndex+1)
+                if (pointIndex(pathSegment, food) !== -1) {
+                    console.log("Contains food")
+                }
+                console.log(index, randomPointIndex, randomPoint, origHCycle[index], food, lowerIndex, higherIndex, pathSegment);
             }
             
         }
-        // if (leftIndex !== -1 && abs(leftIndex - randomPointIndex) !== 1) { // nextdoor point is in cycle but not directly beside, 
-        //     console.log(leftIndex, randomPointIndex);
-        // }
-        
+
 
         function pointIndex(array, point) {
             for (let i = 0; i < array.length; i++) {
