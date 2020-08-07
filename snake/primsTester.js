@@ -1,58 +1,72 @@
-const blockMap = [];
 const dims = {row: 20/2, col: 20/2};
-const hCycle = [];
 
 function setup() {
     createCanvas(400, 400);
-    background(0);
-    fillBlockMap()
-    primsAlgorithm(dims.col, dims. row);
-    hamiltonianLoopMaker([0, 0])
+    // background(0);
+    // fillBlockMap()
+    hamiltonianPath(dims.col, dims. row);
+    
 }
 
 function draw() {
-    drawGrid();
+    // drawGrid();
 
 }
 
-function fillBlockMap() {
-    for (let i = 0; i < dims.row; i++) {
-        const row = [];
-        for (let j = 0; j < dims.col; j++) {
-            row.push(new Block());
-        }
-        blockMap.push(row)
+
+
+// function drawGrid(){
+//     const gridSize = width/dims.row;
+//     stroke(255);
+//     mazeMap.forEach((row, i) => {
+//         row.forEach((block, j) => {
+//             if (block.up === false) {
+//                 line(j*gridSize, i*gridSize, (j+1)*gridSize, i*gridSize);
+//             }
+//             if (block.down === false) {
+//                 line(j*gridSize, (i+1)*gridSize, (j+1)*gridSize, (i+1)*gridSize);
+//             }
+//             if (block.left === false) {
+//                 line(j*gridSize, i*gridSize, j*gridSize, (i+1)*gridSize);
+//             }
+//             if (block.right === false) {
+//                 line((j+1)*gridSize, i*gridSize, (j+1)*gridSize, (i+1)*gridSize);
+//             }
+//         })
+//     })
+// }
+
+
+function hamiltonianPath(w, h) {
+    const mazeMap = fillMazeMap();
+
+    function Block() {
+        this.up = false;
+        this.down = false;
+        this.left = false;
+        this.right = false;
     }
-}
 
-function drawGrid(){
-    const gridSize = width/dims.row;
-    stroke(255);
-    blockMap.forEach((row, i) => {
-        row.forEach((block, j) => {
-            if (block.up === false) {
-                line(j*gridSize, i*gridSize, (j+1)*gridSize, i*gridSize);
+    function fillMazeMap() {
+        const map = [];
+        for (let i = 0; i < h; i++) {
+            const row = [];
+            for (let j = 0; j < w; j++) {
+                row.push(new Block());
             }
-            if (block.down === false) {
-                line(j*gridSize, (i+1)*gridSize, (j+1)*gridSize, (i+1)*gridSize);
-            }
-            if (block.left === false) {
-                line(j*gridSize, i*gridSize, j*gridSize, (i+1)*gridSize);
-            }
-            if (block.right === false) {
-                line((j+1)*gridSize, i*gridSize, (j+1)*gridSize, (i+1)*gridSize);
-            }
-        })
-    })
-}
+            map.push(row)
+        }
+        return map;
+    }
 
 
-function primsAlgorithm(w, h) {
     let counter = 0;
     const alreadyTraversed = {};
     const frontier = {};
     const startCell = [0, 0];
-    primsIterator(startCell)
+    primsIterator(startCell);
+
+
     function primsIterator(cell) {
         alreadyTraversed[`${cell[0]}, ${cell[1]}`] = "";
 
@@ -106,96 +120,91 @@ function primsAlgorithm(w, h) {
 
         if (connxnDir === "Up") {
             const [row, col] = [Number(newCell[0]) - 1, Number(newCell[1])];
-            blockMap[newCell[0]][newCell[1]].up = true;
-            blockMap[row][col].down = true;
+            mazeMap[newCell[0]][newCell[1]].up = true;
+            mazeMap[row][col].down = true;
         }
         if (connxnDir === "Down") {
             const [row, col] = [Number(newCell[0]) + 1, Number(newCell[1])];
-            blockMap[newCell[0]][newCell[1]].down = true;
-            blockMap[row][col].up = true;
+            mazeMap[newCell[0]][newCell[1]].down = true;
+            mazeMap[row][col].up = true;
         }
         if (connxnDir === "Right") {
             const [row, col] = [Number(newCell[0]), Number(newCell[1]) + 1];
-            blockMap[newCell[0]][newCell[1]].right = true;
-            blockMap[row][col].left = true;
+            mazeMap[newCell[0]][newCell[1]].right = true;
+            mazeMap[row][col].left = true;
         }
         if (connxnDir === "Left") {
             const [row, col] = [Number(newCell[0]), Number(newCell[1]) - 1];
-            blockMap[newCell[0]][newCell[1]].left = true;
-            blockMap[row][col].right = true;
+            mazeMap[newCell[0]][newCell[1]].left = true;
+            mazeMap[row][col].right = true;
         }
         delete frontier[`${newCell[0]}, ${newCell[1]}`];
         primsIterator(newCell)
     }
+
+    const hCycle = hamiltonianLoopMaker([0, 0]);
+    console.log(hCycle);
+    
+
+    function hamiltonianLoopMaker(location, finish) {
+        let counter = 0;
+        const hLoop = [[0,0]];
+    
+        // Maintain own position, by rotating through an array with turn directions
+        // Starting from right (starts inverted, so facing down)
+        const dirArr = ["left", "down", "right", "up"];
+        const facing = ["down", "right", "up", "left"];
+    
+        // Object containing the translations for movement that each of the directions correspond to
+        const dirTrans = {"left": [0, -1], "down": [1, 0], "right": [0, 1], "up": [-1, 0]};
+    
+        while (!(location[0] === 0 && location[1] === 1)) {
+            counter++;
+            const [y, x] = location;
+            const [mapY, mapX] = [floor(location[0]/2), floor(location[1]/2)];
+            const block = mazeMap[mapY][mapX];
+            if (block[dirArr[0]] === true){ // Right, according to perspective of snake
+                const r = dirTrans[dirArr[0]];
+                location = [Number(y) + Number(r[0]), Number(x) + Number(r[1])];
+                shiftDirArr(1);
+            } else if (block[dirArr[1]] === true || canMoveForwardInSquare(y, x)) { // Forward, according to perspective of snake
+                const d = dirTrans[dirArr[1]];
+                location = [Number(y) + Number(d[0]), Number(x) + Number(d[1])];
+            } else { // Left, according to perspective of snake
+                const l = dirTrans[dirArr[2]];
+                location = [Number(y) + Number(l[0]), Number(x) + Number(l[1])];
+                shiftDirArr(3);
+            }
+            hLoop.push(location)
+        }
+        return hLoop;
+    
+        function canMoveForwardInSquare(y, x) {
+            if (facing[0] === "down" && Number(y)%2 === 0) {
+                return true;
+            } else if (facing[0] === "right" && Number(x)%2 === 0) {
+                return true;
+            } else if (facing[0] === "up" && Number(y)%2 === 1) {
+                return true;
+            } else if (facing[0] === "left" && Number(x)%2 === 1) {
+                return true;
+            }
+            return false;
+        }
+    
+    
+        function shiftDirArr(x) {
+            for (let i = 0; i < x; i++) {
+                const el = dirArr.pop();
+                dirArr.unshift(el);
+                const el2 = facing.pop();
+                facing.unshift(el2);
+            }
+        }
+    
+        
+    }
 }
 
-function hamiltonianLoopMaker(location, finish) {
-    let counter = 0;
-    const hLoop = [[0,0]];
-
-    // Maintain own position, by rotating through an array with turn directions
-    // Starting from right (starts inverted, so facing down)
-    const dirArr = ["left", "down", "right", "up"];
-    const facing = ["down", "right", "up", "left"];
-
-    // Object containing the translations for movement that each of the directions correspond to
-    const dirTrans = {"left": [0, -1], "down": [1, 0], "right": [0, 1], "up": [-1, 0]};
-
-    while (!(location[0] === 0 && location[1] === 1)) {
-        counter++;
-        const [y, x] = location;
-        const [mapY, mapX] = [floor(location[0]/2), floor(location[1]/2)];
-        const block = blockMap[mapY][mapX];
-        if (block[dirArr[0]] === true){ // Right, according to perspective of snake
-            const r = dirTrans[dirArr[0]];
-            location = [Number(y) + Number(r[0]), Number(x) + Number(r[1])];
-            shiftDirArr(1);
-        } else if (block[dirArr[1]] === true || canMoveForwardInSquare(y, x)) { // Forward, according to perspective of snake
-            const d = dirTrans[dirArr[1]];
-            location = [Number(y) + Number(d[0]), Number(x) + Number(d[1])];
-        } else { // Left, according to perspective of snake
-            const l = dirTrans[dirArr[2]];
-            location = [Number(y) + Number(l[0]), Number(x) + Number(l[1])];
-            shiftDirArr(3);
-        }
-        hLoop.push(location)
-    }
-    console.log(hLoop);
-
-    function canMoveForwardInSquare(y, x) {
-        if (facing[0] === "down" && Number(y)%2 === 0) {
-            return true;
-        } else if (facing[0] === "right" && Number(x)%2 === 0) {
-            return true;
-        } else if (facing[0] === "up" && Number(y)%2 === 1) {
-            return true;
-        } else if (facing[0] === "left" && Number(x)%2 === 1) {
-            return true;
-        }
-        return false;
-    }
 
 
-
-    function shiftDirArr(x) {
-        for (let i = 0; i < x; i++) {
-            const el = dirArr.pop();
-            dirArr.unshift(el);
-            const el2 = facing.pop();
-            facing.unshift(el2);
-        }
-    }
-
-    // Checks if can turn left, if can, go left +2, start over
-    // If cannot, check forward, if can, forward 2
-    // If not, go forward 1, check right, if can, right 2
-    // If not, go right 1, go back 2, start over
-    // Base case: Reaches target location (in this case, left top corner of original cell)
-}
-
-function Block() {
-    this.up = false;
-    this.down = false;
-    this.left = false;
-    this.right = false;
-}
