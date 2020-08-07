@@ -52,7 +52,7 @@ function Snake() {
     this.length = this.tail.length;
 
     this.hamiltonianCycle = createHamiltonianPath(width/scl/2, height/scl/2);
-    this.prunedCycle = cyclePruner(this.hamiltonianCycle);
+    this.prunedCycle = cyclePruner(this.hamiltonianCycle, this.length);
     this.nextPrunedCycle = [];
 
     this.counter= 0;
@@ -234,7 +234,7 @@ function Snake() {
     }
 
 
-    function cyclePruner(origHCycle) {
+    function cyclePruner(origHCycle, snakeLength) {
         // Pruning: needs to calculate the fastest way to the tail, that still goes through the food
 //      * Do this by choosing two points in the hamilton Array, that
 //              : Are next to one another (first point should be chosen randomly)
@@ -246,7 +246,7 @@ function Snake() {
 //      - Repeat until distance snake travels is equal to length of snake + 1
 //      - Calculate both paths at beginning, but recalculate next path every time snake eats food, starting from next tail point (shift array??)
                 // -- And shift to new path every time snake reaches previous location of its own tail
-        const doubleHCycle = origHCycle.concat(origHCycle);
+        const doubleHCycle = origHCycle.concat(origHCycle); // Need to double the length to its tail position, since in order to reach its tail it can potentially travel the distance to tail + the distance it moved
         const randomPointIndex = floor(random(doubleHCycle.length));
         const randomPoint = doubleHCycle[randomPointIndex];
         const left = [randomPoint[0] - 1, randomPoint[1]];
@@ -260,13 +260,16 @@ function Snake() {
             if (indices.length !== 0) {
                 for (let j = 0; j < indices.length; j++) {
                     const index = indices[j];
-                    if (abs(index - randomPointIndex) !== 1) { // nextdoor point is in cycle but not directly beside
+                    if (abs(index - randomPointIndex) !== 1) { // Nextdoor point is in cycle but not directly beside
                         const food = [f.x/scl, f.y/scl];
                         const lowerIndex = (index < randomPointIndex) ? index: randomPointIndex;
                         const higherIndex = (index < randomPointIndex) ? randomPointIndex: index;
                         const pathSegment = doubleHCycle.slice(lowerIndex, higherIndex+1)
-                        if (pointIndex(pathSegment, food).length === 0) { // and segment to potentially be pruned does not contain the food;
-                            console.log(index, randomPointIndex, randomPoint, doubleHCycle[index], food, lowerIndex, higherIndex, pathSegment);
+                        if (pointIndex(pathSegment, food).length === 0) { // Segment to potentially be pruned does not contain the food
+                            if (doubleHCycle.length - pathSegment.length > snakeLength) { // The remaining distance if this segement is removed is not less than the length of the snake
+                                const removed = doubleHCycle.splice(lowerIndex, pathSegment.length)
+                                console.log(lowerIndex, higherIndex, food, removed, pathSegment);
+                            }
                         }
                     }
                 }
