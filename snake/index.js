@@ -18,7 +18,6 @@ function draw() {
     s.show();
     s.runAuto();
     f.show();
-    console.log(s.length);
     if (s.die()) {
         s.restart()
     }
@@ -42,17 +41,6 @@ function keyPressed() {
     }
 }
 
-// Pruning: needs to calculate the fastest way to the tail, that still goes through the food
-//      * Do this by choosing two points in the hamilton Array, that
-//              : Are next to one another (first point should be chosen randomly)
-                        // -- Are not next to one another on the path
-//              : Do not go through the food
-//              : The distance between is not greater than (the length of the pruned hamiltonian Array * 2) - (the length of the snake)
-//                      -- Snake is travelling to its own tail, so it can potentially travel its length + the length it has traveled (the length of the path array) before it hits it own tail
-//              - If conditions met, remove all path between two points, and replace with hamilton distance from first to second
-//      - Repeat until distance snake travels is equal to length of snake + 1
-//      - Calculate both paths at beginning, but recalculate next path every time snake eats food, starting from next tail point (shift array??)
-                // -- And shift to new path every time snake reaches previous location of its own tail
 
 function Snake() {
     this.x = 0;
@@ -61,8 +49,11 @@ function Snake() {
     this.yspeed = 0;
 
     this.tail = [createVector(this.x, this.y)];
-    this.hamiltonianCycle = createHamiltonianPath(width/scl/2, height/scl/2);
     this.length = this.tail.length;
+
+    this.hamiltonianCycle = createHamiltonianPath(width/scl/2, height/scl/2);
+    this.prunedCycle = cyclePruner(this.hamiltonianCycle);
+    this.nextPrunedCycle = [];
 
     this.counter= 0;
     this.runAuto = function() {
@@ -242,6 +233,50 @@ function Snake() {
         }
     }
 
+
+    function cyclePruner(origHCycle) {
+        // Pruning: needs to calculate the fastest way to the tail, that still goes through the food
+//      * Do this by choosing two points in the hamilton Array, that
+//              : Are next to one another (first point should be chosen randomly)
+                        // -- Are not next to one another on the path
+//              : Do not go through the food
+//              : The distance between is not greater than (the length of the pruned hamiltonian Array * 2) - (the length of the snake)
+//                      -- Snake is travelling to its own tail, so it can potentially travel its length + the length it has traveled (the length of the path array) before it hits it own tail
+//              - If conditions met, remove all path between two points, and replace with hamilton distance from first to second
+//      - Repeat until distance snake travels is equal to length of snake + 1
+//      - Calculate both paths at beginning, but recalculate next path every time snake eats food, starting from next tail point (shift array??)
+                // -- And shift to new path every time snake reaches previous location of its own tail
+        const randomPointIndex = floor(random(origHCycle.length));
+        const randomPoint = origHCycle[randomPointIndex];
+        // console.log(randomPointIndex, randomPoint, pointIndex(origHCycle, randomPoint))
+        const left = [randomPoint[0] - 1, randomPoint[1]];
+        const right = [randomPoint[0] + 1, randomPoint[1]];
+        const up = [randomPoint[0], randomPoint[1] - 1];
+        const down = [randomPoint[0], randomPoint[1] + 1];
+        const [leftIndex, rightIndex, upIndex, downIndex] = [pointIndex(origHCycle, left), pointIndex(origHCycle, right), pointIndex(origHCycle, up), pointIndex(origHCycle, down)];
+        const cardinalIndices = [leftIndex, rightIndex, upIndex, downIndex];
+        for (let i = 0; i < cardinalIndices.length; i++) {
+            const index = cardinalIndices[i];
+            if (index !== -1 && abs(index - randomPointIndex) !== 1) { // nextdoor point is in cycle but not directly beside, 
+                console.log(index, randomPointIndex);
+            }
+            
+        }
+        // if (leftIndex !== -1 && abs(leftIndex - randomPointIndex) !== 1) { // nextdoor point is in cycle but not directly beside, 
+        //     console.log(leftIndex, randomPointIndex);
+        // }
+        
+
+        function pointIndex(array, point) {
+            for (let i = 0; i < array.length; i++) {
+                if (array[i][0] === point[0] && array[i][1] === point[1]) {
+                    return i;
+                }
+            }
+            return -1;
+        }
+
+    }
 
 
     this.dir = function(x, y) {
