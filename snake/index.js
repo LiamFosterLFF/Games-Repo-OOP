@@ -1,20 +1,22 @@
 var s;
 var scl = 20;
 var food;
+let button;
 
 function setup() {
     createCanvas(400, 400)
     s = new Snake();
     f = new Food();
     frameRate(10);
-    console.log(s.hamiltonianCycle);
-
+    button = createButton('switch to auto');
+    button.position(width/2-65/2, 450, 65);
+    button.mousePressed(s.runAuto);
 }
 
 function draw() {
     background(50)
     s.show();
-    s.update();
+    s.runAuto();
     f.show();
     
     if (s.die()) {
@@ -48,7 +50,18 @@ function Snake() {
     this.yspeed = 0;
 
     this.tail = [createVector(this.x, this.y)];
-    this.hamiltonianCycle = createHamiltonianPath(width/scl, height/scl);
+    this.hamiltonianCycle = createHamiltonianPath(width/scl/2, height/scl/2);
+
+
+    this.counter= 0;
+    this.runAuto = function() {
+        this.counter = (this.counter+1)%this.hamiltonianCycle.length;
+        console.log(this.counter);
+        this.x = this.hamiltonianCycle[this.counter][0]*scl;
+        this.y = this.hamiltonianCycle[this.counter][1]*scl;
+        this.tail.push(createVector(this.x, this.y))
+        this.tail.shift()
+    }
 
     function createHamiltonianPath(w, h) {
         const mazeMap = fillMazeMap();
