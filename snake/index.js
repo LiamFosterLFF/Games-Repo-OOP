@@ -7,7 +7,7 @@ function setup() {
     s = new Snake();
     f = new Food();
     frameRate(10);
-    // console.log(s.hamiltonianCycle);
+    console.log(s.hamiltonianCycle);
 
 }
 
@@ -48,137 +48,177 @@ function Snake() {
     this.yspeed = 0;
 
     this.tail = [createVector(this.x, this.y)];
-    this.hamiltonianCycle = createHamiltonianCycle();
+    this.hamiltonianCycle = createHamiltonianPath(width/scl, height/scl);
 
-    function createHamiltonianCycle() {
-        const startingPoint = [[0,0], [0,1], [1,1], [1,0]];
-        const startingPointNo = 0;
-        const hCycle = startingPoint;
-        const addedToCycle = {0: ["whoCares"]};
-        const frontier = {};
+    function createHamiltonianPath(w, h) {
+        const mazeMap = fillMazeMap();
+    
+        function Block() {
+            this.up = false;
+            this.down = false;
+            this.left = false;
+            this.right = false;
+        }
+    
+        function fillMazeMap() {
+            const map = [];
+            for (let i = 0; i < h; i++) {
+                const row = [];
+                for (let j = 0; j < w; j++) {
+                    row.push(new Block());
+                }
+                map.push(row)
+            }
+            return map;
+        }
+    
+    
         let counter = 0;
-        primsMazeIterator(startingPoint, startingPointNo);
-        
-        function primsMazeIterator(point, pointNo) {
-
-            // 
-            counter++
-            pointNo = Number(pointNo)
-            const [w, h] = [width/scl, height/scl];
-            for (let i = 0; i < 4; i++) {
-                const corner = point[i];
-                const [y, x] = corner
-                if (i === 0) { //Top Bar
-                    if(y-1 >=0) { //Not on edge, then add to frontier (or add to existing frontier entry)
-                        if (addedToCycle[pointNo-w] !== undefined) {
-
-                        } else if (frontier[pointNo-w] === undefined) {
-                            frontier[pointNo-w] = ["down"];
-                        } else {
-                            frontier[pointNo-w].push("down");
-                        }
-                    }
-                }
-                if (i === 1) { //Right Bar
-                    if(x+1 < w) { //Not on edge, then add to frontier (or add to existing frontier entry)
-                        if (addedToCycle[pointNo+1] !== undefined) {
-
-                        } else if (frontier[pointNo+1] === undefined) {
-                            frontier[pointNo+1] = ["left"];
-                        } else {
-                            frontier[pointNo+1].push("left");
-                        }
-                    }
-                }
-                if (i === 2) { //Bottom Bar
-                    if(y+1 < h) { //Not on edge, then add to frontier (or add to existing frontier entry)
-                        if (addedToCycle[pointNo+w] !== undefined) {
-
-                        } else if (frontier[pointNo+w] === undefined) {
-                            frontier[pointNo+w] = ["up"];
-                        } else {
-                            frontier[pointNo+w].push("up");
-                        }
-                    }
-                }
-                if (i === 3) { //Right Bar
-                    if(x-1 >= 0) { //Not on edge, then add to frontier (or add to existing frontier entry)
-                        if (addedToCycle[pointNo-1] !== undefined) {
-
-                        } else if (frontier[pointNo-1] === undefined) {
-                            frontier[pointNo-1] = ["right"];
-                        } else {
-                            frontier[pointNo-1].push("right");
-                        }
-                    }
-                }
+        const alreadyTraversed = {};
+        const frontier = {};
+        const startCell = [0, 0];
+        primsIterator(startCell);
+    
+    
+        function primsIterator(cell) {
+            alreadyTraversed[`${cell[0]}, ${cell[1]}`] = "";
+    
+            // Cell directions are reversed (so it's from the connecting/frontier cell's perspective)
+            //Down, from connecting/frontier cell's perspective
+            if (alreadyTraversed[`${cell[0]-1}, ${cell[1]}`] === "" || cell[0]-1 < 0) { // Already been traversed or off the grid, do nothing
+    
+            } else if (frontier[`${cell[0]-1}, ${cell[1]}`] === undefined) { //Not yet in frontier, create an object with coordinates for key and array with offset for value
+                frontier[`${cell[0]-1}, ${cell[1]}`] = ["Down"];
+            } else { // Add to already formed array
+                frontier[`${cell[0]-1}, ${cell[1]}`].push("Down");
             }
-            const frontierCellsArr = Object.keys(frontier);
-            console.log(addedToCycle);
-            // console.log(counter);
-            if (counter > 10) {
+    
+            //Up, from connecting/frontier cell's perspective
+            if (alreadyTraversed[`${cell[0]+1}, ${cell[1]}`] === "" || cell[0]+1 >= h) { // Already been traversed or off the grid, do nothing
+    
+            } else if (frontier[`${cell[0]+1}, ${cell[1]}`] === undefined) { //Not yet in frontier, create an object with coordinates for key and array with offset for value
+                frontier[`${cell[0]+1}, ${cell[1]}`] = ["Up"];
+            } else { // Add to already formed array
+                frontier[`${cell[0]+1}, ${cell[1]}`].push("Up");
+            }
+    
+            //Right, from connecting/frontier cell's perspective
+            if (alreadyTraversed[`${cell[0]}, ${cell[1]-1}`] === "" || cell[1]-1 < 0) { // Already been traversed or off the grid, do nothing
+    
+            } else if (frontier[`${cell[0]}, ${cell[1]-1}`] === undefined) { //Not yet in frontier, create an object with coordinates for key and array with offset for value
+                frontier[`${cell[0]}, ${cell[1]-1}`] = ["Right"];
+            } else { // Add to already formed array
+                frontier[`${cell[0]}, ${cell[1]-1}`].push("Right");
+            }
+    
+            //Left, from connecting/frontier cell's perspective
+            if (alreadyTraversed[`${cell[0]}, ${cell[1]+1}`] === "" || cell[1]+1 >= w) { // Already been traversed or off the grid, do nothing
+    
+            } else if (frontier[`${cell[0]}, ${cell[1]+1}`] === undefined) { //Not yet in frontier, create an object with coordinates for key and array with offset for value
+                frontier[`${cell[0]}, ${cell[1]+1}`] = ["Left"];
+            } else { // Add to already formed array
+                frontier[`${cell[0]}, ${cell[1]+1}`].push("Left");
+            }
+    
+            const frontierKeyArr = Object.keys(frontier);
+            if (frontierKeyArr.length === 0) {
                 return true;
-            } 
-
-            const nextFrontierCell = frontierCellsArr[floor(random(frontierCellsArr.length))];
-            console.log(nextFrontierCell);
-            const noOfDirChoices = frontier[nextFrontierCell].length;
-            const cellConnxnDir = frontier[nextFrontierCell][floor(random(noOfDirChoices))];
-            const nextFrontierCellTopLeftPoint = [floor(nextFrontierCell/w), nextFrontierCell%w]
-            const [cy, cx] = nextFrontierCellTopLeftPoint;
-            const nextCellPoints = [nextFrontierCellTopLeftPoint, [cy, cx+1], [cy+1, cx+1], [cy+1, cx]];
-
-            let cellToConnectWith = null;
-            if (cellConnxnDir === "down") { // Find insertion point (top left of cell in cycle) and insert first and second new points into cycle
-                cellToConnectWith = Number(nextFrontierCell) + w;
-                const cellToConnectWithTopLeftPoint = [floor(cellToConnectWith/w), cellToConnectWith%w];
-                const cycleInsertionPointIndex = cycleInsertionPointIndexFinder(hCycle, cellToConnectWithTopLeftPoint);
-                hCycle.splice(cycleInsertionPointIndex+1, 0, nextCellPoints[0], nextCellPoints[1])
-                console.log("Down",nextCellPoints[0], nextCellPoints[1]);
-                
-            } 
-            if(cellConnxnDir === "left") { // Find insertion point (top right of cell in cycle) and insert second and third new points into cycle
-                cellToConnectWith = Number(nextFrontierCell) - 1;
-                const cellToConnectWithTopRightPoint = [floor(cellToConnectWith/w), cellToConnectWith%w + 1];
-                const cycleInsertionPointIndex = cycleInsertionPointIndexFinder(hCycle, cellToConnectWithTopRightPoint);
-                hCycle.splice(cycleInsertionPointIndex+1, 0, nextCellPoints[1], nextCellPoints[2])
-                console.log("Left",nextCellPoints[1], nextCellPoints[2]);
-
-            } 
-            if(cellConnxnDir === "up") { // Find insertion point (bottom right of cell in cycle) and insert third and fourth new points into cycle
-                cellToConnectWith = Number(nextFrontierCell) - w;
-                const cellToConnectWithBottomRightPoint = [floor(cellToConnectWith/w) + 1, cellToConnectWith%w + 1];
-                const cycleInsertionPointIndex = cycleInsertionPointIndexFinder(hCycle, cellToConnectWithBottomRightPoint);
-                hCycle.splice(cycleInsertionPointIndex+1, 0, nextCellPoints[2], nextCellPoints[3])
-                console.log("Up",nextCellPoints[2], nextCellPoints[3]);
-
-            } 
-            if(cellConnxnDir === "right") { // Find insertion point (bottom left of cell in cycle) and insert fourth and first new points into cycle
-                cellToConnectWith = Number(nextFrontierCell) + 1;
-                const cellToConnectWithBottomLeftPoint = [floor(cellToConnectWith/w) + 1, cellToConnectWith%w];
-                const cycleInsertionPointIndex = cycleInsertionPointIndexFinder(hCycle, cellToConnectWithBottomLeftPoint);
-                hCycle.splice(cycleInsertionPointIndex+1, 0, nextCellPoints[3], nextCellPoints[0])
-                console.log("Right",nextCellPoints[3], nextCellPoints[0]);
-
             }
-
-            addedToCycle[nextFrontierCell] = frontier[nextFrontierCell];
-            delete frontier[nextFrontierCell];
-            primsMazeIterator(nextCellPoints, nextFrontierCell)
-        
+    
+            const newCellStr = frontierKeyArr[floor(random(frontierKeyArr.length))];
+            const newCellStrArr = newCellStr.split(",");
+            const newCell = [Number(newCellStrArr[0]), Number(newCellStrArr[1])];
+            const connxnDirArr = frontier[newCellStr];
+            const connxnDir = connxnDirArr[floor(random(connxnDirArr.length))];
+    
+            if (connxnDir === "Up") {
+                const [row, col] = [Number(newCell[0]) - 1, Number(newCell[1])];
+                mazeMap[newCell[0]][newCell[1]].up = true;
+                mazeMap[row][col].down = true;
+            }
+            if (connxnDir === "Down") {
+                const [row, col] = [Number(newCell[0]) + 1, Number(newCell[1])];
+                mazeMap[newCell[0]][newCell[1]].down = true;
+                mazeMap[row][col].up = true;
+            }
+            if (connxnDir === "Right") {
+                const [row, col] = [Number(newCell[0]), Number(newCell[1]) + 1];
+                mazeMap[newCell[0]][newCell[1]].right = true;
+                mazeMap[row][col].left = true;
+            }
+            if (connxnDir === "Left") {
+                const [row, col] = [Number(newCell[0]), Number(newCell[1]) - 1];
+                mazeMap[newCell[0]][newCell[1]].left = true;
+                mazeMap[row][col].right = true;
+            }
+            delete frontier[`${newCell[0]}, ${newCell[1]}`];
+            primsIterator(newCell)
         }
-
-        function cycleInsertionPointIndexFinder(arr, subArr) {
-            for (let i = 0; i < arr.length; i++) {
-                if (arr[i][0] === subArr[0] && arr[i][1] === subArr[1]) {
-                    console.log(i, arr[i], subArr);
-                    return i;
+    
+        const hCycle = hamiltonianLoopMaker([0, 0]);
+        return hCycle;
+        
+    
+        function hamiltonianLoopMaker(location, finish) {
+            let counter = 0;
+            const hLoop = [[0,0]];
+        
+            // Maintain own position, by rotating through an array with turn directions
+            // Starting from right (starts inverted, so facing down)
+            const dirArr = ["left", "down", "right", "up"];
+            const facing = ["down", "right", "up", "left"];
+        
+            // Object containing the translations for movement that each of the directions correspond to
+            const dirTrans = {"left": [0, -1], "down": [1, 0], "right": [0, 1], "up": [-1, 0]};
+        
+            while (!(location[0] === 0 && location[1] === 1)) {
+                counter++;
+                const [y, x] = location;
+                const [mapY, mapX] = [floor(location[0]/2), floor(location[1]/2)];
+                const block = mazeMap[mapY][mapX];
+                if (block[dirArr[0]] === true){ // Right, according to perspective of snake
+                    const r = dirTrans[dirArr[0]];
+                    location = [Number(y) + Number(r[0]), Number(x) + Number(r[1])];
+                    shiftDirArr(1);
+                } else if (block[dirArr[1]] === true || canMoveForwardInSquare(y, x)) { // Forward, according to perspective of snake
+                    const d = dirTrans[dirArr[1]];
+                    location = [Number(y) + Number(d[0]), Number(x) + Number(d[1])];
+                } else { // Left, according to perspective of snake
+                    const l = dirTrans[dirArr[2]];
+                    location = [Number(y) + Number(l[0]), Number(x) + Number(l[1])];
+                    shiftDirArr(3);
+                }
+                hLoop.push(location)
+            }
+            return hLoop;
+        
+            function canMoveForwardInSquare(y, x) {
+                if (facing[0] === "down" && Number(y)%2 === 0) {
+                    return true;
+                } else if (facing[0] === "right" && Number(x)%2 === 0) {
+                    return true;
+                } else if (facing[0] === "up" && Number(y)%2 === 1) {
+                    return true;
+                } else if (facing[0] === "left" && Number(x)%2 === 1) {
+                    return true;
+                }
+                return false;
+            }
+        
+        
+            function shiftDirArr(x) {
+                for (let i = 0; i < x; i++) {
+                    const el = dirArr.pop();
+                    dirArr.unshift(el);
+                    const el2 = facing.pop();
+                    facing.unshift(el2);
                 }
             }
+        
+            
         }
-        console.log(hCycle);
-        return hCycle;
     }
+
 
 
     this.dir = function(x, y) {
