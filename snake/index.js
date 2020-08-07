@@ -18,7 +18,7 @@ function draw() {
     s.show();
     s.runAuto();
     f.show();
-    
+    console.log(s.length);
     if (s.die()) {
         s.restart()
     }
@@ -42,6 +42,17 @@ function keyPressed() {
     }
 }
 
+// Pruning: needs to calculate the fastest way to the tail, that still goes through the food
+//      * Do this by choosing two points in the hamilton Array, that
+//              : Are next to one another (first point should be chosen randomly)
+                        // -- Are not next to one another on the path
+//              : Do not go through the food
+//              : The distance between is not greater than (the length of the pruned hamiltonian Array * 2) - (the length of the snake)
+//                      -- Snake is travelling to its own tail, so it can potentially travel its length + the length it has traveled (the length of the path array) before it hits it own tail
+//              - If conditions met, remove all path between two points, and replace with hamilton distance from first to second
+//      - Repeat until distance snake travels is equal to length of snake + 1
+//      - Calculate both paths at beginning, but recalculate next path every time snake eats food, starting from next tail point (shift array??)
+                // -- And shift to new path every time snake reaches previous location of its own tail
 
 function Snake() {
     this.x = 0;
@@ -51,12 +62,11 @@ function Snake() {
 
     this.tail = [createVector(this.x, this.y)];
     this.hamiltonianCycle = createHamiltonianPath(width/scl/2, height/scl/2);
-
+    this.length = this.tail.length;
 
     this.counter= 0;
     this.runAuto = function() {
         this.counter = (this.counter+1)%this.hamiltonianCycle.length;
-        console.log(this.counter);
         this.x = this.hamiltonianCycle[this.counter][0]*scl;
         this.y = this.hamiltonianCycle[this.counter][1]*scl;
         this.tail.push(createVector(this.x, this.y))
@@ -264,7 +274,8 @@ function Snake() {
     }
 
     this.grow = function() {
-        this.tail.push(createVector(this.x, this.y))
+        this.tail.push(createVector(this.x, this.y));
+        this.length += 1;
     }
 
     this.die = function() {
