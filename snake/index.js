@@ -246,38 +246,47 @@ function Snake() {
 //      - Repeat until distance snake travels is equal to length of snake + 1
 //      - Calculate both paths at beginning, but recalculate next path every time snake eats food, starting from next tail point (shift array??)
                 // -- And shift to new path every time snake reaches previous location of its own tail
-        const randomPointIndex = floor(random(origHCycle.length));
-        const randomPoint = origHCycle[randomPointIndex];
-        // console.log(randomPointIndex, randomPoint, pointIndex(origHCycle, randomPoint))
+        const doubleHCycle = origHCycle.concat(origHCycle);
+        const randomPointIndex = floor(random(doubleHCycle.length));
+        const randomPoint = doubleHCycle[randomPointIndex];
         const left = [randomPoint[0] - 1, randomPoint[1]];
         const right = [randomPoint[0] + 1, randomPoint[1]];
         const up = [randomPoint[0], randomPoint[1] - 1];
         const down = [randomPoint[0], randomPoint[1] + 1];
-        const [leftIndex, rightIndex, upIndex, downIndex] = [pointIndex(origHCycle, left), pointIndex(origHCycle, right), pointIndex(origHCycle, up), pointIndex(origHCycle, down)];
+        const [leftIndex, rightIndex, upIndex, downIndex] = [pointIndex(doubleHCycle, left), pointIndex(doubleHCycle, right), pointIndex(doubleHCycle, up), pointIndex(doubleHCycle, down)];
         const cardinalIndices = [leftIndex, rightIndex, upIndex, downIndex];
         for (let i = 0; i < cardinalIndices.length; i++) {
-            const index = cardinalIndices[i];
-            if (index !== -1 && abs(index - randomPointIndex) !== 1) { // nextdoor point is in cycle but not directly beside, 
-                const food = [f.x/scl, f.y/scl];
-                const lowerIndex = (index < randomPointIndex) ? index: randomPointIndex;
-                const higherIndex = (index < randomPointIndex) ? randomPointIndex: index;
-                const pathSegment = origHCycle.slice(lowerIndex, higherIndex+1)
-                if (pointIndex(pathSegment, food) !== -1) {
-                    console.log("Contains food")
+            const indices = cardinalIndices[i];
+            if (indices.length !== 0) {
+                for (let j = 0; j < indices.length; j++) {
+                    const index = indices[j];
+                    if (abs(index - randomPointIndex) !== 1) { // nextdoor point is in cycle but not directly beside
+                        const food = [f.x/scl, f.y/scl];
+                        const lowerIndex = (index < randomPointIndex) ? index: randomPointIndex;
+                        const higherIndex = (index < randomPointIndex) ? randomPointIndex: index;
+                        const pathSegment = doubleHCycle.slice(lowerIndex, higherIndex+1)
+                        if (pointIndex(pathSegment, food).length === 0) { // and segment to potentially be pruned does not contain the food;
+                            console.log(index, randomPointIndex, randomPoint, doubleHCycle[index], food, lowerIndex, higherIndex, pathSegment);
+                        }
+                    }
                 }
-                console.log(index, randomPointIndex, randomPoint, origHCycle[index], food, lowerIndex, higherIndex, pathSegment);
             }
             
         }
 
 
+        // Need to double the array, so that it can potentially go through all the points 2x (if tail is at full length)
+            // Currently, point Index is only returning the lower index. Probably need to return the closest index? As otherwise higher likelihood it will contain the food
+
+        
         function pointIndex(array, point) {
+            let indices = [];
             for (let i = 0; i < array.length; i++) {
                 if (array[i][0] === point[0] && array[i][1] === point[1]) {
-                    return i;
+                    indices.push(i)
                 }
             }
-            return -1;
+            return indices;
         }
 
     }
