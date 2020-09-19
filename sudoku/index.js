@@ -1,20 +1,17 @@
 const board = [
-    [
-        [[null, null, null], [null, null, null], [null, null, null]], 
-        [[null, null, null], [null, null, null], [null, null, null]], 
-        [[null, null, null], [null, null, null], [null, null, null]]
-    ], 
-    [
-        [[null, null, null], [null, null, null], [null, null, null]], 
-        [[null, null, null], [null, null, null], [null, null, null]], 
-        [[null, null, null], [null, null, null], [null, null, null]]
-    ], 
-    [
-        [[null, null, null], [null, null, null], [null, null, null]], 
-        [[null, null, null], [null, null, null], [null, null, null]], 
-        [[null, null, null], [null, null, null], [null, null, null]]
-    ]
+    [null, null, null, null, null, null, null, null, null], 
+    [null, null, null, null, null, null, null, null, null], 
+    [null, null, null, null, null, null, null, null, null], 
+    [null, null, null, null, null, null, null, null, null], 
+    [null, null, null, null, null, null, null, null, null], 
+    [null, null, null, null, null, null, null, null, null], 
+    [null, null, null, null, null, null, null, null, null], 
+    [null, null, null, null, null, null, null, null, null], 
+    [null, null, null, null, null, null, null, null, null]
 ]
+
+
+
 var cnv;
 var selectedSquare = null;
 
@@ -28,9 +25,19 @@ function draw() {
 }
 
 function keyPressed() {
+
+    // function checkBoard(num) {
+    //     var [bigRow, bigCol, smRow, smCol] = selectedSquare;
+    //     for (let col= 0; col< 10; col++) {
+    //         const element = array[col;
+            
+    //     }
+    // }
+
     if (selectedSquare !== null && !isNaN(key)) {
         var [bigRow, bigCol, smRow, smCol] = selectedSquare;
         board[bigRow][bigCol][smRow][smCol] = key;
+        // checkBoard(key);
         drawBoard();
     }
 }
@@ -68,20 +75,15 @@ function drawBoard() {
         
     }
 
-    for (let bigRow=0; bigRow<=2; bigRow++) {
-        for (let bigCol=0; bigCol<=2; bigCol++) {
-            for (let smRow=0; smRow<=2; smRow++) {
-                for (let smCol=0; smCol<=2; smCol++) {
-
-                    if (board[bigRow][bigCol][smRow][smCol] !== null) {
-                        textSize(70);
-                        text(
-                            `${board[bigRow][bigCol][smRow][smCol]}`, 
-                            width*bigCol*(1/3) + width*smCol*(1/9) + width*1/36, 
-                            height*bigRow*(1/3) + height*(smRow+1)*(1/9) - height*1/45
-                            )
-                    }
-                }
+    for (let row=0; row<=8; row++) {
+        for (let col=0; col<=8; col++) {
+            if (board[row][col] !== null) {
+                textSize(70);
+                // text(
+                //     `${board[row][col]}`, 
+                //     width*col*(1/3) + width*smCol*(1/9) + width*1/36, 
+                //     height*bigRow*(1/3) + height*(smRow+1)*(1/9) - height*1/45
+                //     )
             }
         }
     }
