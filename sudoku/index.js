@@ -79,11 +79,11 @@ function drawBoard() {
         for (let col=0; col<=8; col++) {
             if (board[row][col] !== null) {
                 textSize(70);
-                // text(
-                //     `${board[row][col]}`, 
-                //     width*col*(1/3) + width*smCol*(1/9) + width*1/36, 
-                //     height*bigRow*(1/3) + height*(smRow+1)*(1/9) - height*1/45
-                //     )
+                text(
+                    `${board[row][col]}`, 
+                    width*col*(1/9) + width*1/36, 
+                    height*row*(1/9) + height*1/11
+                    )
             }
         }
     }
