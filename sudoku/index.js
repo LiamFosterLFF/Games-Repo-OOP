@@ -10,7 +10,17 @@ const board = [
     [null, null, null, null, null, null, null, null, null]
 ]
 
-
+const boardDecorations = [
+    [null, null, null, null, null, null, null, null, null], 
+    [null, null, null, null, null, null, null, null, null], 
+    [null, null, null, null, null, null, null, null, null], 
+    [null, null, null, null, null, null, null, null, null], 
+    [null, null, null, null, null, null, null, null, null], 
+    [null, null, null, null, null, null, null, null, null], 
+    [null, null, null, null, null, null, null, null, null], 
+    [null, null, null, null, null, null, null, null, null], 
+    [null, null, null, null, null, null, null, null, null]
+]
 
 var cnv;
 var selectedSquare = null;
@@ -26,18 +36,25 @@ function draw() {
 
 function keyPressed() {
 
-    // function checkBoard(num) {
-    //     var [bigRow, bigCol, smRow, smCol] = selectedSquare;
-    //     for (let col= 0; col< 10; col++) {
-    //         const element = array[col;
-            
-    //     }
-    // }
+    function checkBoard(num) {
+        var [row, col] = selectedSquare;
+
+        //Check row
+        for (let checkCol= 0; checkCol< 10; checkCol++) {
+            if (checkCol !== col) {
+                if (board[row][checkCol] === num) {
+                    boardDecorations[row][checkCol] = true;
+                    boardDecorations[row][col] = true;
+                    console.log(boardDecorations);
+                }
+            }
+        }
+    }
 
     if (selectedSquare !== null && !isNaN(key)) {
         var [row, col] = selectedSquare;
         board[row][col] = key;
-        // checkBoard(key);
+        checkBoard(key);
         drawBoard();
     }
 }
