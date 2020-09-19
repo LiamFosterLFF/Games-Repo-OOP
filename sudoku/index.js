@@ -35,8 +35,8 @@ function keyPressed() {
     // }
 
     if (selectedSquare !== null && !isNaN(key)) {
-        var [bigRow, bigCol, smRow, smCol] = selectedSquare;
-        board[bigRow][bigCol][smRow][smCol] = key;
+        var [row, col] = selectedSquare;
+        board[row][col] = key;
         // checkBoard(key);
         drawBoard();
     }
@@ -46,12 +46,12 @@ function drawBoard() {
     clear();
     // Draw selected square highlight if applicable
     if (selectedSquare !== null) {
-        var [bigRow, bigCol, smRow, smCol] = selectedSquare;
+        var [row, col] = selectedSquare;
         fill(242, 221, 102);
 
         rect(
-            width*bigCol*(1/3) + width*smCol*(1/9),
-            height*bigRow*(1/3) + height*smRow*(1/9),
+            width*(1/9)*col,
+            height*(1/9)*row,
             width*(1/9),
             height*(1/9)
         )
@@ -92,10 +92,8 @@ function drawBoard() {
 
 function numberInput() {
     var newSquare = [
-        floor(mouseY/(height/3)),
-        floor(mouseX/(width/3)),
-        floor((mouseY%(height/3))/(height/9)),
-        floor((mouseX%(width/3))/(width/9))
+        floor(mouseY/(height/9)),
+        floor(mouseX/(width/9))
     ]
 
     if (!sameAsSelectedSquare(newSquare)) {
