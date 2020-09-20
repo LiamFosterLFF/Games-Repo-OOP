@@ -32,7 +32,7 @@ function keyPressed() {
         for (let i = 0; i < matchingPairs.length; i++) {
             if ((matchingPairs[i][0][0] === row && matchingPairs[i][0][1] === col) || (matchingPairs[i][1][0] === row && matchingPairs[i][1][1] === col)) {
                 matchingPairs[i] = [[null, null], [null, null]];
-                console.log(matchingPairs[i]);
+                console.log(matchingPairs);
             }
             
         }
