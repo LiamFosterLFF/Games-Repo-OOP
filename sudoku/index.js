@@ -140,18 +140,42 @@ function drawBoard() {
     }
 
     function drawNumbers() {
-        for (let row=0; row<=8; row++) {
-            for (let col=0; col<=8; col++) {
-                if (board[row][col] !== null) {
-                    textSize(70);
-                    text(
-                        `${board[row][col]}`, 
-                        width*col*(1/9) + width*1/36, 
-                        height*row*(1/9) + height*1/11
-                        )
+        function drawPresetNumbers(){
+            for (let row=0; row<=8; row++) {
+                for (let col=0; col<=8; col++) {
+                    if (presetBoard[row][col] !== null) {
+                        fill(0);
+                        stroke(0)
+                        textSize(70);
+                        text(
+                            `${presetBoard[row][col]}`, 
+                            width*col*(1/9) + width*1/36, 
+                            height*row*(1/9) + height*1/11
+                            )
+                    }
                 }
             }
         }
+
+        function drawInputNumbers() {
+            for (let row=0; row<=8; row++) {
+                for (let col=0; col<=8; col++) {
+                    if (board[row][col] !== null) {
+                        fill(51, 107, 166);
+                        stroke(51, 107, 166);
+                        textSize(70);
+                        text(
+                            `${board[row][col]}`, 
+                            width*col*(1/9) + width*1/36, 
+                            height*row*(1/9) + height*1/11
+                            )
+                    }
+                }
+            }
+        }
+
+        drawPresetNumbers();
+        drawInputNumbers();
     }
 
     function drawMatchCircles() {
