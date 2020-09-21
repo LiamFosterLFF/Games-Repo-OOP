@@ -60,9 +60,28 @@ function keyPressed() {
             }
         }
 
+        function checkLargeSquare() {
+            const [bigRow, bigCol] = [floor(row/3), floor(col/3)];
+            for (let i = 0; i < 3; i++) {
+                for (let j = 0; j < 3; j++) {
+                    if (i === row%3 && j === col%3) {
+                        //Passes over if checking position is same as selected position
+                    } else {
+                        const [checkRow, checkCol] = [bigRow*3 + i, bigCol*3 + j];
+                        if (board[checkRow][checkCol] === num) {
+                            matchingPairs.push([[row, col], [checkRow, checkCol]]);
+                        }
+                    }
+                    
+                }
+                
+            }
+        }
+
         removeMatches();
         checkRows();
         checkColumns();
+        checkLargeSquare();
 
         //Check row
         
@@ -71,21 +90,7 @@ function keyPressed() {
         
 
         //Check large square
-        const [bigRow, bigCol] = [floor(row/3), floor(col/3)];
-        for (let i = 0; i < 3; i++) {
-            for (let j = 0; j < 3; j++) {
-                if (i === row%3 && j === col%3) {
-                    //Passes over if checking position is same as selected position
-                } else {
-                    const [checkRow, checkCol] = [bigRow*3 + i, bigCol*3 + j];
-                    if (board[checkRow][checkCol] === num) {
-                        matchingPairs.push([[row, col], [checkRow, checkCol]]);
-                    }
-                }
-                
-            }
-            
-        }
+        
     }
 
     if (selectedSquare !== null && !isNaN(key)) {
