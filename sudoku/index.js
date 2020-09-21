@@ -107,29 +107,31 @@ function drawBoard() {
         }
     }
 
+    function drawBoardLines() {
+        fill(0);
+        strokeWeight(2);
+        stroke(0);
+        for (let i=0; i<4; i++) {
+            line(width*i*(1/3), 0, width*i*(1/3), height);
+            line(0, height*i*(1/3), width, height*i*(1/3));            
+        }
+        strokeWeight(1);
+        for (let i=0; i<4; i++) {
+            line(width*i*(1/3) + width*1/9, 0, width*i*(1/3) + width*1/9, height);
+            line(width*i*(1/3) + width*2/9, 0, width*i*(1/3) + width*2/9, height);
+
+            line(0, height*i*(1/3) + height*1/9, width, height*i*(1/3) + height*1/9);            
+            line(0, height*i*(1/3) + height*2/9, width, height*i*(1/3) + height*2/9);            
+        }
+    }
 
 
     clear();
-    // Draw selected square highlight if applicable
     drawSelectSquareHighlight();
+    drawBoardLines();
 
     // Draw board lines and numbers
-    fill(0);
-    strokeWeight(2);
-    stroke(0);
-    for (let i=0; i<4; i++) {
-        line(width*i*(1/3), 0, width*i*(1/3), height);
-        line(0, height*i*(1/3), width, height*i*(1/3));            
-    }
-    strokeWeight(1);
-    for (let i=0; i<4; i++) {
-        line(width*i*(1/3) + width*1/9, 0, width*i*(1/3) + width*1/9, height);
-        line(width*i*(1/3) + width*2/9, 0, width*i*(1/3) + width*2/9, height);
-
-        line(0, height*i*(1/3) + height*1/9, width, height*i*(1/3) + height*1/9);            
-        line(0, height*i*(1/3) + height*2/9, width, height*i*(1/3) + height*2/9);            
-        
-    }
+    
 
     for (let row=0; row<=8; row++) {
         for (let col=0; col<=8; col++) {
