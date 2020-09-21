@@ -125,26 +125,29 @@ function drawBoard() {
         }
     }
 
+    function drawNumbers() {
+        for (let row=0; row<=8; row++) {
+            for (let col=0; col<=8; col++) {
+                if (board[row][col] !== null) {
+                    textSize(70);
+                    text(
+                        `${board[row][col]}`, 
+                        width*col*(1/9) + width*1/36, 
+                        height*row*(1/9) + height*1/11
+                        )
+                }
+            }
+        }
+    }
 
     clear();
     drawSelectSquareHighlight();
     drawBoardLines();
-
+    drawNumbers();
     // Draw board lines and numbers
     
 
-    for (let row=0; row<=8; row++) {
-        for (let col=0; col<=8; col++) {
-            if (board[row][col] !== null) {
-                textSize(70);
-                text(
-                    `${board[row][col]}`, 
-                    width*col*(1/9) + width*1/36, 
-                    height*row*(1/9) + height*1/11
-                    )
-            }
-        }
-    }
+    
 
     for (let m = 0; m < matchingPairs.length; m++) {
         const matches = matchingPairs[m];
