@@ -10,6 +10,18 @@ const board = [
     [null, null, null, null, null, null, null, null, null]
 ]
 
+const presetBoard = [
+    [6, null, 9, 1, null, 2, null, 8, null], 
+    [null, null, null, null, null, null, 4, null, null], 
+    [5, null, 2, null, null, null, null, null, null], 
+    [null, null, null, null, 2, null, 3, null, 4], 
+    [1, null, null, null, null, 5, null, null, null], 
+    [null, 2, null, null, null, null, 5, null, 6], 
+    [null, null, null, 8, null, 1, null, null, null], 
+    [null, null, null, null, null, null, null, null, 9], 
+    [8, null, 5, 9, null, 7, null, 4, null]
+]
+
 const matchingPairs = [];
 
 var cnv;
@@ -86,7 +98,9 @@ function keyPressed() {
 
     if (selectedSquare !== null && !isNaN(key) && key > 0) {
         var [row, col] = selectedSquare;
-        board[row][col] = key;
+        if (presetBoard[row][col] === null) {
+            board[row][col] = key;
+        }
         checkBoard(key);
         drawBoard();
     }
