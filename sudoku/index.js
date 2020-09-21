@@ -50,20 +50,25 @@ function keyPressed() {
             }
         }
 
+        function checkColumns() {
+            for (let checkRow= 0; checkRow< 9; checkRow++) {
+                if (checkRow !== row) {
+                    if (board[checkRow][col] === num) {
+                        matchingPairs.push([[row, col], [checkRow,col]])
+                    }
+                }
+            }
+        }
+
         removeMatches();
         checkRows();
+        checkColumns();
 
         //Check row
         
 
         //Check column 
-        for (let checkRow= 0; checkRow< 9; checkRow++) {
-            if (checkRow !== row) {
-                if (board[checkRow][col] === num) {
-                    matchingPairs.push([[row, col], [checkRow,col]])
-                }
-            }
-        }
+        
 
         //Check large square
         const [bigRow, bigCol] = [floor(row/3), floor(col/3)];
