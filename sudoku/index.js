@@ -40,16 +40,21 @@ function keyPressed() {
             }
         }
 
-        removeMatches();
-
-        //Check row
-        for (let checkCol= 0; checkCol< 9; checkCol++) {
-            if (checkCol !== col) {
-                if (board[row][checkCol] === num) {
-                    matchingPairs.push([[row, col], [row,checkCol]])
+        function checkRows() {
+            for (let checkCol= 0; checkCol< 9; checkCol++) {
+                if (checkCol !== col) {
+                    if (board[row][checkCol] === num) {
+                        matchingPairs.push([[row, col], [row,checkCol]])
+                    }
                 }
             }
         }
+
+        removeMatches();
+        checkRows();
+
+        //Check row
+        
 
         //Check column 
         for (let checkRow= 0; checkRow< 9; checkRow++) {
