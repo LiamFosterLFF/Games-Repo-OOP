@@ -82,18 +82,9 @@ function keyPressed() {
         checkRows();
         checkColumns();
         checkLargeSquare();
-
-        //Check row
-        
-
-        //Check column 
-        
-
-        //Check large square
-        
     }
 
-    if (selectedSquare !== null && !isNaN(key)) {
+    if (selectedSquare !== null && !isNaN(key) && key > 0) {
         var [row, col] = selectedSquare;
         board[row][col] = key;
         checkBoard(key);
