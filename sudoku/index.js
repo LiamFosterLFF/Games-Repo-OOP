@@ -163,16 +163,20 @@ function drawBoard() {
     drawBoardLines();
     drawNumbers();
     drawMatchCircles();
-    // Draw board lines and numbers
-    
-
-    
-
-    
 }
 
 
 function numberInput() {
+    function sameAsSelectedSquare(square) {
+        if (selectedSquare === null) {return false}
+        for (let i=0; i<4; i++) {
+            if (square[i] !== selectedSquare[i]) {
+                return false
+            }
+        }
+        return true;
+    }
+    
     var newSquare = [
         floor(mouseY/(height/9)),
         floor(mouseX/(width/9))
@@ -185,15 +189,6 @@ function numberInput() {
     drawBoard();
 }
 
-function sameAsSelectedSquare(square) {
-    if (selectedSquare === null) {return false}
-    for (let i=0; i<4; i++) {
-        if (square[i] !== selectedSquare[i]) {
-            return false
-        }
-    }
-    return true;
-}
 
 
 // Add checker
