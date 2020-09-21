@@ -93,19 +93,25 @@ function keyPressed() {
 }
 
 function drawBoard() {
+    function drawSelectSquareHighlight() {
+        if (selectedSquare !== null) {
+            var [row, col] = selectedSquare;
+            fill(242, 221, 102);
+    
+            rect(
+                width*(1/9)*col,
+                height*(1/9)*row,
+                width*(1/9),
+                height*(1/9)
+            )
+        }
+    }
+
+
+
     clear();
     // Draw selected square highlight if applicable
-    if (selectedSquare !== null) {
-        var [row, col] = selectedSquare;
-        fill(242, 221, 102);
-
-        rect(
-            width*(1/9)*col,
-            height*(1/9)*row,
-            width*(1/9),
-            height*(1/9)
-        )
-    }
+    drawSelectSquareHighlight();
 
     // Draw board lines and numbers
     fill(0);
