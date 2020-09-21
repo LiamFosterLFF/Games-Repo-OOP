@@ -140,30 +140,35 @@ function drawBoard() {
         }
     }
 
+    function drawMatchCircles() {
+        for (let m = 0; m < matchingPairs.length; m++) {
+            const matches = matchingPairs[m];
+            for (let n = 0; n < matches.length; n++) {
+                const match = matches[n];
+                if (match[0] !== null) {
+                    fill(245, 53, 5);
+                    stroke(245, 53, 5);
+                    const [xOffset, yOffset] = [.8*width/9, .8*height/9]
+                    const [xVal, yVal] = [match[1]*height/9 + xOffset, match[0]*width/9 + yOffset]
+                    circle(xVal, yVal, 15)
+                }
+            }
+            
+    
+        }
+    }
+
     clear();
     drawSelectSquareHighlight();
     drawBoardLines();
     drawNumbers();
+    drawMatchCircles();
     // Draw board lines and numbers
     
 
     
 
-    for (let m = 0; m < matchingPairs.length; m++) {
-        const matches = matchingPairs[m];
-        for (let n = 0; n < matches.length; n++) {
-            const match = matches[n];
-            if (match[0] !== null) {
-                fill(245, 53, 5);
-                stroke(245, 53, 5);
-                const [xOffset, yOffset] = [.8*width/9, .8*height/9]
-                const [xVal, yVal] = [match[1]*height/9 + xOffset, match[0]*width/9 + yOffset]
-                circle(xVal, yVal, 15)
-            }
-        }
-        
-
-    }
+    
 }
 
 
