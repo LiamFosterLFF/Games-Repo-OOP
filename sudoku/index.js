@@ -134,7 +134,6 @@ function keyPressed() {
                 board[row][col] = key;
                 checkBoard(key);
             }
-            drawBoard();
         }
 
         const shiftDict = {"!" : 1, "@" : 2, "#" : 3, "$" : 4, "%" : 5, "^" : 6, "&" : 7, "*" : 8, "(" : 9}
@@ -143,7 +142,7 @@ function keyPressed() {
             const squareAlreadyContainsMarking = (markings[row][col].corner.includes(value))
             if (!squareAlreadyContainsMarking) {
                 markings[row][col].corner.push(value)
-            } else {
+            } else { // Remove number from array if double-typed
                 const index = markings[row][col].corner.indexOf(value)
                 markings[row][col].corner.splice(index, 1)
             }
@@ -152,6 +151,8 @@ function keyPressed() {
         }
     
     }
+    drawBoard();
+
     return false
 }
 
