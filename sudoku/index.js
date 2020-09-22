@@ -120,7 +120,16 @@ function keyPressed() {
 
     if (selectedSquare !== null) {
         var [row, col] = selectedSquare;
-        if (!isNaN(key) && key > 0) {
+
+        if (keyIsDown(SHIFT)) {
+            inputMode = "corner"
+        } else if (keyIsDown(CONTROL)) {
+            inputMode = "center"
+        } else (
+            inputMode = "normal"
+        )
+
+        if (inputMode === "normal" && !isNaN(key) && key > 0) {
             if (presetBoard[row][col] === null) {
                 board[row][col] = key;
                 checkBoard(key);
@@ -129,13 +138,7 @@ function keyPressed() {
         }
         console.log(key);
     
-        if (keyIsDown(SHIFT)) {
-            inputMode = "corner"
-        } else if (keyIsDown(CONTROL)) {
-            inputMode = "center"
-        } else (
-            inputMode = "Normal"
-        )
+        
     
         const shiftDict = {"!" : 1, "@" : 2, "#" : 3, "$" : 4, "%" : 5, "^" : 6, "&" : 7, "*" : 8, "(" : 9}
         if (inputMode === "corner" && shiftDict[key] !== undefined) {
