@@ -139,9 +139,13 @@ function keyPressed() {
 
         const shiftDict = {"!" : 1, "@" : 2, "#" : 3, "$" : 4, "%" : 5, "^" : 6, "&" : 7, "*" : 8, "(" : 9}
         if (inputMode === "corner" && shiftDict[key] !== undefined) {
-            const squareAlreadyContainsMarking = (markings[row][col].corner.includes(Number(shiftDict[key])))
+            const value = Number(shiftDict[key])
+            const squareAlreadyContainsMarking = (markings[row][col].corner.includes(value))
             if (!squareAlreadyContainsMarking) {
-                markings[row][col].corner.push(Number(shiftDict[key]))
+                markings[row][col].corner.push(value)
+            } else {
+                const index = markings[row][col].corner.indexOf(value)
+                markings[row][col].corner.splice(index, 1)
             }
         } else if (inputMode === "center" && key !== "Control") {
             markings[row][col].center.push(key)
