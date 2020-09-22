@@ -35,6 +35,7 @@ const matchingPairs = [];
 
 var cnv;
 var selectedSquare = null;
+let shiftPressed, ctrlPressed = false;
 
 function setup() {
     cnv = createCanvas(800, 800);
@@ -124,6 +125,22 @@ function keyPressed() {
             checkBoard(key);
         }
         drawBoard();
+    }
+    console.log(key);
+
+    if (key === "Shift") {
+        shiftPressed = true;
+    } else if (key === "Control") {
+        ctrlPressed = true;
+    }
+}
+
+
+function keyReleased() {
+    if (key === "Shift") {
+        shiftPressed = false;
+    } else if (key === "Control") {
+        ctrlPressed = false;
     }
 }
 
