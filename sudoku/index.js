@@ -47,6 +47,9 @@ function draw() {
     cnv.mouseClicked(numberInput)
 }
 
+
+
+
 function loadPresets() {
     for (let row = 0; row < 9; row++) {
         for (let col = 0; col < 9; col++) {
@@ -310,7 +313,47 @@ function drawBoard() {
         }
     }
 
+    function drawButtons() {
+        const normal = createButton("normal");
+        const corner = createButton("corner");
+        const center = createButton("center");
+        const color = createButton("color");
+
+        const one = createButton("1");
+        const two = createButton("2");
+        const three = createButton("3");
+        const four = createButton("4");
+        const five = createButton("5");
+        const six = createButton("6");
+        const seven = createButton("7");
+        const eight = createButton("8");
+        const nine = createButton("9");
+        const del = createButton("delete");
+
+        const undo = createButton("undo");
+        const redo = createButton("redo");
+        const restar = createButton("restart");
+        const check = createButton("check");
+
+        // normal.position(width/2, height+50)
+        // corner.position(width/2, height+70)
+        // center.position(width/2, height+80)
+        // color.position(width/2, height+90)
+        // one.position(width/2, height+100)
+        // two.position(width/2, height+110)
+        // three.position(width/2, height+120)
+        // four.position(width/2, height+130)
+        // five.position(width/2, height+140)
+        // six.position(width/2, height+150)
+        // seven.position(width/2, height+160)
+        // eight.position(width/2, height+170)
+        // nine.position(width/2, height+180)
+
+        // button.mousePressed(() => console.log("Hey, you clicked me"))
+    }
+
     clear();
+    drawButtons();
     drawSelectSquareHighlight();
     drawBoardLines();
     drawNumbers();
@@ -343,10 +386,14 @@ function numberInput() {
 
 
 
+// Add buttons - clear, undo, redo, restart, delete, button entry
 // Add checker
 // Add validator
 // Add solver?
-// Add buttons - clear, undo, redo, restart, delete, button entry
+// Add a detector that can highlight all the other numbers that match the selected one
+// Add an auto-candidate filler
+// Add can select multiple cells
+// Add inputs get stored in local storage
 // Add selectors - normal, corner, centre, colour
 // Aesthetics - change color for entered or non-entered,
 // Add a set of sudokus to pay
