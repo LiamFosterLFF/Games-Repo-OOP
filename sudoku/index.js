@@ -35,7 +35,7 @@ const matchingPairs = [];
 
 var cnv;
 var selectedSquare = null;
-let heldKey= "None";
+let inputMode = "Normal";
 
 function setup() {
     cnv = createCanvas(800, 800);
@@ -129,17 +129,19 @@ function keyPressed() {
         }
         console.log(key);
     
-        if (key === "Shift") {
-            heldKey = "Shift"
-        } else if (key === "Control") {
-            heldKey = "Control"
-        }
+        if (keyIsDown(SHIFT)) {
+            inputMode = "corner"
+        } else if (keyIsDown(CONTROL)) {
+            inputMode = "center"
+        } else (
+            inputMode = "Normal"
+        )
     
         const shiftDict = {"!" : 1, "@" : 2, "#" : 3, "$" : 4, "%" : 5, "^" : 6, "&" : 7, "*" : 8, "(" : 9}
-        if (heldKey === "Shift" && shiftDict[key] !== undefined) {
-            markings[row][col].corner.push(shiftDict[key])
+        if (inputMode === "corner" && shiftDict[key] !== undefined) {
+            markings[row][col].corner.push(Number(shiftDict[key]))
             console.log(markings);
-        } else if (heldKey === "Control" && key !== "Control") {
+        } else if (inputMode === "center" && key !== "Control") {
             markings[row][col].center.push(key)
             console.log(markings);
         }
@@ -149,13 +151,6 @@ function keyPressed() {
 }
 
 
-function keyReleased() {
-    if (key === "Shift") {
-        heldKey = "None"
-    } else if (key === "Control") {
-        heldKey = "None"
-    }
-}
 
 function drawBoard() {
     function drawSelectSquareHighlight() {
