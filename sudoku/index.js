@@ -136,17 +136,15 @@ function keyPressed() {
             }
             drawBoard();
         }
-        console.log(key);
-    
-        
-    
+
         const shiftDict = {"!" : 1, "@" : 2, "#" : 3, "$" : 4, "%" : 5, "^" : 6, "&" : 7, "*" : 8, "(" : 9}
         if (inputMode === "corner" && shiftDict[key] !== undefined) {
-            markings[row][col].corner.push(Number(shiftDict[key]))
-            console.log(markings);
+            const squareAlreadyContainsMarking = (markings[row][col].corner.includes(Number(shiftDict[key])))
+            if (!squareAlreadyContainsMarking) {
+                markings[row][col].corner.push(Number(shiftDict[key]))
+            }
         } else if (inputMode === "center" && key !== "Control") {
             markings[row][col].center.push(key)
-            console.log(markings);
         }
     
     }
@@ -223,8 +221,44 @@ function drawBoard() {
             }
         }
 
+        function drawMarkings() {
+            for (let row = 0; row < 9; row++) {
+                for (let col = 0; col < 9; col++) {
+                    if (board[row][col] === null) {
+                        const positionDict = {
+                            0: {x: 10, y: 20},
+                            1: {x: width/9 - 20, y: 20},
+                            2: {x: 10, y: height/9 - 10},
+                            3: {x: width/9 - 20, y: height/9 - 10},
+                            4: {x: width/9/2 - 4, y: 20},
+                            5: {x: width/9/2 - 4, y: height/9 - 10},
+                            6: {x: 10, y: height/9/2 + 4},
+                            7: {x: width/9 - 20, y: height/9/2 + 4},
+                            8: {x: width/9/2 - 4, y: height/9/2 + 4}
+                        }
+
+                        const cornerMarkings = markings[row][col].corner.sort()
+                        for (let i = 0; i < cornerMarkings.length; i++) {
+                            const mark = cornerMarkings[i];
+                            fill(0);
+                            stroke(0);
+                            textSize(20);
+                            text(
+                                `${mark}`, 
+                                width*col*(1/9) + positionDict[i].x, 
+                                height*row*(1/9) + positionDict[i].y
+                            )
+                        }
+                    }
+                    
+                }
+                
+            }
+        }
+
         drawPresetNumbers();
         drawInputNumbers();
+        drawMarkings();
     }
 
     function drawMatchCircles() {
