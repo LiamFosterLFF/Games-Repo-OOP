@@ -139,7 +139,7 @@ function keyPressed() {
         if (heldKey === "Shift" && shiftDict[key] !== undefined) {
             markings[row][col].corner.push(shiftDict[key])
             console.log(markings);
-        } else if (eldKey === "Control") {
+        } else if (heldKey === "Control" && key !== "Control") {
             markings[row][col].center.push(key)
             console.log(markings);
         }
