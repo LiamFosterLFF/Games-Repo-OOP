@@ -146,13 +146,22 @@ function keyPressed() {
                 const index = markings[row][col].corner.indexOf(value)
                 markings[row][col].corner.splice(index, 1)
             }
-        } else if (inputMode === "center" && key !== "Control") {
-            markings[row][col].center.push(key)
+        } 
+        
+        if (inputMode === "center" && key !== "Control") {
+            const value = Number(key)
+            const squareAlreadyContainsMarking = (markings[row][col].center.includes(value))
+            if (!squareAlreadyContainsMarking) {
+                markings[row][col].center.push(value)
+            } else { // Remove number from array if double-typed
+                const index = markings[row][col].center.indexOf(value)
+                markings[row][col].center.splice(index, 1)
+            }
         }
     
     }
-    drawBoard();
 
+    drawBoard();
     return false
 }
 
@@ -252,6 +261,23 @@ function drawBoard() {
                                 `${mark}`, 
                                 width*col*(1/9) + positionDict[i].x, 
                                 height*row*(1/9) + positionDict[i].y
+                            )
+                        }
+
+                        const centerMarkings = markings[row][col].center.sort()
+                        for (let i = 0; i < centerMarkings.length; i++) {
+                            const mark = centerMarkings[i];
+                            const xOffset = width/9/2 - 4;
+                            const yOffset = height/9/2 + 4;
+                            const xLeftEdge = xOffset - xOffset*centerMarkings.length/8;
+                            const xNumberOffset = i * 12;
+                            fill(0);
+                            stroke(0);
+                            textSize(20);
+                            text(
+                                `${mark}`, 
+                                width*col*(1/9) + xLeftEdge + xNumberOffset, 
+                                height*row*(1/9) + yOffset
                             )
                         }
                     }
