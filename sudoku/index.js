@@ -118,8 +118,9 @@ function keyPressed() {
         checkLargeSquare();
     }
 
+    var [row, col] = selectedSquare;
+
     if (selectedSquare !== null && !isNaN(key) && key > 0) {
-        var [row, col] = selectedSquare;
         if (presetBoard[row][col] === null) {
             board[row][col] = key;
             checkBoard(key);
@@ -133,6 +134,13 @@ function keyPressed() {
     } else if (key === "Control") {
         ctrlPressed = true;
     }
+
+    const shiftDict = {"!" : 1, "@" : 2, "#" : 3, "$" : 4, "%" : 5, "^" : 6, "&" : 7, "*" : 8, "(" : 9}
+    if (selectedSquare !== null && shiftPressed && shiftDict[key] !== undefined) {
+        markings[row][col].corner.push(shiftDict[key])
+        console.log(markings);
+    }
+
 }
 
 
