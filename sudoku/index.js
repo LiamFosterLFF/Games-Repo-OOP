@@ -29,11 +29,23 @@ var selectedSquare = null;
 
 function setup() {
     cnv = createCanvas(800, 800);
+    loadPresets();
     drawBoard();
 }
 
 function draw() {
     cnv.mouseClicked(numberInput)
+}
+
+function loadPresets() {
+    for (let row = 0; row < 9; row++) {
+        for (let col = 0; col < 9; col++) {
+            if (presetBoard[row][col] !== null) {
+                board[row][col] = presetBoard[row][col];
+            }
+        }
+        
+    }
 }
 
 function keyPressed() {
@@ -100,8 +112,8 @@ function keyPressed() {
         var [row, col] = selectedSquare;
         if (presetBoard[row][col] === null) {
             board[row][col] = key;
+            checkBoard(key);
         }
-        checkBoard(key);
         drawBoard();
     }
 }
@@ -160,7 +172,7 @@ function drawBoard() {
         function drawInputNumbers() {
             for (let row=0; row<=8; row++) {
                 for (let col=0; col<=8; col++) {
-                    if (board[row][col] !== null) {
+                    if (board[row][col] !== null && presetBoard[row][col] === null) {
                         fill(51, 107, 166);
                         stroke(51, 107, 166);
                         textSize(70);
