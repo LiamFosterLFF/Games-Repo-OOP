@@ -22,6 +22,15 @@ const presetBoard = [
     [8, null, 5, 9, null, 7, null, 4, null]
 ]
 
+const markings = new Array(9).fill().map(
+    () => new Array(9).fill().map(
+        () => ({
+            corner: [],
+            center: []
+        })
+    )
+)
+
 const matchingPairs = [];
 
 var cnv;
