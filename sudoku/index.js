@@ -35,7 +35,7 @@ const matchingPairs = [];
 
 var cnv;
 var selectedSquare = null;
-let shiftPressed, ctrlPressed = false;
+let heldKey= "None";
 
 function setup() {
     cnv = createCanvas(800, 800);
@@ -118,37 +118,42 @@ function keyPressed() {
         checkLargeSquare();
     }
 
-    var [row, col] = selectedSquare;
-
-    if (selectedSquare !== null && !isNaN(key) && key > 0) {
-        if (presetBoard[row][col] === null) {
-            board[row][col] = key;
-            checkBoard(key);
+    if (selectedSquare !== null) {
+        var [row, col] = selectedSquare;
+        if (!isNaN(key) && key > 0) {
+            if (presetBoard[row][col] === null) {
+                board[row][col] = key;
+                checkBoard(key);
+            }
+            drawBoard();
         }
-        drawBoard();
+        console.log(key);
+    
+        if (key === "Shift") {
+            heldKey = "Shift"
+        } else if (key === "Control") {
+            heldKey = "Control"
+        }
+    
+        const shiftDict = {"!" : 1, "@" : 2, "#" : 3, "$" : 4, "%" : 5, "^" : 6, "&" : 7, "*" : 8, "(" : 9}
+        if (heldKey === "Shift" && shiftDict[key] !== undefined) {
+            markings[row][col].corner.push(shiftDict[key])
+            console.log(markings);
+        } else if (eldKey === "Control") {
+            markings[row][col].center.push(key)
+            console.log(markings);
+        }
+    
     }
-    console.log(key);
-
-    if (key === "Shift") {
-        shiftPressed = true;
-    } else if (key === "Control") {
-        ctrlPressed = true;
-    }
-
-    const shiftDict = {"!" : 1, "@" : 2, "#" : 3, "$" : 4, "%" : 5, "^" : 6, "&" : 7, "*" : 8, "(" : 9}
-    if (selectedSquare !== null && shiftPressed && shiftDict[key] !== undefined) {
-        markings[row][col].corner.push(shiftDict[key])
-        console.log(markings);
-    }
-
+    return false
 }
 
 
 function keyReleased() {
     if (key === "Shift") {
-        shiftPressed = false;
+        heldKey = "None"
     } else if (key === "Control") {
-        ctrlPressed = false;
+        heldKey = "None"
     }
 }
 
