@@ -374,11 +374,14 @@ function drawBoard() {
         }
 
         function leftSideButtonDecorator(buttonArr) {
-            
 
             for (let i = 0; i < buttonArr.length; i++) {
                 const button = buttonArr[i];
-                button.mouseClicked(() => {inputMode = button.class();})
+                button.position(width/2, height+50+i*10)
+                button.mouseClicked(() => {
+                    inputMode = button.class()
+                    drawBoard();
+                }) // Changes input mode which sets the color of the button
                 sideButtonDecorator(button);
             }
         }
@@ -386,27 +389,31 @@ function drawBoard() {
         function rightSideButtonDecorator(buttonArr) {
             for (let i = 0; i < buttonArr.length; i++) {
                 const button = buttonArr[i];
+                button.position(width/2, height+50+i*10)
                 sideButtonDecorator(button);
             }
         }
         numberButtonDecorator([one, two, three, four, five, six, seven, eight, nine])
         leftSideButtonDecorator([normal, corner, center, color])
         rightSideButtonDecorator([undo, redo, restart, check])
-        // normal.position(width/2, height+50)
-        // corner.position(width/2, height+70)
-        // center.position(width/2, height+80)
-        // color.position(width/2, height+90)
-        // one.position(width/2, height+100)
-        // two.position(width/2, height+110)
-        // three.position(width/2, height+120)
-        // four.position(width/2, height+130)
-        // five.position(width/2, height+140)
-        // six.position(width/2, height+150)
-        // seven.position(width/2, height+160)
-        // eight.position(width/2, height+170)
-        // nine.position(width/2, height+180)
 
-        // button.mousePressed(() => console.log("Hey, you clicked me"))
+
+        one.position(width/2, height+100);
+        two.position(width/2, height+110);
+        three.position(width/2, height+120);
+        four.position(width/2, height+130);
+        five.position(width/2, height+140);
+        six.position(width/2, height+150);
+        seven.position(width/2, height+160);
+        eight.position(width/2, height+170);
+        nine.position(width/2, height+180);
+
+        undo.position(width/2, height+160);
+        redo.position(width/2, height+170);
+        restart.position(width/2, height+180);
+        check.position(width/2, height+180);
+
+
     }
 
     clear();
