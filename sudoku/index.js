@@ -332,9 +332,49 @@ function drawBoard() {
 
         const undo = createButton("undo");
         const redo = createButton("redo");
-        const restar = createButton("restart");
+        const restart = createButton("restart");
         const check = createButton("check");
 
+        // normal.size(200, 20)
+        function numberButtonDecorator(buttonArr) {
+            for (let i = 0; i < buttonArr.length; i++) {
+                const button = buttonArr[i];
+                button.size(40, 40);
+                button.style("background-color", "#6a309a");
+                button.style("color", "#fff");
+                button.style("font-size", "20px");
+                button.style("font-weight", "900");
+                button.style("border", "none");
+                button.style("border", "2px solid #b5b3b8");
+                button.style("border-radius", "5px")
+                button.style("margin", "2px");
+            } 
+        }
+
+        function sideButtonDecorator(buttonArr) {
+            for (let i = 0; i < buttonArr.length; i++) {
+                const button = buttonArr[i];
+                button.size(140, 40);
+                if (false /*Put button select value in here*/ ) {
+                    button.style("background-color", "#6a309a");
+                    button.style("color", "#fff");
+
+                } else {
+                    button.style("background-color", "#fff");
+                    button.style("color", "#6a309a");
+                    button.style("border", "none");
+                    button.style("border", "2px solid #b5b3b8");
+                }
+                
+                button.style("font-size", "20px");
+                button.style("font-weight", "900");
+                button.style("border-radius", "5px")
+                button.style("margin", "2px");
+            } 
+        }
+        numberButtonDecorator([one, two, three, four, five, six, seven, eight, nine])
+        sideButtonDecorator([normal, corner, center, color, undo, redo, restart, check])
+        
         // normal.position(width/2, height+50)
         // corner.position(width/2, height+70)
         // center.position(width/2, height+80)
