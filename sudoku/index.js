@@ -354,11 +354,7 @@ function drawBoard() {
         
 
         function sideButtonDecorator(button) {
-            function clickListenerChangeColor() {
-                inputMode = button.class();
-            }
-
-            button.mouseClicked(clickListenerChangeColor)
+            
             button.size(140, 40);
             if (button.class() === inputMode) {
                 button.style("background-color", "#6a309a");
@@ -378,8 +374,11 @@ function drawBoard() {
         }
 
         function leftSideButtonDecorator(buttonArr) {
+            
+
             for (let i = 0; i < buttonArr.length; i++) {
                 const button = buttonArr[i];
+                button.mouseClicked(() => {inputMode = button.class();})
                 sideButtonDecorator(button);
             }
         }
