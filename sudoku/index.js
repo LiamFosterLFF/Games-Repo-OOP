@@ -35,7 +35,7 @@ const matchingPairs = [];
 
 var cnv;
 var selectedSquare = null;
-let inputMode = "Normal";
+let inputMode = "normal";
 
 function setup() {
     cnv = createCanvas(800, 800);
@@ -314,7 +314,7 @@ function drawBoard() {
     }
 
     function drawButtons() {
-        const normal = createButton("normal");
+        const normal = createButton("normal").class("normal");
         const corner = createButton("corner");
         const center = createButton("center");
         const color = createButton("color");
@@ -351,30 +351,41 @@ function drawBoard() {
             } 
         }
 
-        function sideButtonDecorator(buttonArr) {
+        function sideButtonDecorator(button) {
+            button.size(140, 40);
+            if (button.class() === inputMode) {
+                button.style("background-color", "#6a309a");
+                button.style("color", "#fff");
+
+            } else {
+                button.style("background-color", "#fff");
+                button.style("color", "#6a309a");
+            }
+            
+            button.style("border", "none");
+            button.style("border", "2px solid #b5b3b8");
+            button.style("font-size", "20px");
+            button.style("font-weight", "900");
+            button.style("border-radius", "5px")
+            button.style("margin", "2px");
+        }
+
+        function leftSideButtonDecorator(buttonArr) {
             for (let i = 0; i < buttonArr.length; i++) {
                 const button = buttonArr[i];
-                button.size(140, 40);
-                if (false /*Put button select value in here*/ ) {
-                    button.style("background-color", "#6a309a");
-                    button.style("color", "#fff");
+                sideButtonDecorator(button);
+            }
+        }
 
-                } else {
-                    button.style("background-color", "#fff");
-                    button.style("color", "#6a309a");
-                    button.style("border", "none");
-                    button.style("border", "2px solid #b5b3b8");
-                }
-                
-                button.style("font-size", "20px");
-                button.style("font-weight", "900");
-                button.style("border-radius", "5px")
-                button.style("margin", "2px");
-            } 
+        function rightSideButtonDecorator(buttonArr) {
+            for (let i = 0; i < buttonArr.length; i++) {
+                const button = buttonArr[i];
+                sideButtonDecorator(button);
+            }
         }
         numberButtonDecorator([one, two, three, four, five, six, seven, eight, nine])
-        sideButtonDecorator([normal, corner, center, color, undo, redo, restart, check])
-        
+        leftSideButtonDecorator([normal, corner, center, color])
+        rightSideButtonDecorator([undo, redo, restart, check])
         // normal.position(width/2, height+50)
         // corner.position(width/2, height+70)
         // center.position(width/2, height+80)
