@@ -339,6 +339,7 @@ function drawBoard() {
         function numberButtonDecorator(buttonArr) {
             for (let i = 0; i < buttonArr.length; i++) {
                 const button = buttonArr[i];
+                button.position(width/3, height+50+i*10)
                 button.size(40, 40);
                 button.style("background-color", "#6a309a");
                 button.style("color", "#fff");
@@ -389,30 +390,19 @@ function drawBoard() {
         function rightSideButtonDecorator(buttonArr) {
             for (let i = 0; i < buttonArr.length; i++) {
                 const button = buttonArr[i];
-                button.position(width/2, height+50+i*10)
+                button.position(width/2, height+90+i*10)
                 sideButtonDecorator(button);
             }
         }
-        numberButtonDecorator([one, two, three, four, five, six, seven, eight, nine])
-        leftSideButtonDecorator([normal, corner, center, color])
-        rightSideButtonDecorator([undo, redo, restart, check])
 
+        function deleteButtonDecorator(deleteBtn) {
+            deleteBtn.position(width/2, height+180)
+        }
 
-        one.position(width/2, height+100);
-        two.position(width/2, height+110);
-        three.position(width/2, height+120);
-        four.position(width/2, height+130);
-        five.position(width/2, height+140);
-        six.position(width/2, height+150);
-        seven.position(width/2, height+160);
-        eight.position(width/2, height+170);
-        nine.position(width/2, height+180);
-
-        undo.position(width/2, height+160);
-        redo.position(width/2, height+170);
-        restart.position(width/2, height+180);
-        check.position(width/2, height+180);
-
+        numberButtonDecorator([one, two, three, four, five, six, seven, eight, nine]);
+        leftSideButtonDecorator([normal, corner, center, color]);
+        rightSideButtonDecorator([undo, redo, restart, check]);
+        deleteButtonDecorator(del);
 
     }
 
