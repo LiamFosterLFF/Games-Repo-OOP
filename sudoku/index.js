@@ -315,9 +315,9 @@ function drawBoard() {
 
     function drawButtons() {
         const normal = createButton("normal").class("normal");
-        const corner = createButton("corner");
-        const center = createButton("center");
-        const color = createButton("color");
+        const corner = createButton("corner").class("corner");
+        const center = createButton("center").class("center");
+        const color = createButton("color").class("color");
 
         const one = createButton("1");
         const two = createButton("2");
@@ -351,7 +351,14 @@ function drawBoard() {
             } 
         }
 
+        
+
         function sideButtonDecorator(button) {
+            function clickListenerChangeColor() {
+                inputMode = button.class();
+            }
+
+            button.mouseClicked(clickListenerChangeColor)
             button.size(140, 40);
             if (button.class() === inputMode) {
                 button.style("background-color", "#6a309a");
