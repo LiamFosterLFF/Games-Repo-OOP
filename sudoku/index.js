@@ -323,15 +323,12 @@ function drawBoard() {
         const div1 = createDiv();
         const div2 = createDiv();
         const div3 = createDiv();
-        div1.style("border", "4px solid black")
-        div2.style("border", "4px solid black")
-        div3.style("border", "4px solid black")
-        div1.size(400/3, 300);
+        div1.size(400*9/30, 300);
         div1.position(0, 0, 'inherit')
-        div2.size(400/3, 300);
-        div2.position(400/3, 0, 'inherit')
-        div3.size(400/3, 300);
-        div3.position(2*400/3, 0, 'inherit')
+        div2.size(400*12/30, 300);
+        div2.position(400*9/30, 0, 'inherit')
+        div3.size(400*9/30, 300);
+        div3.position(400*21/30, 0, 'inherit')
 
         const normal = createButton("normal").class("normal").id("normal");
         const corner = createButton("corner").class("corner").id("corner");
@@ -370,7 +367,7 @@ function drawBoard() {
         function numberButtonDecorator(buttonArr) {
             for (let i = 0; i < buttonArr.length; i++) {
                 const button = buttonArr[i];
-                button.size(40, 40);
+                button.size(47, 47);
                 button.style("background-color", "#6a309a");
                 button.style("color", "#fff");
                 button.style("font-size", "20px");
@@ -386,7 +383,7 @@ function drawBoard() {
 
         function sideButtonDecorator(button) {
             
-            button.size(140, 40);
+            button.size(105, 40);
             if (button.class() === inputMode) {
                 button.style("background-color", "#6a309a");
                 button.style("color", "#fff");
@@ -395,13 +392,14 @@ function drawBoard() {
                 button.style("background-color", "#fff");
                 button.style("color", "#6a309a");
             }
-            
             button.style("border", "none");
             button.style("border", "2px solid #b5b3b8");
             button.style("font-size", "20px");
             button.style("font-weight", "900");
             button.style("border-radius", "5px")
-            button.style("margin", "2px");
+            button.style("margin", "4px")
+
+            // button.style("margin", "2px");
         }
 
         function leftSideButtonDecorator(buttonArr) {
@@ -424,7 +422,7 @@ function drawBoard() {
         }
 
         function deleteButtonDecorator(button) {
-            button.size(200, 40);
+            button.size(150, 40);
             button.style("background-color", "#fff");
             button.style("color", "#6a309a");
             button.style("font-size", "20px");
