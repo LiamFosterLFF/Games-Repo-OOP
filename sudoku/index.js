@@ -315,8 +315,23 @@ function drawBoard() {
     }
 
     function drawButtons() {
-        const div0 = createDiv("Test")
+        const div0 = createDiv()
         div0.style("border", "4px solid black")
+        div0.size(400, 300)
+        div0.position(width/2-190, height + 50)
+
+        const div1 = createDiv();
+        const div2 = createDiv();
+        const div3 = createDiv();
+        div1.style("border", "4px solid black")
+        div2.style("border", "4px solid black")
+        div3.style("border", "4px solid black")
+        div1.size(400/3, 300);
+        div1.position(0, 0, 'inherit')
+        div2.size(400/3, 300);
+        div2.position(400/3, 0, 'inherit')
+        div3.size(400/3, 300);
+        div3.position(2*400/3, 0, 'inherit')
 
         const normal = createButton("normal").class("normal").id("normal");
         const corner = createButton("corner").class("corner").id("corner");
@@ -339,15 +354,18 @@ function drawBoard() {
         const restart = createButton("restart");
         const check = createButton("check");
 
-        function createAsChildrenOfDiv(buttonArr) {
+        function createAsChildrenOfDiv(div, buttonArr) {
             for (let i = 0; i < buttonArr.length; i++) {
                 const button = buttonArr[i];
-                div0.child(button)
+                div.child(button)
             }
         }
 
 
-        createAsChildrenOfDiv([one, two, three, four, five, six, seven, eight, nine, normal, corner, center, color, undo, redo, restart, check, del])
+        createAsChildrenOfDiv(div0, [normal, corner, center, color, one, two, three, four, five, six, seven, eight, nine, del, undo, redo, restart, check, div1, div2, div3])
+        createAsChildrenOfDiv(div1, [normal, corner, center, color]);
+        createAsChildrenOfDiv(div2, [one, two, three, four, five, six, seven, eight, nine, del]);
+        createAsChildrenOfDiv(div3, [undo, redo, restart, check]);
 
         function numberButtonDecorator(buttonArr) {
             for (let i = 0; i < buttonArr.length; i++) {
@@ -405,8 +423,16 @@ function drawBoard() {
             }
         }
 
-        function deleteButtonDecorator(deleteBtn) {
-            deleteBtn.position(width/2, height+180)
+        function deleteButtonDecorator(button) {
+            button.size(200, 40);
+            button.style("background-color", "#fff");
+            button.style("color", "#6a309a");
+            button.style("font-size", "20px");
+            button.style("font-weight", "900");
+            button.style("border", "none");
+            button.style("border", "2px solid #b5b3b8");
+            button.style("border-radius", "5px")
+            button.style("margin", "2px");
         }
 
         numberButtonDecorator([one, two, three, four, five, six, seven, eight, nine]);
