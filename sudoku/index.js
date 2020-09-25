@@ -316,7 +316,6 @@ function drawBoard() {
 
     function drawButtons() {
         const div0 = createDiv()
-        div0.style("border", "4px solid black")
         div0.size(400, 300)
         div0.position(width/2-190, height + 50)
 
@@ -335,15 +334,15 @@ function drawBoard() {
         const center = createButton("center").class("center");
         const color = createButton("color").class("color");
 
-        const one = createButton("1");
-        const two = createButton("2");
-        const three = createButton("3");
-        const four = createButton("4");
-        const five = createButton("5");
-        const six = createButton("6");
-        const seven = createButton("7");
-        const eight = createButton("8");
-        const nine = createButton("9");
+        const one = createButton("1").id("one");
+        const two = createButton("2").id("two");
+        const three = createButton("3").id("three");
+        const four = createButton("4").id("four");
+        const five = createButton("5").id("five");
+        const six = createButton("6").id("six");
+        const seven = createButton("7").id("seven");
+        const eight = createButton("8").id("eight");
+        const nine = createButton("9").id("nine");
         const del = createButton("delete");
 
         const undo = createButton("undo");
@@ -370,12 +369,29 @@ function drawBoard() {
                 button.size(47, 47);
                 button.style("background-color", "#6a309a");
                 button.style("color", "#fff");
-                button.style("font-size", "20px");
-                button.style("font-weight", "900");
                 button.style("border", "none");
                 button.style("border", "2px solid #b5b3b8");
                 button.style("border-radius", "5px")
                 button.style("margin", "2px");
+                if (inputMode === "normal") {
+                    button.style("font-size", "40px");
+                    button.style("font-weight", "900");
+                } else if (inputMode === "corner") {
+                    button.style("font-size", "20px");
+                    button.style("font-weight", "0");
+                    if (button.id === "one" || button.id === "four" || button.id === "seven") {
+                        button.style("font-weight", "0");
+                    } else if (button.id === "two" || button.id === "five" || button.id === "eight"){
+                        button.style("font-weight", "0");
+                    } else if (button.id === "three" || button.id === "six" || button.id === "nine") {
+                        button.style("font-weight", "0");
+                    }
+                } else if (inputMode === "center") {
+                    
+                } else if (inputMode === "color") {
+                    
+                }
+                
             } 
         }
 
@@ -398,8 +414,6 @@ function drawBoard() {
             button.style("font-weight", "900");
             button.style("border-radius", "5px")
             button.style("margin", "4px")
-
-            // button.style("margin", "2px");
         }
 
         function leftSideButtonDecorator(buttonArr) {
