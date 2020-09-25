@@ -1,3 +1,4 @@
+
 const board = [
     [null, null, null, null, null, null, null, null, null], 
     [null, null, null, null, null, null, null, null, null], 
@@ -314,8 +315,11 @@ function drawBoard() {
     }
 
     function drawButtons() {
-        const normal = createButton("normal").class("normal");
-        const corner = createButton("corner").class("corner");
+        const div0 = createDiv("Test")
+        div0.style("border", "4px solid black")
+
+        const normal = createButton("normal").class("normal").id("normal");
+        const corner = createButton("corner").class("corner").id("corner");
         const center = createButton("center").class("center");
         const color = createButton("color").class("color");
 
@@ -335,11 +339,19 @@ function drawBoard() {
         const restart = createButton("restart");
         const check = createButton("check");
 
-        // normal.size(200, 20)
+        function createAsChildrenOfDiv(buttonArr) {
+            for (let i = 0; i < buttonArr.length; i++) {
+                const button = buttonArr[i];
+                div0.child(button)
+            }
+        }
+
+
+        createAsChildrenOfDiv([one, two, three, four, five, six, seven, eight, nine, normal, corner, center, color, undo, redo, restart, check, del])
+
         function numberButtonDecorator(buttonArr) {
             for (let i = 0; i < buttonArr.length; i++) {
                 const button = buttonArr[i];
-                button.position(width/3, height+50+i*10)
                 button.size(40, 40);
                 button.style("background-color", "#6a309a");
                 button.style("color", "#fff");
@@ -378,7 +390,6 @@ function drawBoard() {
 
             for (let i = 0; i < buttonArr.length; i++) {
                 const button = buttonArr[i];
-                button.position(width/2, height+50+i*10)
                 button.mouseClicked(() => {
                     inputMode = button.class()
                     drawBoard();
@@ -390,7 +401,6 @@ function drawBoard() {
         function rightSideButtonDecorator(buttonArr) {
             for (let i = 0; i < buttonArr.length; i++) {
                 const button = buttonArr[i];
-                button.position(width/2, height+90+i*10)
                 sideButtonDecorator(button);
             }
         }
