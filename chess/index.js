@@ -72,11 +72,25 @@ function initializeBoard() {
     function initializePiecesArray() {
         const initialPiecesArray = [];
         initialPiecesArray.push(new King(0, 4, "black"));
+        initialPiecesArray.push(new Queen(0, 3, "black"));
+        initialPiecesArray.push(new Bishop(0, 2, "black"));
+        initialPiecesArray.push(new Bishop(0, 5, "black"));
+        initialPiecesArray.push(new Knight(0, 1, "black"));
+        initialPiecesArray.push(new Knight(0, 6, "black"));
+        initialPiecesArray.push(new Rook(0, 0, "black"));
+        initialPiecesArray.push(new Rook(0, 7, "black"));
         for (let col = 0; col < 8; col++) {
             initialPiecesArray.push(new Pawn(1, col, "black"));
         }
         
         initialPiecesArray.push(new King(7, 4, "white"));
+        initialPiecesArray.push(new Queen(7, 3, "white"));
+        initialPiecesArray.push(new Bishop(7, 2, "white"));
+        initialPiecesArray.push(new Bishop(7, 5, "white"));
+        initialPiecesArray.push(new Knight(7, 1, "white"));
+        initialPiecesArray.push(new Knight(7, 6, "white"));
+        initialPiecesArray.push(new Rook(7, 0, "white"));
+        initialPiecesArray.push(new Rook(7, 7, "white"));
         for (let col = 0; col < 8; col++) {
             initialPiecesArray.push(new Pawn(6, col, "white"));
         }
@@ -267,6 +281,34 @@ class Pawn extends Piece {
 
 }
 
+
+class Bishop extends Piece {
+    constructor(row, col, color) {
+        super(row, col, color);
+        this.image = pieceImages[`bishop${this.capitalize(this.color)}`]
+    }
+}
+
+class Knight extends Piece {
+    constructor(row, col, color) {
+        super(row, col, color);
+        this.image = pieceImages[`knight${this.capitalize(this.color)}`]
+    }
+}
+
+class Rook extends Piece {
+    constructor(row, col, color) {
+        super(row, col, color);
+        this.image = pieceImages[`rook${this.capitalize(this.color)}`]
+    }
+}
+
+class Queen extends Piece {
+    constructor(row, col, color) {
+        super(row, col, color);
+        this.image = pieceImages[`queen${this.capitalize(this.color)}`]
+    }
+}
 
 class King extends Piece {
     constructor(row, col, color) {
