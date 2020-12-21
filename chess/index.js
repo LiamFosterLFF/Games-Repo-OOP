@@ -54,11 +54,12 @@ function mousePressed() {
 
 function mouseReleased() {
     const [row, col] = [floor((mouseY - offset.y)/sqSize), floor((mouseX - offset.x)/sqSize)];
-    console.log(row, col);
-    const [pieceRow, pieceCol] = selectedPiece.getPosition();
-    if (row !== pieceRow || col !== pieceCol) {
-        selectedPiece.setPosition(row, col);
-        updateBoard();
+    if (selectedPiece !== null) {
+        const [pieceRow, pieceCol] = selectedPiece.getPosition();
+        if (row !== pieceRow || col !== pieceCol) {
+            selectedPiece.setPosition(row, col);
+            updateBoard();
+        }
     }
     selectedPiece = null;
 }
