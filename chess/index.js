@@ -52,9 +52,11 @@ function mousePressed() {
 
 function mouseReleased() {
     const [row, col] = [floor((mouseY - offset.y)/sqSize), floor((mouseX - offset.x)/sqSize)];
+    console.log(row, col);
     const [pieceRow, pieceCol] = selectedPiece.getPosition();
-    if (row !== selectedPiece.row && col !== selectedPiece.col) {
+    if (row !== pieceRow || col !== pieceCol) {
         selectedPiece.setPosition(row, col);
+        updateBoard();
     }
     selectedPiece = null;
 }
@@ -62,18 +64,6 @@ function mouseReleased() {
 
 
 function initializeBoard() {
-    function createBoardArray() {
-        const initialArray = [];
-        for (let row = 0; row < 8; row++) {
-            const row = [];
-            for (let col = 0; col < 8; col++) {
-                row.push(new Square(row, col));
-            }
-            initialArray.push(row);
-        }
-        return initialArray;
-    }
-    
     function initializePiecesArray() {
         const initialPiecesArray = [];
         initialPiecesArray.push(new King(0, 4, "black"));
@@ -88,6 +78,23 @@ function initializeBoard() {
         return initialPiecesArray;
     }
 
+    piecesArray = initializePiecesArray();
+    updateBoard();
+}
+
+function updateBoard() {
+    function createBoardArray() {
+        const initialArray = [];
+        for (let row = 0; row < 8; row++) {
+            const row = [];
+            for (let col = 0; col < 8; col++) {
+                row.push(new Square(row, col));
+            }
+            initialArray.push(row);
+        }
+        return initialArray;
+    }
+    
     function placePieces() {
         newBoardArray = createBoardArray();
         piecesArray.forEach((piece) => {
@@ -98,7 +105,6 @@ function initializeBoard() {
         return newBoardArray;
     }
 
-    piecesArray = initializePiecesArray();
     boardArray = placePieces();
     console.log(boardArray);
 }
@@ -150,11 +156,6 @@ function drawGame() {
     drawSelectedSquare();
     drawPieces();
 }
-
-
-
-
-
 
 class Square {
     constructor(row, col) {
