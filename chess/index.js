@@ -241,10 +241,13 @@ class Pawn extends Piece {
                 }
             }
         } else if (Math.abs(col - this.col) === 1) {
-            if (this.color === "white" && this.row - row === 1) {
+            const enemyPiece = boardArray[row][col].piece
+            if (enemyPiece !== null && enemyPiece.color !== this.color) {
+                if (this.color === "white" && this.row - row === 1) {
+                    return true;
+                } else if (this.color === "black" && row - this.row === 1) {
                 return true;
-            } else if (this.color === "black" && row - this.row === 1) {
-                return true;
+                }
             }
         }
         return false;
