@@ -14,7 +14,7 @@ function setup() {
 }
 
 function draw() {
-    // cnv.mouseClicked(handleClick);
+    cnv.mouseClicked(handleClick);
     drawGame();
 }
 
@@ -44,11 +44,13 @@ function handleClick() {
 function mousePressed() {
     function selectPiece() {
         const [row, col] = [floor((mouseY - offset.y)/sqSize), floor((mouseX - offset.x)/sqSize)];
-        selectedPiece = boardArray[row][col].piece;
-        console.log(selectedPiece);
+        if (boardArray[row][col].piece !== null) {
+            selectedPiece = boardArray[row][col].piece;
+        }
     }
     selectPiece();
 }
+
 
 function mouseReleased() {
     const [row, col] = [floor((mouseY - offset.y)/sqSize), floor((mouseX - offset.x)/sqSize)];
