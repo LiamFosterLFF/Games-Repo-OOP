@@ -411,10 +411,11 @@ class King extends Piece {
     }
 
     isLegalMove(row, col) {
-        if (row !== this.row || col !== this.col) {
-            if (Math.abs(row - this.row) >=0 && Math.abs(col - this.col) >=0) {
-                return true;
+        if (Math.abs(row - this.row) >=0 && Math.abs(row - this.row) <=1 && Math.abs(col - this.col) >=0 && Math.abs(col - this.col) <=1) {
+            if (boardArray[row][col].piece !== null && boardArray[row][col].piece.color === this.color) {
+                return false;
             }
+            return true;
         }
         return false;
     }
@@ -422,10 +423,6 @@ class King extends Piece {
     getAttackSquares() {
         const attackSquares = [];
         attackSquares.push([])
-    }
-
-    isValidMove(row, col) {
-
     }
 }
 
