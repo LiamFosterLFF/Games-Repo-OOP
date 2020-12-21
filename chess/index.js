@@ -187,7 +187,7 @@ function isCheck(kingLoc, kingColor) {
     for (const color in boardPieces) {
         for (const pieceName in boardPieces[color]) {
             const piece = boardPieces[color][pieceName];
-            if (piece.getColor() !== kingColor) {
+            if (piece.getColor() !== kingColor && !piece.isTaken()) {
                 const pieceAttackSquares = piece.getAttackSquares();
                 for (const square in pieceAttackSquares) {
                     const attackLoc = pieceAttackSquares[square];
@@ -199,6 +199,10 @@ function isCheck(kingLoc, kingColor) {
         }
     }
     return false;
+}
+
+function isCheckMate() {
+
 }
 
 function isLegalCastle(piece, row, col) {
@@ -362,6 +366,7 @@ class Piece {
     beTaken() {
         this.taken = true;
     }
+
 }
 
 class Pawn extends Piece {
@@ -412,14 +417,25 @@ class Pawn extends Piece {
         const attackSquares = [];
         const rowSign = (this.color === "white") ? -1: 1;
         if ((this.row + rowSign >= 0) && (this.row + rowSign <= 7)) {
-            if (this.col + 1 <= 7) {
+            if (this.col + 1 <= 7 && this.isLegalMove(this.row + rowSign, this.col +1)) {
                 attackSquares.push([this.row + rowSign, this.col + 1]);
             }
-            if (this.col - 1 >= 0 ) {
+            if (this.col - 1 >= 0  && this.isLegalMove(this.row + rowSign, this.col -1)) {
                 attackSquares.push([this.row + rowSign, this.col - 1]);
             }
         }
         return attackSquares;
+    }
+
+    getMoves() {
+        const moves = this.getAttackSquares();
+        const rowSign = (this.color === "white") ? -1: 1;
+        for (let i = 1; i <= 2; i++) {
+            if (this.isLegalMove(this.row + i*rowSign, this.col)) {
+                moves.push([this.row + i*rowSign, this.col]);
+            }
+        }
+        return moves;
     }
 }
 
@@ -696,12 +712,10 @@ class King extends Piece {
     
 // Drag n drop?
 // Piece logic: 
-//      --King
-//          -- Castling
 //      --Pawn
 //          -- En passant
 //          -- Promotion
-// Dead pieces
-// Keep a record of moves
+// Dead pieces?
+// Keep a record of moves?
 // Can detect checkmate
-// Add timer
+// Add timer?
