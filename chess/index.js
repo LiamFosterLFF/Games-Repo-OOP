@@ -473,6 +473,48 @@ class Queen extends Piece {
         }
         return false;
     }
+
+    getAttackSquares() {
+        const attackSquares = [];
+        for (let row = 0; row < 8; row++) {
+            if (row !== this.row && this.isLegalMove(row, this.col)) {
+                attackSquares.push([row, this.col])
+            }
+        }
+        for (let col = 0; col < 8; col++) {
+            if (col !== this.col && this.isLegalMove(this.row, col)) {
+                attackSquares.push([this.row, col])
+            }
+        }
+        for (let row = this.row +1; row <= 7; row++) {
+            for (let col = this.col +1; col <= 7; col++) {
+                if (Math.abs(row - this.row) === Math.abs(col - this.col) && this.isLegalMove(row, col)) {
+                    attackSquares.push([row, col]);
+                }
+            }
+
+            for (let col = this.col -1; col >= 0; col--) {
+                if (Math.abs(row - this.row) === Math.abs(col - this.col) && this.isLegalMove(row, col)) {
+                    attackSquares.push([row, col]);
+                }
+            }
+            
+        }
+        for (let row = this.row -1; row >= 0; row--) {
+            for (let col = this.col +1; col <= 7; col++) {
+                if (Math.abs(row - this.row) === Math.abs(col - this.col) && this.isLegalMove(row, col)) {
+                    attackSquares.push([row, col]);
+                }
+            }
+
+            for (let col = this.col -1; col >= 0; col--) {
+                if (Math.abs(row - this.row) === Math.abs(col - this.col) && this.isLegalMove(row, col)) {
+                    attackSquares.push([row, col]);
+                }
+            }
+        }
+        return attackSquares;
+    }
 }
 
 class King extends Piece {
