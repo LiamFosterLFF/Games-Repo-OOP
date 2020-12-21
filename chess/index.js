@@ -287,12 +287,33 @@ class Bishop extends Piece {
         super(row, col, color);
         this.image = pieceImages[`bishop${this.capitalize(this.color)}`]
     }
+
+    isLegalMove(row, col) {
+        if (Math.abs(row - this.row) === Math.abs(col - this.col)) {
+            const rowSign = ((this.row - row) > 0) ? 1 : -1;
+            const colSign = ((this.col - col) > 0) ? 1 : -1;
+            for (let i = 1; i < Math.abs(row - this.row); i++) {
+                if (boardArray[row+ (i*rowSign)][col+ (i*colSign)].piece !== null) {
+                    return false;
+                }
+            }
+            if (boardArray[row][col].piece !== null && boardArray[row][col].piece.color === this.color) {
+                return false;
+            }
+            return true;
+        }
+        return false;
+    }
 }
 
 class Knight extends Piece {
     constructor(row, col, color) {
         super(row, col, color);
         this.image = pieceImages[`knight${this.capitalize(this.color)}`]
+    }
+
+    isLegalMove() {
+
     }
 }
 
@@ -301,12 +322,20 @@ class Rook extends Piece {
         super(row, col, color);
         this.image = pieceImages[`rook${this.capitalize(this.color)}`]
     }
+
+    isLegalMove() {
+        
+    }
 }
 
 class Queen extends Piece {
     constructor(row, col, color) {
         super(row, col, color);
         this.image = pieceImages[`queen${this.capitalize(this.color)}`]
+    }
+
+    isLegalMove() {
+        
     }
 }
 
