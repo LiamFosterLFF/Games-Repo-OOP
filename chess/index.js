@@ -5,7 +5,7 @@ const sqSize = (dim.width - 2*offset.x)/8
 let selectedSquare = [];
 let selectedPiece = null;
 let boardArray = [];
-let pieces= [];
+let pieces= {};
 const pieceImages = {};
 
 function setup() {
@@ -61,44 +61,42 @@ function mouseReleased() {
             }
             selectedPiece.setPosition(row, col);
             updateBoard();
-            console.log(selectedPiece.getAttackSquares());
         }
     }
     selectedPiece = null;
 }
 
-
-
 function initializeBoard() {
     function initializePiecesArray() {
-        const initialPiecesArray = [];
-        initialPiecesArray.push(new King(0, 4, "black"));
-        initialPiecesArray.push(new Queen(0, 3, "black"));
-        initialPiecesArray.push(new Bishop(0, 2, "black"));
-        initialPiecesArray.push(new Bishop(0, 5, "black"));
-        initialPiecesArray.push(new Knight(0, 1, "black"));
-        initialPiecesArray.push(new Knight(0, 6, "black"));
-        initialPiecesArray.push(new Rook(0, 0, "black"));
-        initialPiecesArray.push(new Rook(0, 7, "black"));
+        const initialPiecesArray = {"black": {}, "white": {}};
+        initialPiecesArray["black"]["king"] = new King(0, 4, "black");
+        initialPiecesArray["black"]["queen"] = new Queen(0, 3, "black");
+        initialPiecesArray["black"]["leftBishop"] = new Bishop(0, 2, "black");
+        initialPiecesArray["black"]["rightBishop"] = new Bishop(0, 5, "black");
+        initialPiecesArray["black"]["leftKnight"] = new Knight(0, 1, "black");
+        initialPiecesArray["black"]["rightKnight"] = new Knight(0, 6, "black");
+        initialPiecesArray["black"]["leftRook"] = new Rook(0, 0, "black");
+        initialPiecesArray["black"]["rightRook"] = new Rook(0, 7, "black");
         for (let col = 0; col < 8; col++) {
-            initialPiecesArray.push(new Pawn(1, col, "black"));
+            initialPiecesArray["black"][`pawn${col}`] = new Pawn(1, col, "black");
         }
         
-        initialPiecesArray.push(new King(7, 4, "white"));
-        initialPiecesArray.push(new Queen(7, 3, "white"));
-        initialPiecesArray.push(new Bishop(7, 2, "white"));
-        initialPiecesArray.push(new Bishop(7, 5, "white"));
-        initialPiecesArray.push(new Knight(7, 1, "white"));
-        initialPiecesArray.push(new Knight(7, 6, "white"));
-        initialPiecesArray.push(new Rook(7, 0, "white"));
-        initialPiecesArray.push(new Rook(7, 7, "white"));
+        initialPiecesArray["white"]["king"] = new King(7, 4, "white");
+        initialPiecesArray["white"]["queen"] = new Queen(7, 3, "white");
+        initialPiecesArray["white"]["leftBishop"] = new Bishop(7, 2, "white");
+        initialPiecesArray["white"]["rightBishop"] = new Bishop(7, 5, "white");
+        initialPiecesArray["white"]["leftKnight"] = new Knight(7, 1, "white");
+        initialPiecesArray["white"]["rightKnight"] = new Knight(7, 6, "white");
+        initialPiecesArray["white"]["leftRook"] = new Rook(7, 0, "white");
+        initialPiecesArray["white"]["rightRook"] = new Rook(7, 7, "white");
         for (let col = 0; col < 8; col++) {
-            initialPiecesArray.push(new Pawn(6, col, "white"));
+            initialPiecesArray["white"][`pawn${col}`] = new Pawn(6, col, "white");
         }
         return initialPiecesArray;
     }
 
-    piecesArray = initializePiecesArray();
+    pieces = initializePiecesArray();
+    console.log(pieces);
     updateBoard();
 }
 
@@ -117,18 +115,23 @@ function updateBoard() {
     
     function placePieces() {
         newBoardArray = createBoardArray();
-        piecesArray.forEach((piece) => {
-            if (!piece.isTaken()) {
-                const [row, col] = piece.getPosition();
-                newBoardArray[row][col].piece = piece;
-            }
+        Object.values(pieces).forEach((color) => {
+            Object.values(color).forEach((piece) => {
+                if (!piece.isTaken()) {
+                    const [row, col] = piece.getPosition();
+                    newBoardArray[row][col].piece = piece;
+                }
+            })
         })
         return newBoardArray;
     }
 
     boardArray = placePieces();
-    console.log(boardArray);
 }
+
+// function isCheck() {
+//     pieces.forEach()
+// }
 
 function drawGame() {
     function drawBoard() {
@@ -299,7 +302,6 @@ class Pawn extends Piece {
         return attackSquares;
     }
 }
-
 
 class Bishop extends Piece {
     constructor(row, col, color) {
@@ -567,7 +569,6 @@ class King extends Piece {
 //          -- En passant
 //          -- Promotion
 // Dead pieces
-// Show possible moves for piece
 // Keep a record of moves
 // Can detect check and mate
 // Add timer
