@@ -5,7 +5,8 @@ const sqSize = (dim.width - 2*offset.x)/8
 let selectedSquare = [];
 let selectedPiece = null;
 let boardArray = [];
-let pieces= {};
+let boardPieces= {};
+let whoseTurn = "white";
 const pieceImages = {};
 
 function setup() {
@@ -54,16 +55,39 @@ function mousePressed() {
 function mouseReleased() {
     const [row, col] = [floor((mouseY - offset.y)/sqSize), floor((mouseX - offset.x)/sqSize)];
     if (selectedPiece !== null) {
-        const [pieceRow, pieceCol] = selectedPiece.getPosition();
-        if ((row !== pieceRow || col !== pieceCol) && selectedPiece.isLegalMove(row, col)) {
-            if (boardArray[row][col].piece !== null) {
-                boardArray[row][col].piece.beTaken();
+        if (selectedPiece.getColor() === whoseTurn) {
+            const [pieceRow, pieceCol] = selectedPiece.getPosition();
+            if ((row !== pieceRow || col !== pieceCol) && selectedPiece.isLegalMove(row, col)) {
+                if (boardArray[row][col].piece !== null) {
+                    boardArray[row][col].piece.beTaken();
+                }
+                const [savePosRow, savePosCol] = selectedPiece.getPosition();
+                selectedPiece.setPosition(row, col);
+                updateBoard();
+
+                if (isCheck(boardPieces[whoseTurn]["king"])) {
+                    selectedPiece.setPosition(savePosRow, savePosCol);
+                    updateBoard();
+                    console.log("Check");
+                } else {
+                    changeTurns();
+                    updateBoard();
+                }
             }
-            selectedPiece.setPosition(row, col);
-            updateBoard();
+        } else {
+            console.log("Not your turn")
         }
+        
     }
     selectedPiece = null;
+}
+
+function changeTurns() {
+    if (whoseTurn === "white") {
+        whoseTurn = "black";
+    } else {
+        whoseTurn = "white";
+    }
 }
 
 function initializeBoard() {
@@ -95,8 +119,7 @@ function initializeBoard() {
         return initialPiecesArray;
     }
 
-    pieces = initializePiecesArray();
-    console.log(pieces);
+    boardPieces = initializePiecesArray();
     updateBoard();
 }
 
@@ -115,8 +138,8 @@ function updateBoard() {
     
     function placePieces() {
         newBoardArray = createBoardArray();
-        Object.values(pieces).forEach((color) => {
-            Object.values(color).forEach((piece) => {
+        Object.values(boardPieces).forEach((pieces) => {
+            Object.values(pieces).forEach((piece) => {
                 if (!piece.isTaken()) {
                     const [row, col] = piece.getPosition();
                     newBoardArray[row][col].piece = piece;
@@ -129,9 +152,37 @@ function updateBoard() {
     boardArray = placePieces();
 }
 
-// function isCheck() {
-//     pieces.forEach()
-// }
+function isCheck(king) {
+    function arraysEqual(arr1, arr2) {
+        if (arr1 === arr2) return true;
+        if (arr1 == null || arr2 == null) return false;
+        if (arr1.length !== arr2.length) return false;
+
+
+        for (var i = 0; i < arr1.length; ++i) {
+            if (arr1[i] !== arr2[i]) return false;
+        }
+        return true;
+    }
+    const kingLoc = king.getPosition();
+    const kingColor = king.getColor();
+
+    for (const color in boardPieces) {
+        for (const pieceName in boardPieces[color]) {
+            const piece = boardPieces[color][pieceName];
+            if (piece.getColor() !== kingColor) {
+                const pieceAttackSquares = piece.getAttackSquares();
+                for (const square in pieceAttackSquares) {
+                    const attackLoc = pieceAttackSquares[square];
+                    if (arraysEqual(kingLoc, attackLoc)) {
+                        return true;
+                    }
+                }
+            }
+        }
+    }
+    return false;
+}
 
 function drawGame() {
     function drawBoard() {
@@ -174,8 +225,6 @@ function drawGame() {
         }
     }
 
-    
-
     drawBoard();
     drawSelectedSquare();
     drawPieces();
@@ -211,10 +260,11 @@ class Square {
 
 
 class Piece {
-    constructor(row, col, color) {
+    constructor(row, col, color, name) {
         this.row = row;
         this.col = col;
         this.color = color;
+        this.name = name;
         this.taken = false;
     }
 
@@ -225,6 +275,14 @@ class Piece {
     setPosition(row, col) {
         this.row = row;
         this.col = col;
+    }
+
+    getColor() {
+        return this.color;
+    }
+
+    getName() {
+        return this.name;
     }
 
     capitalize(s) {
@@ -242,7 +300,7 @@ class Piece {
 
 class Pawn extends Piece {
     constructor(row, col, color) {
-        super(row, col, color);
+        super(row, col, color, "pawn");
         this.image = pieceImages[`pawn${this.capitalize(this.color)}`]
         this.hasMoved = false;
     }
@@ -305,7 +363,7 @@ class Pawn extends Piece {
 
 class Bishop extends Piece {
     constructor(row, col, color) {
-        super(row, col, color);
+        super(row, col, color, "bishop");
         this.image = pieceImages[`bishop${this.capitalize(this.color)}`]
     }
 
@@ -361,7 +419,7 @@ class Bishop extends Piece {
 
 class Knight extends Piece {
     constructor(row, col, color) {
-        super(row, col, color);
+        super(row, col, color, "knight");
         this.image = pieceImages[`knight${this.capitalize(this.color)}`]
     }
 
@@ -392,7 +450,7 @@ class Knight extends Piece {
 
 class Rook extends Piece {
     constructor(row, col, color) {
-        super(row, col, color);
+        super(row, col, color, "rook");
         this.image = pieceImages[`rook${this.capitalize(this.color)}`]
     }
 
@@ -441,7 +499,7 @@ class Rook extends Piece {
 
 class Queen extends Piece {
     constructor(row, col, color) {
-        super(row, col, color);
+        super(row, col, color, "queen");
         this.image = pieceImages[`queen${this.capitalize(this.color)}`]
     }
 
@@ -529,7 +587,7 @@ class Queen extends Piece {
 
 class King extends Piece {
     constructor(row, col, color) {
-        super(row, col, color);
+        super(row, col, color, "king");
         this.hasMoved = false;
         this.image = pieceImages[`king${this.capitalize(this.color)}`]
     }
