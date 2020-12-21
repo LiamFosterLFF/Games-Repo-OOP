@@ -3,7 +3,9 @@ const dim = {width: 600, height: 600}
 const offset = {x: 40, y: 40};
 const sqSize = (dim.width - 2*offset.x)/8
 let selectedSquare = [];
+let selectedPiece = null;
 let boardArray = [];
+const pieceImages = {};
 
 function setup() {
     cnv = createCanvas(dim.width, dim.height);
@@ -13,6 +15,17 @@ function setup() {
 function draw() {
     cnv.mouseClicked(handleClick);
     drawGame();
+}
+
+function preload() {
+    const pieceNames = ["king", "queen", "knight", "rook", "bishop", "pawn"];
+    for (let i = 0; i < pieceNames.length; i++) {
+        pieceNameBlack = pieceNames[i] + "Black";
+        pieceNameWhite = pieceNames[i] + "White";
+        pieceImages[pieceNameBlack] = loadImage(`chess/images/${pieceNameBlack}.png`);
+        pieceImages[pieceNameWhite] = loadImage(`chess/images/${pieceNameWhite}.png`);
+    }
+    console.log(pieceImages)
 }
 
 function initializeBoard() {
@@ -71,8 +84,21 @@ function drawGame() {
         }
     }
 
+    function drawPieces() {
+        for (let row = 0; row < boardArray.length; row++) {
+            for (let col = 0; col < boardArray[row].length; col++) {
+                var piece = boardArray[row][col].piece;
+                if (piece !== null) {
+                    const sqLoc = {x: offset.x + sqSize * col, y: offset.y + sqSize * row };
+                    image(piece.image, sqLoc.x, sqLoc.y, sqSize, sqSize);
+                }
+            }
+        }
+    }
+
     drawBoard();
     drawSelectedSquare();
+    drawPieces();
 }
 
 function handleClick() {
@@ -86,22 +112,7 @@ function handleClick() {
 }
 
 
-class Piece {
-    constructor(row, col, color) {
-        this.row = row;
-        this.col = col;
-        this.color = color;
-    }
 
-    getPosition() {
-        return [this.row, this.col];
-    }
-
-    setPosition(row, col) {
-        this.row = row;
-        this.col = col;
-    }
-}
 
 class Square {
     constructor(row, col) {
@@ -131,10 +142,33 @@ class Square {
 
 }
 
+
+class Piece {
+    constructor(row, col, color) {
+        this.row = row;
+        this.col = col;
+        this.color = color;
+    }
+
+    getPosition() {
+        return [this.row, this.col];
+    }
+
+    setPosition(row, col) {
+        this.row = row;
+        this.col = col;
+    }
+
+    capitalize(s) {
+        return s.charAt(0).toUpperCase() + s.slice(1)
+    }
+}
+
 class Pawn extends Piece {
     constructor(row, col, color) {
         super(row, col, color);
         this.hasMoved = false;
+        this.image = pieceImages[`pawn${this.capitalize(this.color)}`]
     }
 
     isLegalMove(row, col) {
