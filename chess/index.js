@@ -5,6 +5,7 @@ const sqSize = (dim.width - 2*offset.x)/8
 let selectedSquare = [];
 let selectedPiece = null;
 let boardArray = [];
+let piecesArray = [];
 const pieceImages = {};
 
 function setup() {
@@ -13,7 +14,7 @@ function setup() {
 }
 
 function draw() {
-    cnv.mouseClicked(handleClick);
+    // cnv.mouseClicked(handleClick);
     drawGame();
 }
 
@@ -28,6 +29,38 @@ function preload() {
     console.log(pieceImages)
 }
 
+function handleClick() {
+    function selectSquare() {
+        const [row, col] = [floor((mouseY - offset.y)/sqSize), floor((mouseX - offset.x)/sqSize)];
+        if (row === selectedSquare[0] && col === selectedSquare[1]) {
+            selectedSquare = [];
+        } else if (row >= 0 && col >= 0 && row < 8 && col < 8) {
+            selectedSquare = [row, col];
+        } 
+    }
+    selectSquare();
+}
+
+function mousePressed() {
+    function selectPiece() {
+        const [row, col] = [floor((mouseY - offset.y)/sqSize), floor((mouseX - offset.x)/sqSize)];
+        selectedPiece = boardArray[row][col].piece;
+        console.log(selectedPiece);
+    }
+    selectPiece();
+}
+
+function mouseReleased() {
+    const [row, col] = [floor((mouseY - offset.y)/sqSize), floor((mouseX - offset.x)/sqSize)];
+    const [pieceRow, pieceCol] = selectedPiece.getPosition();
+    if (row !== selectedPiece.row && col !== selectedPiece.col) {
+        selectedPiece.setPosition(row, col);
+    }
+    selectedPiece = null;
+}
+
+
+
 function initializeBoard() {
     function createBoardArray() {
         const initialArray = [];
@@ -40,19 +73,34 @@ function initializeBoard() {
         }
         return initialArray;
     }
-    function initializePieces() {
-        for (let col = 0; col < 8; col++) {
-            boardArray[1][col].piece = new Pawn(1, col, "black")
-        }
     
+    function initializePiecesArray() {
+        const initialPiecesArray = [];
+        initialPiecesArray.push(new King(0, 4, "black"));
         for (let col = 0; col < 8; col++) {
-            boardArray[6][col].piece = new Pawn(6, col, "white")
+            initialPiecesArray.push(new Pawn(1, col, "black"));
         }
-            
+        
+        initialPiecesArray.push(new King(7, 4, "white"));
+        for (let col = 0; col < 8; col++) {
+            initialPiecesArray.push(new Pawn(6, col, "white"));
+        }
+        return initialPiecesArray;
     }
-    boardArray = createBoardArray();
+
+    function placePieces() {
+        newBoardArray = createBoardArray();
+        piecesArray.forEach((piece) => {
+            const [row, col] = piece.getPosition();
+            console.log(piece);
+            newBoardArray[row][col].piece = piece;
+        })
+        return newBoardArray;
+    }
+
+    piecesArray = initializePiecesArray();
+    boardArray = placePieces();
     console.log(boardArray);
-    initializePieces();
 }
 
 function drawGame() {
@@ -96,20 +144,14 @@ function drawGame() {
         }
     }
 
+    
+
     drawBoard();
     drawSelectedSquare();
     drawPieces();
 }
 
-function handleClick() {
-    function selectSquare() {
-        const [row, col] = [floor((mouseY - offset.y)/sqSize), floor((mouseX - offset.x)/sqSize)];
-        if (row >= 0 && col >= 0 && row < 8 && col < 8) {
-            selectedSquare = [row, col];
-        } 
-    }
-    selectSquare();
-}
+
 
 
 
@@ -130,8 +172,8 @@ class Square {
         this.piece = piece;
     }
 
-    getAttacker() {
-        return this.attacker;
+    getAttackers() {
+        return this.attackers;
     }
     
     addAttacker(newAttacker) {
@@ -203,6 +245,8 @@ class Pawn extends Piece {
 class King extends Piece {
     constructor(row, col, color) {
         super(row, col, color);
+        this.hasMoved = false;
+        this.image = pieceImages[`king${this.capitalize(this.color)}`]
     }
 
     isLegalMove(row, col) {
