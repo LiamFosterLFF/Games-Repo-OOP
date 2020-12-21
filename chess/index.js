@@ -221,21 +221,22 @@ class Pawn extends Piece {
         if (col === this.col) {
             if (this.color === "white") {
                 if (!this.hasMoved && this.row - row === 2) {
-                    console.log(row, col);
                     if (boardArray[row+1][col].piece === null && boardArray[row][col].piece === null) {
                         this.hasMoved = true;
                         return true;
                     }
                 } 
-                if (this.row - row === 1) {
+                if (this.row - row === 1 && boardArray[row][col].piece === null) {
                     return true;
                 }
             } else if (this.color === "black") {
                 if (!this.hasMoved && row - this.row === 2) {
-                    this.hasMoved = true;
-                    return true;
+                    if (boardArray[row-1][col].piece === null && boardArray[row][col].piece === null) {
+                        this.hasMoved = true;
+                        return true;
+                    }
                 } 
-                if (row - this.row === 1) {
+                if (row - this.row === 1 && boardArray[row][col].piece === null) {
                     return true;
                 }
             }
