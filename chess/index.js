@@ -372,6 +372,12 @@ class Knight extends Piece {
         }
         return false;
     }
+
+    getAttackSquares() {
+        const attackSquares = [];
+
+        return attackSquares;
+    }
 }
 
 class Rook extends Piece {
@@ -405,6 +411,21 @@ class Rook extends Piece {
             return true;
         }
         return false;
+    }
+
+    getAttackSquares() {
+        const attackSquares = [];
+        for (let row = 0; row < 8; row++) {
+            if (row !== this.row && this.isLegalMove(row, this.col)) {
+                attackSquares.push([row, this.col])
+            }
+        }
+        for (let col = 0; col < 8; col++) {
+            if (col !== this.col && this.isLegalMove(this.row, col)) {
+                attackSquares.push([this.row, col])
+            }
+        }
+        return attackSquares;
     }
 }
 
