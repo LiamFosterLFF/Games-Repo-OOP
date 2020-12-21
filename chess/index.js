@@ -5,7 +5,7 @@ const sqSize = (dim.width - 2*offset.x)/8
 let selectedSquare = [];
 let selectedPiece = null;
 let boardArray = [];
-let piecesArray = [];
+let pieces= [];
 const pieceImages = {};
 
 function setup() {
@@ -26,7 +26,6 @@ function preload() {
         pieceImages[pieceNameBlack] = loadImage(`chess/images/${pieceNameBlack}.png`);
         pieceImages[pieceNameWhite] = loadImage(`chess/images/${pieceNameWhite}.png`);
     }
-    console.log(pieceImages)
 }
 
 function handleClick() {
@@ -57,6 +56,9 @@ function mouseReleased() {
     if (selectedPiece !== null) {
         const [pieceRow, pieceCol] = selectedPiece.getPosition();
         if ((row !== pieceRow || col !== pieceCol) && selectedPiece.isLegalMove(row, col)) {
+            if (boardArray[row][col].piece !== null) {
+                boardArray[row][col].piece.beTaken();
+            }
             selectedPiece.setPosition(row, col);
             updateBoard();
         }
@@ -101,9 +103,10 @@ function updateBoard() {
     function placePieces() {
         newBoardArray = createBoardArray();
         piecesArray.forEach((piece) => {
-            const [row, col] = piece.getPosition();
-            console.log(piece);
-            newBoardArray[row][col].piece = piece;
+            if (!piece.isTaken()) {
+                const [row, col] = piece.getPosition();
+                newBoardArray[row][col].piece = piece;
+            }
         })
         return newBoardArray;
     }
@@ -194,6 +197,7 @@ class Piece {
         this.row = row;
         this.col = col;
         this.color = color;
+        this.taken = false;
     }
 
     getPosition() {
@@ -207,6 +211,14 @@ class Piece {
 
     capitalize(s) {
         return s.charAt(0).toUpperCase() + s.slice(1)
+    }
+
+    isTaken() {
+        return this.taken;
+    }
+
+    beTaken() {
+        this.taken = true;
     }
 }
 
