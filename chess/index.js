@@ -56,7 +56,8 @@ function mouseReleased() {
     const [row, col] = [floor((mouseY - offset.y)/sqSize), floor((mouseX - offset.x)/sqSize)];
     if (selectedPiece !== null) {
         const [pieceRow, pieceCol] = selectedPiece.getPosition();
-        if (row !== pieceRow || col !== pieceCol) {
+        console.log(selectedPiece.isLegalMove(row, col));
+        if ((row !== pieceRow || col !== pieceCol) && selectedPiece.isLegalMove(row, col)) {
             selectedPiece.setPosition(row, col);
             updateBoard();
         }
