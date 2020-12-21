@@ -501,3 +501,6 @@ function numberInput() {
 // Add a set of sudokus to pay
 // Add hint giver?
 // Add auto filler
+// Bug: Same row doesn't work if different cell types
+// Back button
+// Center frame

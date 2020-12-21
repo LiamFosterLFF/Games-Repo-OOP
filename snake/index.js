@@ -375,6 +375,7 @@ function Food() {
 // Keep a length counter
 // Fix colors
 // Adjustable size?
-
+// Center frame
+// Back button
 
 // AI : Hamiltonian and other

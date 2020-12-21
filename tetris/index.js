@@ -489,7 +489,9 @@ function Piece() {
 
 // Increase levels
 // Pieces speed up over time
-// 
+// Center frame
+// Back button 
+
 // Bugs: 
 //      -- Colors are off on predictive dropping (alpha)
 //      -- Left and right speeds are a little fast

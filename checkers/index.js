@@ -8,6 +8,7 @@ const score = {red: 0, black: 0};
 let whoseTurn = "black";
 let img;
 let gameOver = false;
+
 function setup() {
     cnv = createCanvas(dim.width, dim.height);
     setPieces();
@@ -162,3 +163,5 @@ function isLegalMove(color, row, col) {
 // Aesthetic: Double stack for kings
 // Aesthetic: Show dead pieces
 // Aesthetic : Show pieces tht can move
+// Center frame
+// Back button

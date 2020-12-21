@@ -82,4 +82,7 @@ function checkGameOver() {
 }
 
 // Game over - need to stop, ask if replaying
+// Center frame
+// Back button
+// AI: Min-max w/alpha pruning
 

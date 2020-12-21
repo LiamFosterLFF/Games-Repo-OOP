@@ -164,10 +164,14 @@ function countMines(cellArr) {
 // Game over - Show all mines and start over button
 // Bug: Fix colors so they look less bad
 // Bug: Fix stroke color on numbers
+// Bug: Can't click squares with a number
 // Can adjust game size
 // Add flagging - disables clicks
 // Add questionable flag
 // Add timer
 // Add flag count/minecount
 // Add buttons
+// Center Frame
+// Responsivity
+// Back Button
 //AI : 
