@@ -57,23 +57,29 @@ function mouseReleased() {
     if (selectedPiece !== null) {
         if (selectedPiece.getColor() === whoseTurn) {
             const [pieceRow, pieceCol] = selectedPiece.getPosition();
-            if ((row !== pieceRow || col !== pieceCol) && selectedPiece.isLegalMove(row, col)) {
-                if (boardArray[row][col].piece !== null) {
-                    boardArray[row][col].piece.beTaken();
-                }
-                const [savePosRow, savePosCol] = selectedPiece.getPosition();
-                selectedPiece.setPosition(row, col);
-                updateBoard();
+            if (row !== pieceRow || col !== pieceCol) {
+                if (selectedPiece.isLegalMove(row, col)) {
+                    if (boardArray[row][col].piece !== null) {
+                        boardArray[row][col].piece.beTaken();
+                    }
+                    const [savePosRow, savePosCol] = selectedPiece.getPosition();
+                    selectedPiece.setPosition(row, col);
+                    updateBoard();
 
-                if (isCheck(boardPieces[whoseTurn]["king"])) {
-                    selectedPiece.setPosition(savePosRow, savePosCol);
-                    updateBoard();
-                    console.log("Check");
-                } else {
-                    changeTurns();
-                    updateBoard();
+                    const king = boardPieces[whoseTurn]["king"]
+                    if (isCheck(king.getPosition(), king.getColor())) {
+                        selectedPiece.setPosition(savePosRow, savePosCol);
+                        updateBoard();
+                        console.log("Check");
+                    } else {
+                        selectedPiece.setHasMoved();
+                        changeTurns();
+                        updateBoard();
+                    }
+                } else if (isLegalCastle(selectedPiece, row, col)) {
+                    console.log("CASTLE");
                 }
-            }
+            } 
         } else {
             console.log("Not your turn")
         }
@@ -81,6 +87,8 @@ function mouseReleased() {
     }
     selectedPiece = null;
 }
+
+
 
 function changeTurns() {
     if (whoseTurn === "white") {
@@ -152,7 +160,7 @@ function updateBoard() {
     boardArray = placePieces();
 }
 
-function isCheck(king) {
+function isCheck(kingLoc, kingColor) {
     function arraysEqual(arr1, arr2) {
         if (arr1 === arr2) return true;
         if (arr1 == null || arr2 == null) return false;
@@ -164,8 +172,6 @@ function isCheck(king) {
         }
         return true;
     }
-    const kingLoc = king.getPosition();
-    const kingColor = king.getColor();
 
     for (const color in boardPieces) {
         for (const pieceName in boardPieces[color]) {
@@ -180,6 +186,78 @@ function isCheck(king) {
                 }
             }
         }
+    }
+    return false;
+}
+
+function isLegalCastle(piece, row, col) {
+    if (piece.getName() === "king") {
+        if (boardPieces[whoseTurn]["king"].getHasMoved() === false) {
+            const backRow = (whoseTurn === "white") ? 7 : 0;
+            if (row === backRow && col === 6) {
+                if (boardPieces[whoseTurn]["rightRook"].getHasMoved() === false) {
+                    for (let i = 5; i <= 6; i++) {
+                        if (boardArray[backRow][i].piece !== null) {
+                            return false;
+                        }
+                    }
+                    for (let j = 4; j <= 6; j++) {
+                        if (isCheck([backRow, j], piece.getColor())) {
+                            console.log("CHECK")
+                            return false;
+                        }
+                    }
+                    return true;
+                }
+            } else if (row === backRow && col === 2) {
+                if (boardPieces[whoseTurn]["leftRook"].getHasMoved() === false) {
+                    for (let i = 3; i >= 1; i--) {
+                        if (boardArray[backRow][i].piece !== null) {
+                            return false;
+                        }
+                    }
+                    for (let j = 4; j >= 2; j--) {
+                        if (isCheck([backRow, j], piece.getColor())) {
+                            console.log("ALSO CHECK");
+                            return false;
+                        }
+                    }
+                    return true;
+                }
+            }
+        }
+            // } else if (whoseTurn === "black") {
+            //     if (row === 0 && col === 6) {
+            //         if (boardPieces[whoseTurn]["rightRook"].getHasMoved() === false) {
+            //             for (let i = 5; i <= 6; i++) {
+            //                 if (boardArray[0][i].piece !== null) {
+            //                     return false;
+            //                 }
+            //             }
+            //             for (let j = 4; j <= 6; j++) {
+            //                 if (isCheck([0, j], piece.getColor())) {
+            //                     return false;
+            //                 }
+            //             }
+            //             return true;
+            //         }
+            //     } else if (row === 0 && col === 1) {
+            //         if (boardPieces[whoseTurn]["lefttRook"].getHasMoved() === false) {
+            //             for (let i = 3; i <= 1; i--) {
+            //                 if (boardArray[0][i].piece !== null) {
+            //                     return false;
+            //                 }
+            //             }
+            //             for (let j = 4; j <= 1; j--) {
+            //                 if (isCheck([0, j], piece.getColor())) {
+            //                     return false;
+            //                 }
+            //             }
+            //             return true;
+            //         }
+            //     }
+            
+        
     }
     return false;
 }
@@ -266,6 +344,7 @@ class Piece {
         this.color = color;
         this.name = name;
         this.taken = false;
+        this.hasMoved = false;
     }
 
     getPosition() {
@@ -285,6 +364,14 @@ class Piece {
         return this.name;
     }
 
+    getHasMoved() {
+        return this.hasMoved;
+    }
+
+    setHasMoved() {
+        this.hasMoved = true;
+    }
+
     capitalize(s) {
         return s.charAt(0).toUpperCase() + s.slice(1)
     }
@@ -302,14 +389,10 @@ class Pawn extends Piece {
     constructor(row, col, color) {
         super(row, col, color, "pawn");
         this.image = pieceImages[`pawn${this.capitalize(this.color)}`]
-        this.hasMoved = false;
     }
 
     setPosition(row, col) {
         super.setPosition(row, col);
-        if (!this.hasMoved) {
-            this.hasMoved = true;
-        }
     }
 
     isLegalMove(row, col) {
@@ -454,6 +537,11 @@ class Rook extends Piece {
         this.image = pieceImages[`rook${this.capitalize(this.color)}`]
     }
 
+    setPosition(row, col) {
+        super.setPosition(row, col);
+
+    }
+
     isLegalMove(row, col) {
         if (row === this.row) {
             const colSign = ((this.col - col) > 0) ? 1 : -1;
@@ -588,17 +676,26 @@ class Queen extends Piece {
 class King extends Piece {
     constructor(row, col, color) {
         super(row, col, color, "king");
-        this.hasMoved = false;
         this.image = pieceImages[`king${this.capitalize(this.color)}`]
     }
 
+    setPosition(row, col) {
+        super.setPosition(row, col);
+        if (!this.hasMoved) {
+            this.hasMoved = true;
+        }
+    }
+
     isLegalMove(row, col) {
+        function isCastle() {
+
+        }
         if (Math.abs(row - this.row) >=0 && Math.abs(row - this.row) <=1 && Math.abs(col - this.col) >=0 && Math.abs(col - this.col) <=1) {
             if (boardArray[row][col].piece !== null && boardArray[row][col].piece.color === this.color) {
                 return false;
             }
             return true;
-        }
+        } else if (isCastle(row, col))
         return false;
     }
 
@@ -622,11 +719,10 @@ class King extends Piece {
 // Piece logic: 
 //      --King
 //          -- Castling
-//          -- Check
 //      --Pawn
 //          -- En passant
 //          -- Promotion
 // Dead pieces
 // Keep a record of moves
-// Can detect check and mate
+// Can detect checkmate
 // Add timer
