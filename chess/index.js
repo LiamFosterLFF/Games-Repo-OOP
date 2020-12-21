@@ -240,8 +240,15 @@ class Piece {
 class Pawn extends Piece {
     constructor(row, col, color) {
         super(row, col, color);
-        this.hasMoved = false;
         this.image = pieceImages[`pawn${this.capitalize(this.color)}`]
+        this.hasMoved = false;
+    }
+
+    setPosition(row, col) {
+        super.setPosition(row, col);
+        if (!this.hasMoved) {
+            this.hasMoved = true;
+        }
     }
 
     isLegalMove(row, col) {
@@ -249,7 +256,6 @@ class Pawn extends Piece {
             if (this.color === "white") {
                 if (!this.hasMoved && this.row - row === 2) {
                     if (boardArray[row+1][col].piece === null && boardArray[row][col].piece === null) {
-                        this.hasMoved = true;
                         return true;
                     }
                 } 
@@ -259,7 +265,6 @@ class Pawn extends Piece {
             } else if (this.color === "black") {
                 if (!this.hasMoved && row - this.row === 2) {
                     if (boardArray[row-1][col].piece === null && boardArray[row][col].piece === null) {
-                        this.hasMoved = true;
                         return true;
                     }
                 } 
