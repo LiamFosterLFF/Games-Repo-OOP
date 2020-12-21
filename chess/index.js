@@ -77,7 +77,18 @@ function mouseReleased() {
                         updateBoard();
                     }
                 } else if (isLegalCastle(selectedPiece, row, col)) {
-                    console.log("CASTLE");
+                    const color = selectedPiece.getColor();
+                    selectedPiece.setPosition(row, col)
+                    selectedPiece.setHasMoved();
+                    if (col === 6) {
+                        boardPieces[color]["rightRook"].setPosition(row, 5);
+                        boardPieces[color]["rightRook"].setHasMoved();
+                    } else if (col === 2) {
+                        boardPieces[color]["leftRook"].setPosition(col, 3);
+                        boardPieces[color]["leftRook"].setHasMoved();
+                    }
+                    changeTurns();
+                    updateBoard();
                 }
             } 
         } else {
@@ -226,38 +237,6 @@ function isLegalCastle(piece, row, col) {
                 }
             }
         }
-            // } else if (whoseTurn === "black") {
-            //     if (row === 0 && col === 6) {
-            //         if (boardPieces[whoseTurn]["rightRook"].getHasMoved() === false) {
-            //             for (let i = 5; i <= 6; i++) {
-            //                 if (boardArray[0][i].piece !== null) {
-            //                     return false;
-            //                 }
-            //             }
-            //             for (let j = 4; j <= 6; j++) {
-            //                 if (isCheck([0, j], piece.getColor())) {
-            //                     return false;
-            //                 }
-            //             }
-            //             return true;
-            //         }
-            //     } else if (row === 0 && col === 1) {
-            //         if (boardPieces[whoseTurn]["lefttRook"].getHasMoved() === false) {
-            //             for (let i = 3; i <= 1; i--) {
-            //                 if (boardArray[0][i].piece !== null) {
-            //                     return false;
-            //                 }
-            //             }
-            //             for (let j = 4; j <= 1; j--) {
-            //                 if (isCheck([0, j], piece.getColor())) {
-            //                     return false;
-            //                 }
-            //             }
-            //             return true;
-            //         }
-            //     }
-            
-        
     }
     return false;
 }
