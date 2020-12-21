@@ -60,6 +60,7 @@ function mouseReleased() {
                 boardArray[row][col].piece.beTaken();
             }
             selectedPiece.setPosition(row, col);
+            console.log(selectedPiece.getAttackSquares());
             updateBoard();
         }
     }
@@ -279,6 +280,19 @@ class Pawn extends Piece {
         return false;
     }
 
+    getAttackSquares() {
+        const attackSquares = [];
+        const rowSign = (this.color === "white") ? -1: 1;
+        if ((this.row + rowSign >= 0) && (this.row + rowSign <= 7)) {
+            if (this.col + 1 <= 7) {
+                attackSquares.push([this.row + rowSign, this.col + 1]);
+            }
+            if (this.col - 1 >= 0 ) {
+                attackSquares.push([this.row + rowSign, this.col - 1]);
+            }
+        }
+        return attackSquares;
+    }
 }
 
 
@@ -426,27 +440,15 @@ class King extends Piece {
     }
 }
 
-    // if (score.black > 11 || score.red > 11) {
-    //     fill(177,98,20);
-    //     rect(0, 0, width, 40);
-    //     const winner = (score.black > score.red) ? "White" : "Red";
-    //     textSize(32)
-    //     fill(255);
-    //     stroke(0)
-    //     text(`${winner} wins.`, width/3, 30);
-    // }
-
-// Board w/ rows/cols
-// Piece sprites
+    
 // Drag n drop?
 // Piece logic: 
 //      --King
-//      --Queen
-//      --Knight
-//      --Bishop
-//      --Rook
+//          -- Castling
+//          -- Check
 //      --Pawn
 //          -- En passant
+//          -- Promotion
 // Dead pieces
 // Show possible moves for piece
 // Keep a record of moves
