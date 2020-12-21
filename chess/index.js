@@ -60,8 +60,8 @@ function mouseReleased() {
                 boardArray[row][col].piece.beTaken();
             }
             selectedPiece.setPosition(row, col);
-            console.log(selectedPiece.getAttackSquares());
             updateBoard();
+            console.log(selectedPiece.getAttackSquares());
         }
     }
     selectedPiece = null;
@@ -317,6 +317,38 @@ class Bishop extends Piece {
             return true;
         }
         return false;
+    }
+
+    getAttackSquares() { 
+        const attackSquares = [];
+        for (let row = this.row +1; row <= 7; row++) {
+            for (let col = this.col +1; col <= 7; col++) {
+                if (Math.abs(row - this.row) === Math.abs(col - this.col) && this.isLegalMove(row, col)) {
+                    attackSquares.push([row, col]);
+                }
+            }
+
+            for (let col = this.col -1; col >= 0; col--) {
+                if (Math.abs(row - this.row) === Math.abs(col - this.col) && this.isLegalMove(row, col)) {
+                    attackSquares.push([row, col]);
+                }
+            }
+            
+        }
+        for (let row = this.row -1; row >= 0; row--) {
+            for (let col = this.col +1; col <= 7; col++) {
+                if (Math.abs(row - this.row) === Math.abs(col - this.col) && this.isLegalMove(row, col)) {
+                    attackSquares.push([row, col]);
+                }
+            }
+
+            for (let col = this.col -1; col >= 0; col--) {
+                if (Math.abs(row - this.row) === Math.abs(col - this.col) && this.isLegalMove(row, col)) {
+                    attackSquares.push([row, col]);
+                }
+            }
+        }
+        return attackSquares;
     }
 }
 
