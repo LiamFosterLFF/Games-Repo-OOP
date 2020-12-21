@@ -221,8 +221,11 @@ class Pawn extends Piece {
         if (col === this.col) {
             if (this.color === "white") {
                 if (!this.hasMoved && this.row - row === 2) {
-                    this.hasMoved = true;
-                    return true;
+                    console.log(row, col);
+                    if (boardArray[row+1][col].piece === null && boardArray[row][col].piece === null) {
+                        this.hasMoved = true;
+                        return true;
+                    }
                 } 
                 if (this.row - row === 1) {
                     return true;
@@ -245,6 +248,7 @@ class Pawn extends Piece {
         }
         return false;
     }
+
 }
 
 
