@@ -312,8 +312,14 @@ class Knight extends Piece {
         this.image = pieceImages[`knight${this.capitalize(this.color)}`]
     }
 
-    isLegalMove() {
-
+    isLegalMove(row, col) {
+        if ((Math.abs(row - this.row) === 1 && Math.abs(col - this.col) === 2) || (Math.abs(row - this.row) === 2 && Math.abs(col - this.col) === 1)) {
+            if (boardArray[row][col].piece !== null && boardArray[row][col].piece.color === this.color) {
+                return false;
+            }
+            return true;
+        }
+        return false;
     }
 }
 
