@@ -56,7 +56,6 @@ function mouseReleased() {
     const [row, col] = [floor((mouseY - offset.y)/sqSize), floor((mouseX - offset.x)/sqSize)];
     if (selectedPiece !== null) {
         const [pieceRow, pieceCol] = selectedPiece.getPosition();
-        console.log(selectedPiece.isLegalMove(row, col));
         if ((row !== pieceRow || col !== pieceCol) && selectedPiece.isLegalMove(row, col)) {
             selectedPiece.setPosition(row, col);
             updateBoard();
@@ -222,6 +221,7 @@ class Pawn extends Piece {
         if (col === this.col) {
             if (this.color === "white") {
                 if (!this.hasMoved && this.row - row === 2) {
+                    this.hasMoved = true;
                     return true;
                 } 
                 if (this.row - row === 1) {
@@ -229,6 +229,7 @@ class Pawn extends Piece {
                 }
             } else if (this.color === "black") {
                 if (!this.hasMoved && row - this.row === 2) {
+                    this.hasMoved = true;
                     return true;
                 } 
                 if (row - this.row === 1) {
