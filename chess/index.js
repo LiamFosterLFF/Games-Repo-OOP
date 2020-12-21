@@ -375,7 +375,15 @@ class Knight extends Piece {
 
     getAttackSquares() {
         const attackSquares = [];
-
+        const moveArray = [[-2, 1], [-2, -1], [2, 1], [2, -1], [1, -2], [-1, -2], [1, 2], [-1, 2]];
+        moveArray.forEach((move) => {
+            const [row, col] = move;
+            if ((this.row + row >= 0) && (this.row + row <= 7) && (this.col + col >= 0) && (this.col + col <= 7)) {
+                if (this.isLegalMove(this.row + row, this.col + col)) {
+                    attackSquares.push([this.row + row, this.col + col]);
+                }
+            }
+        })
         return attackSquares;
     }
 }
