@@ -339,6 +339,12 @@ class Piece {
         this.col = col;
     }
 
+    getSquares() {
+        const rowSquares = ["8", "7", "6", "5", "4", "3", "2", "1"];
+        const colSquares = ["H", "G", "F", "E", "D", "C", "B", "A"];
+        return `${colSquares[col]}${rowSquares[row]}`;
+    }
+
     getColor() {
         return this.color;
     }
@@ -373,6 +379,7 @@ class Pawn extends Piece {
     constructor(row, col, color) {
         super(row, col, color, "pawn");
         this.image = pieceImages[`pawn${this.capitalize(this.color)}`]
+        this.firstMoveTwo = false;
     }
 
     setPosition(row, col) {
@@ -381,24 +388,15 @@ class Pawn extends Piece {
 
     isLegalMove(row, col) {
         if (col === this.col) {
-            if (this.color === "white") {
-                if (!this.hasMoved && this.row - row === 2) {
-                    if (boardArray[row+1][col].piece === null && boardArray[row][col].piece === null) {
-                        return true;
-                    }
-                } 
-                if (this.row - row === 1 && boardArray[row][col].piece === null) {
+            const rowSign = (this.color === "white") ? 1 : -1;
+            if (!this.hasMoved && this.row - row === 2) {
+                if (boardArray[row+rowSign][col].piece === null && boardArray[row][col].piece === null) {
+                    this.firstMoveTwo = true;
                     return true;
                 }
-            } else if (this.color === "black") {
-                if (!this.hasMoved && row - this.row === 2) {
-                    if (boardArray[row-1][col].piece === null && boardArray[row][col].piece === null) {
-                        return true;
-                    }
-                } 
-                if (row - this.row === 1 && boardArray[row][col].piece === null) {
-                    return true;
-                }
+            } 
+            if (this.row - row === 1 && boardArray[row][col].piece === null) {
+                return true;
             }
         } else if (Math.abs(col - this.col) === 1) {
             const enemyPiece = boardArray[row][col].piece
@@ -710,12 +708,14 @@ class King extends Piece {
 }
 
     
-// Drag n drop?
+// Still ToDo 
+//Drag n drop?
 // Piece logic: 
 //      --Pawn
 //          -- En passant
 //          -- Promotion
 // Dead pieces?
 // Keep a record of moves?
+// Letters on the board?
 // Can detect checkmate
 // Add timer?
