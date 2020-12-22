@@ -51,8 +51,89 @@ function mousePressed() {
     selectPiece();
 }
 
-
 function mouseReleased() {
+    function changeTurns() {
+        if (whoseTurn === "white") {
+            whoseTurn = "black";
+        } else {
+            whoseTurn = "white";
+        }
+    }
+
+    function isCheck(kingLoc, kingColor) {
+        function arraysEqual(arr1, arr2) {
+            if (arr1 === arr2) return true;
+            if (arr1 == null || arr2 == null) return false;
+            if (arr1.length !== arr2.length) return false;
+    
+    
+            for (var i = 0; i < arr1.length; ++i) {
+                if (arr1[i] !== arr2[i]) return false;
+            }
+            return true;
+        }
+    
+        for (const color in boardPieces) {
+            for (const pieceName in boardPieces[color]) {
+                const piece = boardPieces[color][pieceName];
+                if (piece.getColor() !== kingColor && !piece.isTaken()) {
+                    const pieceAttackSquares = piece.getAttackSquares();
+                    for (const square in pieceAttackSquares) {
+                        const attackLoc = pieceAttackSquares[square];
+                        if (arraysEqual(kingLoc, attackLoc)) {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    function isCheckMate() {
+
+    }
+
+    function isLegalCastle(piece, row, col) {
+        if (piece.getName() === "king") {
+            if (boardPieces[whoseTurn]["king"].getHasMoved() === false) {
+                const backRow = (whoseTurn === "white") ? 7 : 0;
+                if (row === backRow && col === 6) {
+                    if (boardPieces[whoseTurn]["rightRook"].getHasMoved() === false) {
+                        for (let i = 5; i <= 6; i++) {
+                            if (boardArray[backRow][i].piece !== null) {
+                                return false;
+                            }
+                        }
+                        for (let j = 4; j <= 6; j++) {
+                            if (isCheck([backRow, j], piece.getColor())) {
+                                console.log("CHECK")
+                                return false;
+                            }
+                        }
+                        return true;
+                    }
+                } else if (row === backRow && col === 2) {
+                    if (boardPieces[whoseTurn]["leftRook"].getHasMoved() === false) {
+                        for (let i = 3; i >= 1; i--) {
+                            if (boardArray[backRow][i].piece !== null) {
+                                return false;
+                            }
+                        }
+                        for (let j = 4; j >= 2; j--) {
+                            if (isCheck([backRow, j], piece.getColor())) {
+                                console.log("ALSO CHECK");
+                                return false;
+                            }
+                        }
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
     const [row, col] = [floor((mouseY - offset.y)/sqSize), floor((mouseX - offset.x)/sqSize)];
     if (selectedPiece !== null) {
         if (selectedPiece.getColor() === whoseTurn) {
@@ -97,16 +178,6 @@ function mouseReleased() {
         
     }
     selectedPiece = null;
-}
-
-
-
-function changeTurns() {
-    if (whoseTurn === "white") {
-        whoseTurn = "black";
-    } else {
-        whoseTurn = "white";
-    }
 }
 
 function initializeBoard() {
@@ -169,80 +240,6 @@ function updateBoard() {
     }
 
     boardArray = placePieces();
-}
-
-function isCheck(kingLoc, kingColor) {
-    function arraysEqual(arr1, arr2) {
-        if (arr1 === arr2) return true;
-        if (arr1 == null || arr2 == null) return false;
-        if (arr1.length !== arr2.length) return false;
-
-
-        for (var i = 0; i < arr1.length; ++i) {
-            if (arr1[i] !== arr2[i]) return false;
-        }
-        return true;
-    }
-
-    for (const color in boardPieces) {
-        for (const pieceName in boardPieces[color]) {
-            const piece = boardPieces[color][pieceName];
-            if (piece.getColor() !== kingColor && !piece.isTaken()) {
-                const pieceAttackSquares = piece.getAttackSquares();
-                for (const square in pieceAttackSquares) {
-                    const attackLoc = pieceAttackSquares[square];
-                    if (arraysEqual(kingLoc, attackLoc)) {
-                        return true;
-                    }
-                }
-            }
-        }
-    }
-    return false;
-}
-
-function isCheckMate() {
-
-}
-
-function isLegalCastle(piece, row, col) {
-    if (piece.getName() === "king") {
-        if (boardPieces[whoseTurn]["king"].getHasMoved() === false) {
-            const backRow = (whoseTurn === "white") ? 7 : 0;
-            if (row === backRow && col === 6) {
-                if (boardPieces[whoseTurn]["rightRook"].getHasMoved() === false) {
-                    for (let i = 5; i <= 6; i++) {
-                        if (boardArray[backRow][i].piece !== null) {
-                            return false;
-                        }
-                    }
-                    for (let j = 4; j <= 6; j++) {
-                        if (isCheck([backRow, j], piece.getColor())) {
-                            console.log("CHECK")
-                            return false;
-                        }
-                    }
-                    return true;
-                }
-            } else if (row === backRow && col === 2) {
-                if (boardPieces[whoseTurn]["leftRook"].getHasMoved() === false) {
-                    for (let i = 3; i >= 1; i--) {
-                        if (boardArray[backRow][i].piece !== null) {
-                            return false;
-                        }
-                    }
-                    for (let j = 4; j >= 2; j--) {
-                        if (isCheck([backRow, j], piece.getColor())) {
-                            console.log("ALSO CHECK");
-                            return false;
-                        }
-                    }
-                    return true;
-                }
-            }
-        }
-    }
-    return false;
 }
 
 function drawGame() {
@@ -389,13 +386,13 @@ class Pawn extends Piece {
     isLegalMove(row, col) {
         if (col === this.col) {
             const rowSign = (this.color === "white") ? 1 : -1;
-            if (!this.hasMoved && this.row - row === 2) {
+            if (!this.hasMoved && this.row - row === 2 * rowSign) {
                 if (boardArray[row+rowSign][col].piece === null && boardArray[row][col].piece === null) {
                     this.firstMoveTwo = true;
                     return true;
                 }
             } 
-            if (this.row - row === 1 && boardArray[row][col].piece === null) {
+            if (this.row - row === 1*rowSign && boardArray[row][col].piece === null) {
                 return true;
             }
         } else if (Math.abs(col - this.col) === 1) {
@@ -719,3 +716,4 @@ class King extends Piece {
 // Letters on the board?
 // Can detect checkmate
 // Add timer?
+// Probably, many of the above could be solved by adding a second "functionality" canvas
