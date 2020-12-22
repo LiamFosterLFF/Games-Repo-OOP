@@ -7,6 +7,7 @@ let selectedPiece = null;
 let boardArray = [];
 let boardPieces= {};
 let whoseTurn = "white";
+let turnNo = 0;
 const pieceImages = {};
 
 function setup() {
@@ -58,6 +59,7 @@ function mouseReleased() {
         } else {
             whoseTurn = "white";
         }
+        turnNo++;
     }
 
     function isCheck(kingLoc, kingColor) {
@@ -92,6 +94,20 @@ function mouseReleased() {
 
     function isCheckMate() {
 
+    }
+
+    function isEnPassant(piece, row, col) {
+        if (piece.getName() === "pawn") {
+            const passantRow = (whoseTurn === "white") ? 2 : 5;
+            const rowSign = (whoseTurn === "white") ? 1 : -1;
+            if (row === passantRow) {
+                const passPiece = boardArray[passantRow + rowSign][col].piece;
+                if (passPiece !== null && passPiece.getColor() !== whoseTurn && passPiece.getName() === "pawn" && passPiece.eligibleForEnPassant()) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     function isLegalCastle(piece, row, col) {
@@ -168,6 +184,15 @@ function mouseReleased() {
                         boardPieces[color]["leftRook"].setPosition(col, 3);
                         boardPieces[color]["leftRook"].setHasMoved();
                     }
+                    changeTurns();
+                    updateBoard();
+                } else if (isEnPassant(selectedPiece, row, col)) {
+                    selectedPiece.setPosition(row, col);
+                    selectedPiece.setHasMoved();
+                    const passantRow = (whoseTurn === "white") ? 2 : 5;
+                    const rowSign = (whoseTurn === "white") ? 1 : -1;
+                    const passPiece = boardArray[passantRow + rowSign][col].piece;
+                    passPiece.beTaken();
                     changeTurns();
                     updateBoard();
                 }
@@ -249,17 +274,21 @@ function drawGame() {
             background(177,98,20);
             fill(255);
         }
-    
-        drawBackdrop();
-        for (let row = 0; row < 8; row++) {
-            for (let col = 0; col < 8; col++) {
-                let sqColor = ((row + col) % 2 === 0) ? 255: "#25a243";
-                const sqLoc = {x: offset.x + sqSize * col, y: offset.y + sqSize * row }
-                fill(sqColor);
-                square(sqLoc.x, sqLoc.y, sqSize);
+
+        function drawSquares() {
+            for (let row = 0; row < 8; row++) {
+                for (let col = 0; col < 8; col++) {
+                    let sqColor = ((row + col) % 2 === 0) ? 255: "#25a243";
+                    const sqLoc = {x: offset.x + sqSize * col, y: offset.y + sqSize * row }
+                    fill(sqColor);
+                    square(sqLoc.x, sqLoc.y, sqSize);
+                }
             }
         }
-    }
+    
+        drawBackdrop();
+        drawSquares();
+    }   
 
     function drawSelectedSquare() {
         fill("#edcf72");
@@ -315,7 +344,6 @@ class Square {
     }
 
 }
-
 
 class Piece {
     constructor(row, col, color, name) {
@@ -376,11 +404,18 @@ class Pawn extends Piece {
     constructor(row, col, color) {
         super(row, col, color, "pawn");
         this.image = pieceImages[`pawn${this.capitalize(this.color)}`]
-        this.firstMoveTwo = false;
+        this.firstMoveTwoTurn = null;
     }
 
     setPosition(row, col) {
         super.setPosition(row, col);
+    }
+
+    eligibleForEnPassant() {
+        if (this.firstMoveTwoTurn !== null && turnNo - this.firstMoveTwoTurn === 1) {
+            return true;
+        }
+        return false;
     }
 
     isLegalMove(row, col) {
@@ -388,7 +423,7 @@ class Pawn extends Piece {
             const rowSign = (this.color === "white") ? 1 : -1;
             if (!this.hasMoved && this.row - row === 2 * rowSign) {
                 if (boardArray[row+rowSign][col].piece === null && boardArray[row][col].piece === null) {
-                    this.firstMoveTwo = true;
+                    this.firstMoveTwoTurn = turnNo;
                     return true;
                 }
             } 
