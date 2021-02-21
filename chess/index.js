@@ -196,7 +196,16 @@ function mouseReleased() {
                         boardArray[row][col].piece.beTaken();
                     }
                     if (isPawnPromotion(selectedPiece, row)) {
-                        promotePawn(selectedPiece, row, col, "queen")
+                        function promptForPieceName() {
+                            let newPieceLetter = prompt("Enter R for a rook, K for a knight, B for a Bishop, or leave Q to promote to Queen", "Q").toUpperCase();
+                            const options = { "Q": "queen", "R": "rook", "K": "knight", "B": "bishop"};
+                            if (Object.keys(options).includes(newPieceLetter)) {
+                                promotePawn(selectedPiece, row, col, options[newPieceLetter])
+                            } else {
+                                promptForPieceName();
+                            }
+                        }
+                        promptForPieceName();
                     }
                     const [savePosRow, savePosCol] = selectedPiece.getPosition();
                     selectedPiece.setPosition(row, col);
@@ -781,9 +790,6 @@ class King extends Piece {
     
 // Still ToDo 
 //Drag n drop?
-// Piece logic: 
-//      --Pawn
-//          -- Promotion
 // Dead pieces?
 // Keep a record of moves?
 // Letters on the board?
