@@ -150,6 +150,42 @@ function mouseReleased() {
         return false;
     }
 
+    function isPawnPromotion(piece, row) {
+        if (piece.getName() === "pawn") {
+            const lastRow = (whoseTurn === "white") ? 0 : 7;
+            console.log(row, lastRow);
+            if (row === lastRow) {
+                return true;
+            }
+        }
+    }
+
+    function promotePawn(pawn, row, col, newPieceName) {
+        let newPiece;
+        const color = pawn.getColor();
+        switch (newPieceName) {
+            case "queen":
+                newPiece = new Queen(row, col, color);
+                break;
+
+            case "rook":
+                newPiece = new Rook(row, col, color);
+                break;
+
+            case "knight":
+                newPiece = new Knight(row, col, color);
+                break;
+
+            case "bishop":
+                newPiece = new Bishop(row, col, color);
+                break;
+        }
+
+        const pawnName = pawn.getName();
+        pawn.beTaken();
+        boardPieces[color][`${newPiece}From${pawnName}`] = newPiece;
+    }
+
     const [row, col] = [floor((mouseY - offset.y)/sqSize), floor((mouseX - offset.x)/sqSize)];
     if (selectedPiece !== null) {
         if (selectedPiece.getColor() === whoseTurn) {
@@ -158,6 +194,9 @@ function mouseReleased() {
                 if (selectedPiece.isLegalMove(row, col)) {
                     if (boardArray[row][col].piece !== null) {
                         boardArray[row][col].piece.beTaken();
+                    }
+                    if (isPawnPromotion(selectedPiece, row)) {
+                        promotePawn(selectedPiece, row, col, "queen")
                     }
                     const [savePosRow, savePosCol] = selectedPiece.getPosition();
                     selectedPiece.setPosition(row, col);
@@ -744,7 +783,6 @@ class King extends Piece {
 //Drag n drop?
 // Piece logic: 
 //      --Pawn
-//          -- En passant
 //          -- Promotion
 // Dead pieces?
 // Keep a record of moves?
