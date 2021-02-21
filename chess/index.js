@@ -183,6 +183,7 @@ function mouseReleased() {
 
         const pawnName = pawn.getName();
         pawn.beTaken();
+        pawn.bePromoted();
         boardPieces[color][`${newPiece}From${pawnName}`] = newPiece;
     }
 
@@ -453,6 +454,7 @@ class Pawn extends Piece {
         super(row, col, color, "pawn");
         this.image = pieceImages[`pawn${this.capitalize(this.color)}`]
         this.firstMoveTwoTurn = null;
+        this.isPromoted = false;
     }
 
     setPosition(row, col) {
@@ -514,6 +516,10 @@ class Pawn extends Piece {
             }
         }
         return moves;
+    }
+
+    bePromoted() {
+        this.isPromoted = true;
     }
 }
 
