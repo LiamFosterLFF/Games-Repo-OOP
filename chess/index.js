@@ -60,6 +60,9 @@ function mouseReleased() {
             whoseTurn = "white";
         }
         turnNo++;
+        // if (isCheckMate()) {
+        //     console.log("CHECKMATE")
+        // }
     }
 
     function isCheck(kingLoc, kingColor) {
@@ -74,7 +77,7 @@ function mouseReleased() {
             }
             return true;
         }
-    
+        console.log("checkingcheck", kingLoc, kingColor);
         for (const color in boardPieces) {
             for (const pieceName in boardPieces[color]) {
                 const piece = boardPieces[color][pieceName];
@@ -93,7 +96,26 @@ function mouseReleased() {
     }
 
     function isCheckMate() {
+        console.log("CHECKED");
 
+        for (const piece of Object.values(boardPieces[whoseTurn])) {
+            for (const move of piece.getMoves()) {
+                const [newRow, newCol] = move;
+                const [oldRow, oldCol] = piece.getPosition();
+                if (piece.isLegalMove(newRow, newCol)) {
+                    piece.setPosition(newRow, newCol);
+                    const king = boardPieces[whoseTurn]["king"];
+                    if (!(isCheck(king.getPosition(), king.getColor()))) {
+                        console.log("BANG", king, piece.getName(), piece.getPosition());
+                        piece.setPosition(oldRow, oldCol);
+
+                        return false;
+                    }
+                    piece.setPosition(oldRow, oldCol);
+                }
+            }
+        }
+        return true;
     }
 
     function isEnPassant(piece, row, col) {
@@ -110,45 +132,45 @@ function mouseReleased() {
         return false;
     }
 
-    function isLegalCastle(piece, row, col) {
-        if (piece.getName() === "king") {
-            if (boardPieces[whoseTurn]["king"].getHasMoved() === false) {
-                const backRow = (whoseTurn === "white") ? 7 : 0;
-                if (row === backRow && col === 6) {
-                    if (boardPieces[whoseTurn]["rightRook"].getHasMoved() === false) {
-                        for (let i = 5; i <= 6; i++) {
-                            if (boardArray[backRow][i].piece !== null) {
-                                return false;
-                            }
-                        }
-                        for (let j = 4; j <= 6; j++) {
-                            if (isCheck([backRow, j], piece.getColor())) {
-                                console.log("CHECK")
-                                return false;
-                            }
-                        }
-                        return true;
-                    }
-                } else if (row === backRow && col === 2) {
-                    if (boardPieces[whoseTurn]["leftRook"].getHasMoved() === false) {
-                        for (let i = 3; i >= 1; i--) {
-                            if (boardArray[backRow][i].piece !== null) {
-                                return false;
-                            }
-                        }
-                        for (let j = 4; j >= 2; j--) {
-                            if (isCheck([backRow, j], piece.getColor())) {
-                                console.log("ALSO CHECK");
-                                return false;
-                            }
-                        }
-                        return true;
-                    }
-                }
-            }
-        }
-        return false;
-    }
+    // function isLegalCastle(piece, row, col) {
+    //     if (piece.getName() === "king") {
+    //         if (boardPieces[whoseTurn]["king"].getHasMoved() === false) {
+    //             const backRow = (whoseTurn === "white") ? 7 : 0;
+    //             if (row === backRow && col === 6) {
+    //                 if (boardPieces[whoseTurn]["rightRook"].getHasMoved() === false) {
+    //                     for (let i = 5; i <= 6; i++) {
+    //                         if (boardArray[backRow][i].piece !== null) {
+    //                             return false;
+    //                         }
+    //                     }
+    //                     for (let j = 4; j <= 6; j++) {
+    //                         if (isCheck([backRow, j], piece.getColor())) {
+    //                             console.log("CHECK")
+    //                             return false;
+    //                         }
+    //                     }
+    //                     return true;
+    //                 }
+    //             } else if (row === backRow && col === 2) {
+    //                 if (boardPieces[whoseTurn]["leftRook"].getHasMoved() === false) {
+    //                     for (let i = 3; i >= 1; i--) {
+    //                         if (boardArray[backRow][i].piece !== null) {
+    //                             return false;
+    //                         }
+    //                     }
+    //                     for (let j = 4; j >= 2; j--) {
+    //                         if (isCheck([backRow, j], piece.getColor())) {
+    //                             console.log("ALSO CHECK");
+    //                             return false;
+    //                         }
+    //                     }
+    //                     return true;
+    //                 }
+    //             }
+    //         }
+    //     }
+    //     return false;
+    // }
 
     function isPawnPromotion(piece, row) {
         if (piece.getName() === "pawn") {
@@ -222,7 +244,8 @@ function mouseReleased() {
                         changeTurns();
                         updateBoard();
                     }
-                } else if (isLegalCastle(selectedPiece, row, col)) {
+                } else if (selectedPiece.getName() === "king" && selectedPiece.isLegalCastle()) {
+                    console.log("Castle");
                     const color = selectedPiece.getColor();
                     selectedPiece.setPosition(row, col)
                     selectedPiece.setHasMoved();
@@ -468,6 +491,10 @@ class Pawn extends Piece {
         return false;
     }
 
+    bePromoted() {
+        this.isPromoted = true;
+    }
+
     isLegalMove(row, col) {
         if (col === this.col) {
             const rowSign = (this.color === "white") ? 1 : -1;
@@ -516,10 +543,6 @@ class Pawn extends Piece {
             }
         }
         return moves;
-    }
-
-    bePromoted() {
-        this.isPromoted = true;
     }
 }
 
@@ -577,6 +600,10 @@ class Bishop extends Piece {
         }
         return attackSquares;
     }
+
+    getMoves() {
+        return this.getAttackSquares()
+    }
 }
 
 class Knight extends Piece {
@@ -607,6 +634,10 @@ class Knight extends Piece {
             }
         })
         return attackSquares;
+    }
+
+    getMoves() {
+        return this.getAttackSquares()
     }
 }
 
@@ -661,6 +692,10 @@ class Rook extends Piece {
             }
         }
         return attackSquares;
+    }
+
+    getMoves() {
+        return this.getAttackSquares()
     }
 }
 
@@ -750,6 +785,10 @@ class Queen extends Piece {
         }
         return attackSquares;
     }
+
+    getMoves() {
+        return this.getAttackSquares()
+    }
 }
 
 class King extends Piece {
@@ -778,6 +817,58 @@ class King extends Piece {
         return false;
     }
 
+    isLegalCastle() {
+        if (this.getHasMoved() === false) {
+            const backRow = (this.color === "white") ? 7 : 0;
+            if (boardPieces[this.color]["rightRook"].getHasMoved() === false) {
+                for (let i = 5; i <= 6; i++) {
+                    if (boardArray[backRow][i].piece !== null) {
+                        return false;
+                    }
+                }
+                for (let j = 4; j <= 6; j++) {
+                    if (this.isCheck(backRow, j)) {
+                        console.log("CHECK")
+                        return false;
+                    }
+                }
+                return true;
+            } else if (boardPieces[this.color]["leftRook"].getHasMoved() === false) {
+                for (let i = 3; i >= 1; i--) {
+                    if (boardArray[backRow][i].piece !== null) {
+                        return false;
+                    }
+                }
+                for (let j = 4; j >= 2; j--) {
+                    if (this.isCheck(backRow, j)) {
+                        console.log("ALSO CHECK");
+                        return false;
+                    }
+                }
+                return true;
+            }
+        }
+        return false;
+    }
+
+    isCheck(row, col) {
+        for (const color in boardPieces) {
+            for (const pieceName in boardPieces[color]) {
+                const piece = boardPieces[color][pieceName];
+                if (piece.getColor() !== this.color && !piece.isTaken()) {
+                    const pieceAttackSquares = piece.getAttackSquares();
+                    for (const square in pieceAttackSquares) {
+                        const attackLoc = pieceAttackSquares[square];
+                        if (row === attackLoc[0] && col === attackLoc[1]) {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
     getAttackSquares() {
         const attackSquares = [];
         const moveArray = [[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0], [1, 1]];
@@ -790,6 +881,10 @@ class King extends Piece {
             }
         })
         return attackSquares;
+    }
+
+    getMoves() {
+        return this.getAttackSquares()
     }
 }
 
