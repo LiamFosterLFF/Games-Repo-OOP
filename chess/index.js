@@ -98,27 +98,30 @@ function mouseReleased() {
     }
 
     function isCheckMate() {
-        console.log("CHECKED");
 
         for (const piece of Object.values(boardPieces[whoseTurn])) {
             for (const move of piece.getMoves()) {
                 const [newRow, newCol] = move;
                 const [oldRow, oldCol] = piece.getPosition();
                 if (piece.isLegalMove(newRow, newCol)) {
+                    let takeablePiece = null
                     if(boardArray[newRow][newCol].piece !== null) {
-                        const takeablePiece = boardArray[newRow][newCol].piece
+                        takeablePiece = boardArray[newRow][newCol].piece
                         boardArray[newRow][newCol].piece = null
-                        piece.setPosition(newRow, newCol);
-                        const king = boardPieces[whoseTurn]["king"];
-                        if (!(isCheck(king.getPosition(), king.getColor()))) {
-                            console.log("BANG", king, takeablePiece.isTaken(), piece.getPosition());
-                            piece.setPosition(oldRow, oldCol);
-                            boardArray[newRow][newCol].piece = takeablePiece
-                            return false;
-                        }
+                    }
+                    piece.setPosition(newRow, newCol);
+                    const king = boardPieces[whoseTurn]["king"];
+                    if (!(isCheck(king.getPosition(), king.getColor()))) {
+                        // console.log("BANG", king, takeablePiece.isTaken(), piece.getPosition());
                         piece.setPosition(oldRow, oldCol);
+                        if (takeablePiece !== null) {
+                            boardArray[newRow][newCol].piece = takeablePiece
+                        }
+                        return false;
+                    }
+                    piece.setPosition(oldRow, oldCol);
+                    if (takeablePiece !== null) {
                         boardArray[newRow][newCol].piece = takeablePiece
-
                     }
                 }
             }
