@@ -59,10 +59,10 @@ function mouseReleased() {
         } else {
             whoseTurn = "white";
         }
-        turnNo++;
         if (isCheckMate()) {
-            console.log("CHECKMATE")
+            console.log(`CHECKMATE! ${whoseTurn.charAt(0).toUpperCase() + whoseTurn.slice(1)} lost!`);
         }
+        turnNo++;
     }
 
     function isCheck(kingLoc, kingColor) {
@@ -181,9 +181,9 @@ function mouseReleased() {
         pawn.bePromoted();
         boardPieces[color][`${newPiece}From${pawnName}`] = newPiece;
     }
-
-    const [row, col] = [floor((mouseY - offset.y)/sqSize), floor((mouseX - offset.x)/sqSize)];
-    if (selectedPiece !== null) {
+    if (!isCheckMate()) {
+        const [row, col] = [floor((mouseY - offset.y)/sqSize), floor((mouseX - offset.x)/sqSize)];
+        if (selectedPiece !== null) {
         if (selectedPiece.getColor() === whoseTurn) {
             const [pieceRow, pieceCol] = selectedPiece.getPosition();
             if (row !== pieceRow || col !== pieceCol) {
@@ -246,6 +246,9 @@ function mouseReleased() {
             console.log("Not your turn")
         }
         
+        }
+    } else {
+        console.log(`${whoseTurn.charAt(0).toUpperCase() + whoseTurn.slice(1)} lost! Refresh to start again.`)
     }
     selectedPiece = null;
 }
