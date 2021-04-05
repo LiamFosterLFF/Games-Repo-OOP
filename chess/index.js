@@ -77,14 +77,11 @@ function mouseReleased() {
             }
             return true;
         }
-        console.log("checkingcheck", kingLoc, kingColor);
         for (const color in boardPieces) {
             for (const pieceName in boardPieces[color]) {
                 const piece = boardPieces[color][pieceName];
                 if (piece.getColor() !== kingColor && !piece.isTaken()) {
                     const pieceAttackSquares = piece.getAttackSquares();
-                    console.log(piece.getName(), pieceAttackSquares);
-
                     for (const square in pieceAttackSquares) {
                         const attackLoc = pieceAttackSquares[square];
                         if (arraysEqual(kingLoc, attackLoc)) {
@@ -112,7 +109,6 @@ function mouseReleased() {
                     piece.setPosition(newRow, newCol);
                     const king = boardPieces[whoseTurn]["king"];
                     if (!(isCheck(king.getPosition(), king.getColor()))) {
-                        // console.log("BANG", king, takeablePiece.isTaken(), piece.getPosition());
                         piece.setPosition(oldRow, oldCol);
                         if (takeablePiece !== null) {
                             boardArray[newRow][newCol].piece = takeablePiece
@@ -148,7 +144,6 @@ function mouseReleased() {
     function isPawnPromotion(piece, row) {
         if (piece.getName() === "pawn") {
             const lastRow = (whoseTurn === "white") ? 0 : 7;
-            console.log(row, lastRow);
             if (row === lastRow) {
                 return true;
             }
@@ -211,14 +206,12 @@ function mouseReleased() {
                     if (isCheck(king.getPosition(), king.getColor())) {
                         selectedPiece.setPosition(savePosRow, savePosCol);
                         updateBoard();
-                        console.log("Check");
                     } else {
                         selectedPiece.setHasMoved();
                         changeTurns();
                         updateBoard();
                     }
                 } else if (selectedPiece.getName() === "king" && selectedPiece.isLegalCastle()) {
-                    console.log("Castle");
                     const color = selectedPiece.getColor();
                     selectedPiece.setPosition(row, col)
                     selectedPiece.setHasMoved();
@@ -804,7 +797,6 @@ class King extends Piece {
                 }
                 for (let j = 4; j <= 6; j++) {
                     if (this.isCheck(backRow, j)) {
-                        console.log("CHECK")
                         return false;
                     }
                 }
@@ -817,7 +809,6 @@ class King extends Piece {
                 }
                 for (let j = 4; j >= 2; j--) {
                     if (this.isCheck(backRow, j)) {
-                        console.log("ALSO CHECK");
                         return false;
                     }
                 }
@@ -826,25 +817,6 @@ class King extends Piece {
         }
         return false;
     }
-
-    // isCheck(row, col) {
-    //     for (const color in boardPieces) {
-    //         for (const pieceName in boardPieces[color]) {
-    //             const piece = boardPieces[color][pieceName];
-    //             if (piece.getColor() !== this.color && !piece.isTaken()) {
-    //                 const pieceAttackSquares = piece.getAttackSquares();
-    //                 console.log(piece.getName(), pieceAttackSquares);
-    //                 for (const square in pieceAttackSquares) {
-    //                     const attackLoc = pieceAttackSquares[square];
-    //                     if (row === attackLoc[0] && col === attackLoc[1]) {
-    //                         return true;
-    //                     }
-    //                 }
-    //             }
-    //         }
-    //     }
-    //     return false;
-    // }
 
     getAttackSquares() {
         const attackSquares = [];
