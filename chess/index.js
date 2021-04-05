@@ -60,7 +60,9 @@ function mouseReleased() {
             whoseTurn = "white";
         }
         if (isCheckMate()) {
-            console.log(`CHECKMATE! ${whoseTurn.charAt(0).toUpperCase() + whoseTurn.slice(1)} lost!`);
+            if (confirm(`CHECKMATE! ${whoseTurn.charAt(0).toUpperCase() + whoseTurn.slice(1)} lost! Press OK to play again.`)) {
+                location.reload();
+            }
         }
         turnNo++;
     }
@@ -241,7 +243,9 @@ function mouseReleased() {
         
         }
     } else {
-        console.log(`${whoseTurn.charAt(0).toUpperCase() + whoseTurn.slice(1)} lost! Refresh to start again.`)
+        if (confirm(`${whoseTurn.charAt(0).toUpperCase() + whoseTurn.slice(1)} lost! Press OK to start again.`)) {
+            location.reload();
+        }
     }
     selectedPiece = null;
 }
