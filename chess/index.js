@@ -60,9 +60,9 @@ function mouseReleased() {
             whoseTurn = "white";
         }
         turnNo++;
-        // if (isCheckMate()) {
-        //     console.log("CHECKMATE")
-        // }
+        if (isCheckMate()) {
+            console.log("CHECKMATE")
+        }
     }
 
     function isCheck(kingLoc, kingColor) {
@@ -83,6 +83,8 @@ function mouseReleased() {
                 const piece = boardPieces[color][pieceName];
                 if (piece.getColor() !== kingColor && !piece.isTaken()) {
                     const pieceAttackSquares = piece.getAttackSquares();
+                    console.log(piece.getName(), pieceAttackSquares);
+
                     for (const square in pieceAttackSquares) {
                         const attackLoc = pieceAttackSquares[square];
                         if (arraysEqual(kingLoc, attackLoc)) {
@@ -103,15 +105,21 @@ function mouseReleased() {
                 const [newRow, newCol] = move;
                 const [oldRow, oldCol] = piece.getPosition();
                 if (piece.isLegalMove(newRow, newCol)) {
-                    piece.setPosition(newRow, newCol);
-                    const king = boardPieces[whoseTurn]["king"];
-                    if (!(isCheck(king.getPosition(), king.getColor()))) {
-                        console.log("BANG", king, piece.getName(), piece.getPosition());
+                    if(boardArray[newRow][newCol].piece !== null) {
+                        const takeablePiece = boardArray[newRow][newCol].piece
+                        boardArray[newRow][newCol].piece = null
+                        piece.setPosition(newRow, newCol);
+                        const king = boardPieces[whoseTurn]["king"];
+                        if (!(isCheck(king.getPosition(), king.getColor()))) {
+                            console.log("BANG", king, takeablePiece.isTaken(), piece.getPosition());
+                            piece.setPosition(oldRow, oldCol);
+                            boardArray[newRow][newCol].piece = takeablePiece
+                            return false;
+                        }
                         piece.setPosition(oldRow, oldCol);
+                        boardArray[newRow][newCol].piece = takeablePiece
 
-                        return false;
                     }
-                    piece.setPosition(oldRow, oldCol);
                 }
             }
         }
@@ -132,45 +140,7 @@ function mouseReleased() {
         return false;
     }
 
-    // function isLegalCastle(piece, row, col) {
-    //     if (piece.getName() === "king") {
-    //         if (boardPieces[whoseTurn]["king"].getHasMoved() === false) {
-    //             const backRow = (whoseTurn === "white") ? 7 : 0;
-    //             if (row === backRow && col === 6) {
-    //                 if (boardPieces[whoseTurn]["rightRook"].getHasMoved() === false) {
-    //                     for (let i = 5; i <= 6; i++) {
-    //                         if (boardArray[backRow][i].piece !== null) {
-    //                             return false;
-    //                         }
-    //                     }
-    //                     for (let j = 4; j <= 6; j++) {
-    //                         if (isCheck([backRow, j], piece.getColor())) {
-    //                             console.log("CHECK")
-    //                             return false;
-    //                         }
-    //                     }
-    //                     return true;
-    //                 }
-    //             } else if (row === backRow && col === 2) {
-    //                 if (boardPieces[whoseTurn]["leftRook"].getHasMoved() === false) {
-    //                     for (let i = 3; i >= 1; i--) {
-    //                         if (boardArray[backRow][i].piece !== null) {
-    //                             return false;
-    //                         }
-    //                     }
-    //                     for (let j = 4; j >= 2; j--) {
-    //                         if (isCheck([backRow, j], piece.getColor())) {
-    //                             console.log("ALSO CHECK");
-    //                             return false;
-    //                         }
-    //                     }
-    //                     return true;
-    //                 }
-    //             }
-    //         }
-    //     }
-    //     return false;
-    // }
+
 
     function isPawnPromotion(piece, row) {
         if (piece.getName() === "pawn") {
@@ -851,23 +821,24 @@ class King extends Piece {
         return false;
     }
 
-    isCheck(row, col) {
-        for (const color in boardPieces) {
-            for (const pieceName in boardPieces[color]) {
-                const piece = boardPieces[color][pieceName];
-                if (piece.getColor() !== this.color && !piece.isTaken()) {
-                    const pieceAttackSquares = piece.getAttackSquares();
-                    for (const square in pieceAttackSquares) {
-                        const attackLoc = pieceAttackSquares[square];
-                        if (row === attackLoc[0] && col === attackLoc[1]) {
-                            return true;
-                        }
-                    }
-                }
-            }
-        }
-        return false;
-    }
+    // isCheck(row, col) {
+    //     for (const color in boardPieces) {
+    //         for (const pieceName in boardPieces[color]) {
+    //             const piece = boardPieces[color][pieceName];
+    //             if (piece.getColor() !== this.color && !piece.isTaken()) {
+    //                 const pieceAttackSquares = piece.getAttackSquares();
+    //                 console.log(piece.getName(), pieceAttackSquares);
+    //                 for (const square in pieceAttackSquares) {
+    //                     const attackLoc = pieceAttackSquares[square];
+    //                     if (row === attackLoc[0] && col === attackLoc[1]) {
+    //                         return true;
+    //                     }
+    //                 }
+    //             }
+    //         }
+    //     }
+    //     return false;
+    // }
 
     getAttackSquares() {
         const attackSquares = [];
