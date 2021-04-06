@@ -11,6 +11,7 @@ const offset = {"x": 70, "y": 150};
 const cover = [];
 const enemyBullets = [];
 sprites = {}
+score = 0
 
 function setup() {
     cnv = createCanvas(screenSize.width, screenSize.height);
@@ -22,6 +23,7 @@ function setup() {
 function draw() {
     frameRate()
     drawBoard();
+    drawScore();
     drawCover();
     drawShip();
     moveShip();
@@ -54,6 +56,12 @@ function drawBoard() {
     clear();
     noStroke();
     background(0);
+}
+
+function drawScore() {
+    textSize(50);
+    fill(256);
+    text(`${score}`, screenSize["width"]/2 - 10, 45);
 }
 
 function initializeCover() {
@@ -272,6 +280,7 @@ class Enemy {
 
     die() {
         this.image = this.death;
+        score += 10
         setTimeout(() => {
             this.dead = true;
         }, 1000);
