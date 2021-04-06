@@ -1,3 +1,4 @@
+
 const screenSize = {"width": 800, "height": 800};
 const shipDimensions = {"x": 50, "y": 20};
 const shipPosition = {"x": screenSize.width/2, "y": screenSize.height-40};
@@ -9,8 +10,10 @@ let bullet = null;
 const offset = {"x": 70, "y": 150};
 const cover = [];
 const enemyBullets = [];
+enemySprites = {}
 
 function setup() {
+
     createCanvas(screenSize.width, screenSize.height);
     initializeEnemies();
     initializeCover();
@@ -25,6 +28,18 @@ function draw() {
     drawEnemies();
     moveEnemies();
     shoot();
+}
+
+function preload() {
+    doubleSpriteEnemies = ['ant', 'big-jelly', 'jelly', 'ignignokt', 'urr', 'point-jelly', 'shroom']
+    singleSpriteEnemies = ['bug', 'cat', 'crab', 'dog', 'hopper' ]
+    miscSprites = []
+    for (let i = 0; i < doubleSpriteEnemies.length; i++) {
+        enemySprites[`${doubleSpriteEnemies[i]}-enemy-sprite-1`] = loadImage(`space-invaders/images/${doubleSpriteEnemies[i]}-enemy-sprite-1.png`);
+        enemySprites[`${doubleSpriteEnemies[i]}-enemy-sprite-2`] = loadImage(`space-invaders/images/${doubleSpriteEnemies[i]}-enemy-sprite-2.png`)
+        console.log(enemySprites);
+    }
+
 }
 
 function drawBoard() {
@@ -118,27 +133,42 @@ function checkMinMaxY(position) {
 
 
 function initializeEnemies() {
-
-    for (let row = 0; row < 5; row++) {
-        enemyPositions.push([]);
-        for (let col = 0; col < 11; col++) {
-            enemyPositions[row].push(new Enemy(offset.x + 60*col, offset.y + 60*row));
+    rowOffset = 0
+    function buildEnemyRows(rows, enemyName, rOffset) {
+        for (let row = 0; row < rows; row++) {
+            enemyPositions.push([]);
+            for (let col = 0; col < 11; col++) {
+                enemyPositions[row].push(new Enemy(offset.x + 60*col, offset.y + 60*row + rOffset, enemyName));
+            }
         }
+        return rows*60
+    }
+    rowOffset += buildEnemyRows(2, 'ant', rowOffset);
+    rowOffset += buildEnemyRows(2, 'jelly', rowOffset);
+    rowOffset += buildEnemyRows(2, 'ignignokt', rowOffset);
+
+    
+}
+
+class Enemy {
+    constructor(x, y, name) {
+        this.x = x;
+        this.y = y;
+        this.dead = false;
+        this.name = name
+        this.image = enemySprites[`${this.name}-enemy-sprite-1`]
     }
 }
 
-function Enemy(x, y) {
-    this.x = x;
-    this.y = y;
-    this.dead = false;
-}
 
-function Cover(x1, y1, x2, y2) {
-    this.x1 = x1;
-    this.y1 = y1;
-    this.x2 = x2;
-    this.y2 = y2;
-    this.blown = false;
+class Cover {
+    constructor(x1, y1, x2, y2) {
+        this.x1 = x1;
+        this.y1 = y1;
+        this.x2 = x2;
+        this.y2 = y2;
+        this.blown = false;
+    }
 }
 
 function drawEnemies() {
@@ -160,7 +190,8 @@ function drawEnemies() {
                 checkMinMaxY(enemyPositions[row][col].y);
     
                 fill(255);
-                rect(enemyPositions[row][col].x, enemyPositions[row][col].y, enemyDimensions.x, enemyDimensions.y)
+                enemy = enemyPositions[row][col]
+                image(enemy.image, enemyPositions[row][col].x, enemyPositions[row][col].y, enemyDimensions.x, enemyDimensions.y)
             }
         }
     }
