@@ -10,7 +10,7 @@ let bullet = null;
 const offset = {"x": 70, "y": 150};
 const cover = [];
 const enemyBullets = [];
-enemySprites = {}
+sprites = {}
 
 function setup() {
 
@@ -32,12 +32,20 @@ function draw() {
 
 function preload() {
     doubleSpriteEnemies = ['ant', 'big-jelly', 'jelly', 'ignignokt', 'urr', 'point-jelly', 'shroom']
-    singleSpriteEnemies = ['bug', 'cat', 'crab', 'dog', 'hopper' ]
-    miscSprites = []
+    singleSpriteEnemies = ['bug', 'cat', 'crab', 'dog', 'hopper', 'squid' ]
+    miscSprites = ['burning-wreckage', 'lightning-bullet', 'pop-explosion', 'ship-sprite', 'ufo-sprite', ]
     for (let i = 0; i < doubleSpriteEnemies.length; i++) {
-        enemySprites[`${doubleSpriteEnemies[i]}-enemy-sprite-1`] = loadImage(`space-invaders/images/${doubleSpriteEnemies[i]}-enemy-sprite-1.png`);
-        enemySprites[`${doubleSpriteEnemies[i]}-enemy-sprite-2`] = loadImage(`space-invaders/images/${doubleSpriteEnemies[i]}-enemy-sprite-2.png`)
-        console.log(enemySprites);
+        sprites[`${doubleSpriteEnemies[i]}-enemy-sprite-1`] = loadImage(`space-invaders/images/${doubleSpriteEnemies[i]}-enemy-sprite-1.png`);
+        sprites[`${doubleSpriteEnemies[i]}-enemy-sprite-2`] = loadImage(`space-invaders/images/${doubleSpriteEnemies[i]}-enemy-sprite-2.png`)
+        console.log(sprites);
+    }
+
+    for (let i = 0; i < singleSpriteEnemies.length; i++) {
+        sprites[`${singleSpriteEnemies[i]}-enemy-sprite`] = loadImage(`space-invaders/images/${singleSpriteEnemies[i]}-enemy-sprite.png`);
+    }
+
+    for (let i = 0; i < miscSprites.length; i++) {
+        sprites[miscSprites[i]] = loadImage(`space-invaders/images/${miscSprites[i]}.png`);
     }
 
 }
@@ -100,7 +108,7 @@ function drawCover() {
 
 function drawShip() {
     fill(255);
-    rect(shipPosition.x, shipPosition.y, shipDimensions.x, shipDimensions.y);
+    image(sprites['ship-sprite'], shipPosition.x, shipPosition.y, shipDimensions.x, shipDimensions.y);
 }
 
 function moveShip() {
@@ -150,26 +158,7 @@ function initializeEnemies() {
     
 }
 
-class Enemy {
-    constructor(x, y, name) {
-        this.x = x;
-        this.y = y;
-        this.dead = false;
-        this.name = name
-        this.image = enemySprites[`${this.name}-enemy-sprite-1`]
-    }
-}
 
-
-class Cover {
-    constructor(x1, y1, x2, y2) {
-        this.x1 = x1;
-        this.y1 = y1;
-        this.x2 = x2;
-        this.y2 = y2;
-        this.blown = false;
-    }
-}
 
 function drawEnemies() {
     enemyEdges.x.min = offset.x;
@@ -264,12 +253,36 @@ function launchBullet() {
 
 }
 
-function Bullet(x, y) {
-    this.x = x;
-    this.y = y;
-    this.speed = 10;
+class Bullet {
+    constructor(x, y) {
+        this.x = x;
+        this.y = y;
+        this.image = sprites['lightning-bullet']
+        this.speed = 10;
+    }
 }
 
+
+class Enemy {
+    constructor(x, y, name) {
+        this.x = x;
+        this.y = y;
+        this.dead = false;
+        this.name = name
+        this.image = sprites[`${this.name}-enemy-sprite-1`]
+    }
+}
+
+
+class Cover {
+    constructor(x1, y1, x2, y2) {
+        this.x1 = x1;
+        this.y1 = y1;
+        this.x2 = x2;
+        this.y2 = y2;
+        this.blown = false;
+    }
+}
 
 // Enemies fire bullets
 // Keep Score
