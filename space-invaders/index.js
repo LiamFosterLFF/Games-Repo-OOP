@@ -170,7 +170,7 @@ function drawEnemies() {
     for (let row = 0; row < enemyPositions.length; row++) {
         for (let col = 0; col < enemyPositions[row].length; col++) {
             if (detectCollision(enemyPositions[row][col])) {
-                enemyPositions[row][col].dead = true;
+                enemyPositions[row][col].die();
                 bullet = null;
             } else if (enemyPositions[row][col].dead === true){
                 
@@ -270,6 +270,14 @@ class Enemy {
         this.dead = false;
         this.name = name
         this.image = sprites[`${this.name}-enemy-sprite-1`]
+        this.death = sprites['pop-explosion']
+    }
+
+    die() {
+        this.image = this.death;
+        setTimeout(() => {
+            this.dead = true;
+        }, 1000);
     }
 }
 
