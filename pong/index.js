@@ -10,6 +10,7 @@ var ballVector = [-10, -2];
 
 function setup() {
     cnv = createCanvas(w, h);
+    cnv.parent("canvas-parent");
     drawBoard();
 }
 

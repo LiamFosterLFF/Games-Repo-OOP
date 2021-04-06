@@ -14,7 +14,8 @@ const blockMap = new Array(20).fill(null).map((row) => new Array(10).fill(null))
 let calledAlready = false;
 
 function setup() {
-    createCanvas(dims.x, dims.y);
+    cnv = createCanvas(dims.x, dims.y);
+    cnv.parent("canvas-parent");
     board = new Board();
     startGravity();
 }

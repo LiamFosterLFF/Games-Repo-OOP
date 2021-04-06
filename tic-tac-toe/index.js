@@ -5,6 +5,7 @@ const board = [[null, null, null], [null, null, null], [null, null, null]];
 
 function setup() {
     cnv = createCanvas(800, 800);
+    cnv.parent("canvas-parent");
     drawBoard();
 }
 

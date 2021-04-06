@@ -5,6 +5,7 @@ var cnv;
 
 function setup() {
     cnv = createCanvas(800, 800);
+    cnv.parent("canvas-parent");
     background(255);
     drawGrid();
 }
@@ -12,7 +13,8 @@ function setup() {
 function draw() {
     // cnv.mouseMoved(drawHover)
     drawMinesAndNumbers(cellArr);
-    cnv.mouseClicked(minesweep)
+    cnv.mouseClicked(minesweep);
+
 }
 
 // function drawHover() {

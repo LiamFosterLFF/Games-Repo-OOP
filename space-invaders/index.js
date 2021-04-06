@@ -13,8 +13,8 @@ const enemyBullets = [];
 sprites = {}
 
 function setup() {
-
-    createCanvas(screenSize.width, screenSize.height);
+    cnv = createCanvas(screenSize.width, screenSize.height);
+    cnv.parent("canvas-parent");
     initializeEnemies();
     initializeCover();
 }
@@ -195,9 +195,6 @@ function drawEnemies() {
 
 }
 
-function launchEnemyBullet() {
-
-}
 
 function detectCollision(enemy) {
     if (
@@ -292,10 +289,9 @@ class Cover {
     }
 }
 
-// Enemies fire bullets
+// Enemies fire bullets and do damage
 // Keep Score
 // Clean up functions
-// Add Sprites
 // Add special enemies
 // Increase explosion radius for enemy bombs
 // Add levels

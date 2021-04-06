@@ -17,6 +17,7 @@ function setup() {
 
 function draw() {
     cnv.mouseClicked(handleClick);
+    cnv.parent("canvas-parent");
     drawGame();
 }
 

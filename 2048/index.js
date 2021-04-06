@@ -4,6 +4,7 @@ const dimensions = {width: 400, height: 400}
 
 function setup() {
     cnv = createCanvas(dimensions.width, dimensions.height)
+    cnv.parent("canvas-parent");
     addNumbers(2);
 }
 

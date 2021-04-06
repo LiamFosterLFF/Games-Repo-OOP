@@ -40,6 +40,7 @@ let inputMode = "normal";
 
 function setup() {
     cnv = createCanvas(800, 800);
+    cnv.parent("canvas-parent");
     loadPresets();
     drawBoard();
 }

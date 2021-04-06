@@ -4,11 +4,13 @@ var food;
 let button;
 
 function setup() {
-    createCanvas(400, 400)
+    cnv = createCanvas(400, 400);
+    cnv.parent("canvas-parent");
     f = new Food();
     s = new Snake();
     frameRate(10);
     button = createButton('switch to auto');
+    button.parent("button-parent");
     button.position(width/2-65/2, 450, 65);
     button.mousePressed(s.runAuto);
 }

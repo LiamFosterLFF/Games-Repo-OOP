@@ -11,6 +11,7 @@ let gameOver = false;
 
 function setup() {
     cnv = createCanvas(dim.width, dim.height);
+    cnv.parent("canvas-parent");
     setPieces();
     drawBoard();
 
