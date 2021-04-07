@@ -1,7 +1,5 @@
 
 const screenSize = {"width": 800, "height": 800};
-const shipDimensions = {"x": 50, "y": 20};
-const shipPosition = {"x": screenSize.width/2, "y": screenSize.height-40};
 const enemyDimensions = {"x": 40, "y": 30};
 const enemyPositions = [];
 const enemyEdges = {"x": {"max": 0, "min": 0}, "y": {max: 0, min: 0}};
@@ -13,25 +11,7 @@ const cover = [];
 sprites = {}
 score = 0
 fireThreshold = .0005
-let shipdead = false
-
-function setup() {
-    cnv = createCanvas(screenSize.width, screenSize.height);
-    cnv.parent("canvas-parent");
-    initializeGame();
-
-    // initializeEnemies();
-    // initializeCover();
-}
-
-function draw() {
-    frameRate()
-    drawGame();
-    moveShip();
-    moveEnemies();
-    shootEnemies();
-    shoot();
-}
+let ship = null;
 
 function preload() {
     doubleSpriteEnemies = ['ant', 'big-jelly', 'jelly', 'ignignokt', 'urr', 'point-jelly', 'shroom']
@@ -52,7 +32,28 @@ function preload() {
 
 }
 
+function setup() {
+    cnv = createCanvas(screenSize.width, screenSize.height);
+    cnv.parent("canvas-parent");
+    initializeGame();
+}
+
+function draw() {
+    frameRate()
+    drawGame();
+    moveShip();
+    moveEnemies();
+    shootEnemies();
+    shoot();
+}
+
+
+
 function initializeGame() {
+
+    function initializeShip() {
+        ship = new Ship(screenSize.width/2, screenSize.height-40, 50, 20);
+    }
 
     function initializeCover() {
         for (let i = 0; i < 4; i++) {
@@ -83,7 +84,7 @@ function initializeGame() {
         rowOffset += buildEnemyRows(2, 'jelly', rowOffset);
         rowOffset += buildEnemyRows(2, 'ignignokt', rowOffset);
     }
-
+    initializeShip();
     initializeCover();
     initializeEnemies();
 }
@@ -155,15 +156,22 @@ function drawGame() {
     }
     
     function drawShip() {
+        function detectShipCollision(shot) {
+            if (
+                shot.x > ship.x && shot.x < ship.x + ship.width
+                && shot.y > ship.y && shot.y < ship.y + ship.height
+            ) {return true}
+            return false
+        }
+        
         for (i=0; i<enemyBullets.length; i++) {
             if (detectShipCollision(enemyBullets[i])) {
                 enemyBullets = enemyBullets.splice(i);
-                shipdead = true
-            } else if (shipdead === true){
-                
+                ship.dead = true
+            } else if (ship.dead === true){
             } else {
                 fill(255);
-                image(sprites['ship-sprite'], shipPosition.x, shipPosition.y, shipDimensions.x, shipDimensions.y);
+                image(sprites['ship-sprite'], ship.x, ship.y, ship.width, ship.height);
             }
         }
     }
@@ -217,12 +225,12 @@ function drawGame() {
 
 function moveShip() {
     if (keyIsDown(LEFT_ARROW)) {
-        if (shipPosition.x > 20) {
-            shipPosition.x -= 5;
+        if (ship.x > 20) {
+            ship.x -= 5;
         }
     } else if (keyIsDown(RIGHT_ARROW)) {
-        if (shipPosition.x < width-(20+shipDimensions.x)) {
-            shipPosition.x += 5;
+        if (ship.x < width-(20+ship.width)) {
+            ship.x += 5;
         }
     }
 }
@@ -260,13 +268,6 @@ function detectCollision(enemy) {
     return false
 }
 
-function detectShipCollision(shot) {
-    if (
-        shot.x > shipPosition.x && shot.x < shipPosition.x + shipDimensions.x
-        && shot.y > shipPosition.y && shot.y < shipPosition.y + shipDimensions.y
-    ) {return true}
-    return false
-}
 
 function advanceEnemiesY() {
     for (let row = 0; row < enemyPositions.length; row++) {
@@ -322,9 +323,19 @@ function shoot() {
 
 function launchBullet() {
     if (bullet === null) {
-        bullet = new Bullet(shipPosition.x + shipDimensions.x/2, shipPosition.y);
+        bullet = new Bullet(ship.x + ship.width/2, ship.y);
     }
 
+}
+
+class Ship {
+    constructor(xPos, yPos, width, height) {
+        this.x = xPos
+        this.y = yPos
+        this.width = width
+        this.height = height
+        this.dead = false
+    }
 }
 
 class Bullet {
@@ -350,6 +361,8 @@ class Enemy {
     constructor(x, y, name) {
         this.x = x;
         this.y = y;
+        this.width = 40;
+        this.height = 30;
         this.dead = false;
         this.name = name
         this.image = sprites[`${this.name}-enemy-sprite-1`]
