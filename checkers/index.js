@@ -1,7 +1,6 @@
 var cnv;
 let board;
 let selectedSquare = [];
-const score = {red: 0, black: 0};
 let images = {};
 let gameOver = false;
 
@@ -81,8 +80,8 @@ function drawGame() {
         fill(0);
         text(board.banner, board.bannerLocation.x, board.bannerLocation.y);
         fill(255);
-        text(`White: ${score.black} pts.`, board.dimensions.width/3, board.dimensions.textBoxOffset + 30);
-        text(`Red: ${score.red} pts.`, board.dimensions.width/3, board.dimensions.height-10);
+        text(`White: ${board.score.black} pts.`, board.dimensions.width/3, board.dimensions.textBoxOffset + 30);
+        text(`Red: ${board.score.red} pts.`, board.dimensions.width/3, board.dimensions.height-10);
     }
 
     function drawBanner() {
@@ -92,17 +91,6 @@ function drawGame() {
     drawBoard();
     drawGameText();
     drawBanner();
-
-    // THIS NEEDS TO BE MOVED TO OWN FUNCTION
-    if (score.black > 11 || score.red > 11) {
-        fill(177,98,20);
-        rect(0, 0, width, 40);
-        const winner = (score.black > score.red) ? "White" : "Red";
-        textSize(32)
-        fill(255);
-        stroke(0)
-        text(`${winner} wins.`, width/3, 30);
-    }
 }
 
 
@@ -150,10 +138,13 @@ class Board {
         this.squareSize = (this.dimensions.width - 2*this.offset.x)/8;
         this.selectedSquare = null;
         this.whoseTurn = "red";
+        this.score = {red: 11, black: 0};
         this.banner = `${this.capitalize(this.whoseTurn)}'s Turn.`;
         this.bannerLocation = {x: this.dimensions.width/3, y: 30}
         this.shortBannerLoc = {x: this.dimensions.width/3, y: 30}
         this.longBannerLoc = {x: this.dimensions.width/7, y: 30}
+        this.extraLongBannerLoc = {x: 20, y: 30}
+        this.gameState = "playing"
     }
 
     setBanner(banner, location) {
@@ -207,32 +198,65 @@ class Board {
         this.setBanner(`${this.capitalize(this.whoseTurn)}'s Turn.`, this.shortBannerLoc);
     }
 
-    handleMovement(square) {
-        if (square !== null) {
-            const [fRow, fCol] = square;
-            const newlySelectedSquare = this.handleSelectingSquare(fRow, fCol);
-            // If it's a square select action, only selects square, doesn't run move logic
-            if (newlySelectedSquare !== null) {
-                const [iRow, iCol] = newlySelectedSquare;
-                const sPiece = this.pieces[iRow][iCol];
-                if (sPiece !== null) {
-                    if (this.whoseTurn === sPiece.color) {
-                        // Only works for green squares
-                        if ((fRow + fCol)%2 === 1) {
-                            if (this.isLegalMove(sPiece, [iRow, iCol], [fRow, fCol])) {
-                                this.movePiece([iRow, iCol], [fRow, fCol]);
-                            } else if (this.isLegalJump(sPiece, [iRow, iCol], [fRow, fCol])) {
-                                const rowGap = (fRow - iRow)/2;
-                                const colGap = (fCol - iCol)/2;
-                                this.jumpPiece([iRow, iCol], [iRow + rowGap, iCol + colGap], [fRow, fCol]);
-                            }
-                        }
-                    } else {
-                        this.setBanner(`Not ${this.capitalize(sPiece.color)}'s turn, ${this.capitalize(this.whoseTurn)}'s turn`, this.longBannerLoc)
-                    }
-                } 
-            }
+    addScore(color) {
+        this.score[color] += 1
+    }
+
+    winGame(color) {
+        this.setBanner(`Game over, ${this.capitalize(color)} wins! Click to restart`, this.extraLongBannerLoc)
+        this.gameState = "gameOver";
+    }
+
+    checkWin() {
+        if (this.score.black > 11) {
+            this.winGame("black");
+        } else if (this.score.red > 11){
+            this.winGame("red");
         }
+    }
+
+    restartGame() {
+        this.pieces = this.setPieces()
+        this.selectedSquare = null;
+        this.whoseTurn = "red";
+        this.score = {red: 0, black: 0};
+        this.banner = `${this.capitalize(this.whoseTurn)}'s Turn.`;
+        this.bannerLocation = {x: this.dimensions.width/3, y: 30}
+        this.gameState = "playing"
+    }
+
+    handleMovement(square) {
+        if (this.gameState === "playing") {
+            if (square !== null) {
+                const [fRow, fCol] = square;
+                const newlySelectedSquare = this.handleSelectingSquare(fRow, fCol);
+                // If it's a square select action, only selects square, doesn't run move logic
+                if (newlySelectedSquare !== null) {
+                    const [iRow, iCol] = newlySelectedSquare;
+                    const sPiece = this.pieces[iRow][iCol];
+                    if (sPiece !== null) {
+                        if (this.whoseTurn === sPiece.color) {
+                            // Only works for green squares
+                            if ((fRow + fCol)%2 === 1) {
+                                if (this.isLegalMove(sPiece, [iRow, iCol], [fRow, fCol])) {
+                                    this.movePiece([iRow, iCol], [fRow, fCol]);
+                                } else if (this.isLegalJump(sPiece, [iRow, iCol], [fRow, fCol])) {
+                                    const rowGap = (fRow - iRow)/2;
+                                    const colGap = (fCol - iCol)/2;
+                                    this.jumpPiece([iRow, iCol], [iRow + rowGap, iCol + colGap], [fRow, fCol]);
+                                }
+                            }
+                        } else {
+                            this.setBanner(`Not ${this.capitalize(sPiece.color)}'s turn, ${this.capitalize(this.whoseTurn)}'s turn`, this.longBannerLoc)
+                        }
+                    } 
+                }
+            }
+        } else {
+            this.restartGame()
+        }
+        // Putting winGame condition here, it makes more sense then putting it in the outer function, although handleMovement not too descriptive...
+        this.checkWin();
     }
 
     movePiece(initialSquare, finalSquare) {
@@ -252,6 +276,7 @@ class Board {
         const [mRow, mCol] = midSquare;
         const [fRow, fCol] = finalSquare;
         const piece = board.pieces[iRow][iCol];
+        this.addScore(piece.color)
         if (this.isKingSquare(piece, [fRow, fCol])) {
             piece.kingMe();
         }
@@ -334,14 +359,9 @@ class Board {
 
 
 //STILL TO DO:
-// Fix jumping so it includes kings
 // Win condition
-// Bug : Can jump directly on enemies
-// Bug : Kings can't jump? Or kill forwards
-// Show whose turn it is
 // Drag n drop? 
 // Aesthetic: Double stack for kings
 // Aesthetic: Show dead pieces
 // Aesthetic : Show pieces tht can move
 // Center frame
-// Back button
