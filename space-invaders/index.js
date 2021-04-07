@@ -24,12 +24,8 @@ function setup() {
 
 function draw() {
     frameRate()
-    drawBoard();
-    drawScore();
-    drawCover();
-    drawShip();
+    drawGame();
     moveShip();
-    drawEnemies();
     moveEnemies();
     shootEnemies();
     shoot();
@@ -42,7 +38,6 @@ function preload() {
     for (let i = 0; i < doubleSpriteEnemies.length; i++) {
         sprites[`${doubleSpriteEnemies[i]}-enemy-sprite-1`] = loadImage(`space-invaders/images/${doubleSpriteEnemies[i]}-enemy-sprite-1.png`);
         sprites[`${doubleSpriteEnemies[i]}-enemy-sprite-2`] = loadImage(`space-invaders/images/${doubleSpriteEnemies[i]}-enemy-sprite-2.png`)
-        console.log(sprites);
     }
 
     for (let i = 0; i < singleSpriteEnemies.length; i++) {
@@ -55,17 +50,141 @@ function preload() {
 
 }
 
-function drawBoard() {
-    clear();
-    noStroke();
-    background(0);
+function drawGame() {
+
+    function drawBoard() {
+        clear();
+        noStroke();
+        background(0);
+    }
+
+    function drawScore() {
+        textSize(50);
+        fill(256);
+        text(`${score}`, screenSize["width"]/2 - 10, 45);
+    }
+
+    
+
+    function drawCover() {
+
+        function detectCollisionCover(coverSegment, shot) {
+            if (
+                shot !== null && coverSegment.blown !== true
+                && shot.x >= coverSegment.x1 && shot.x <= coverSegment.x2
+                && shot.y >= coverSegment.y1 && shot.y <= coverSegment.y2
+            ) {return true}
+            return false
+        }
+
+        strokeWeight(1)
+        for (let block = 0; block < cover.length; block++) {
+            for (let ln = 0; ln < cover[block].length; ln++) {
+                for (let row = 0; row < cover[block][ln].length; row++) {
+                    
+                    const bit = cover[block][ln][row];
+                    if (detectCollisionCover(bit, bullet)) {
+                        cover[block][ln][row].blown = true;
+                        for (let i = 0; i < 4; i++) {
+                            cover[block][ln+i][row].blown = true;
+                            cover[block][ln+i][row].blown = true;      
+                        }
+                        bullet = null;
+                    } else if (cover[block][ln][row].blown === true) {
+    
+                    } else {
+                        stroke(86, 252, 3);
+                        line(bit.x1, bit.y1, bit.x2, bit.y2)
+                    }
+    
+                    for (i=0; i< enemyBullets.length; i++) {
+                        enemyBullet = enemyBullets[i]
+                        if (detectCollisionCover(bit, enemyBullet)) {
+                            cover[block][ln][row].blown = true;
+                            for (let i = 0; i < 4; i++) {
+                                cover[block][ln+i][row].blown = true;
+                                cover[block][ln+i][row].blown = true;      
+                            }
+                            enemyBullets.splice(i);
+                        } 
+                    }
+                    
+                }
+            }
+        }
+        noStroke();
+    
+        
+        function detectCollisionCoverEnemyBullet(bit, shot) {
+            if (
+                shot !== null && bit.blown !== true
+                && shot.x >= bit.x1 && shot.x <= bit.x2
+                && shot.y >= bit.y1 && shot.y <= bit.y2
+            ) {return true}
+            return false
+        }
+    
+        
+    }
+    
+    function drawShip() {
+        
+    
+        for (i=0; i<enemyBullets.length; i++) {
+            if (detectShipCollision(enemyBullets[i])) {
+                enemyBullets = enemyBullets.splice(i);
+                shipdead = true
+            } else if (shipdead === true){
+                
+            } else {
+                fill(255);
+                image(sprites['ship-sprite'], shipPosition.x, shipPosition.y, shipDimensions.x, shipDimensions.y);
+            }
+        }
+    }
+
+    function drawEnemies() {
+        enemyEdges.x.min = offset.x;
+        enemyEdges.x.max = offset.x;
+        enemyEdges.y.max = offset.y;
+        enemyEdges.y.min = offset.y;
+    
+        
+        for (let row = 0; row < enemyPositions.length; row++) {
+            for (let col = 0; col < enemyPositions[row].length; col++) {
+                if (detectCollision(enemyPositions[row][col])) {
+                    enemyPositions[row][col].die();
+                    bullet = null;
+                } else if (enemyPositions[row][col].dead === true){
+                    
+                } else {
+                    checkMinMaxX(enemyPositions[row][col].x);
+                    checkMinMaxY(enemyPositions[row][col].y);
+        
+                    fill(255);
+                    enemy = enemyPositions[row][col]
+                    image(enemy.image, enemyPositions[row][col].x, enemyPositions[row][col].y, enemyDimensions.x, enemyDimensions.y)
+                }
+            }
+        }
+        if (enemyEdges.x.max > width-(enemyDimensions.x + 10) || enemyEdges.x.min < 10) {
+            enemySpeed.x *= -1;
+            if (enemyEdges.y.max > height-(enemyDimensions.y + 200) || enemyEdges.y.min < 100) {
+                enemySpeed.y *= -1;
+            }
+            advanceEnemiesY()
+        }
+        
+    
+    }
+
+    drawBoard();
+    drawScore();
+    drawCover();
+    drawShip();
+    drawEnemies();
 }
 
-function drawScore() {
-    textSize(50);
-    fill(256);
-    text(`${score}`, screenSize["width"]/2 - 10, 45);
-}
 
 function initializeCover() {
     for (let i = 0; i < 4; i++) {
@@ -81,78 +200,7 @@ function initializeCover() {
     }
 }
 
-function drawCover() {
-    strokeWeight(1)
-    for (let block = 0; block < cover.length; block++) {
-        for (let ln = 0; ln < cover[block].length; ln++) {
-            for (let row = 0; row < cover[block][ln].length; row++) {
-                
-                const bit = cover[block][ln][row];
-                if (detectCollisionCover(bit)) {
-                    cover[block][ln][row].blown = true;
-                    for (let i = 0; i < 4; i++) {
-                        cover[block][ln+i][row].blown = true;
-                        cover[block][ln+i][row].blown = true;      
-                    }
-                    bullet = null;
-                } else if (cover[block][ln][row].blown === true) {
 
-                } else {
-                    stroke(86, 252, 3);
-                    line(bit.x1, bit.y1, bit.x2, bit.y2)
-                }
-
-                for (i=0; i< enemyBullets.length; i++) {
-                    enemyBullet = enemyBullets[i]
-                    if (detectCollisionCoverEnemyBullet(bit, enemyBullet)) {
-                        cover[block][ln][row].blown = true;
-                        for (let i = 0; i < 4; i++) {
-                            cover[block][ln+i][row].blown = true;
-                            cover[block][ln+i][row].blown = true;      
-                        }
-                        enemyBullets.splice(i);
-                    } 
-                }
-                
-            }
-        }
-    }
-    noStroke();
-
-    function detectCollisionCoverEnemyBullet(bit, shot) {
-        if (
-            shot !== null && bit.blown !== true
-            && shot.x >= bit.x1 && shot.x <= bit.x2
-            && shot.y >= bit.y1 && shot.y <= bit.y2
-        ) {return true}
-        return false
-    }
-
-    function detectCollisionCover(bit) {
-        if (
-            bullet !== null && bit.blown !== true
-            && bullet.x >= bit.x1 && bullet.x <= bit.x2
-            && bullet.y >= bit.y1 && bullet.y <= bit.y2
-        ) {return true}
-        return false
-    }
-}
-
-function drawShip() {
-    
-
-    for (i=0; i<enemyBullets.length; i++) {
-        if (detectShipCollision(enemyBullets[i])) {
-            enemyBullets = enemyBullets.splice(i);
-            shipdead = true
-        } else if (shipdead === true){
-            
-        } else {
-            fill(255);
-            image(sprites['ship-sprite'], shipPosition.x, shipPosition.y, shipDimensions.x, shipDimensions.y);
-        }
-    }
-}
 
 function moveShip() {
     if (keyIsDown(LEFT_ARROW)) {
@@ -203,40 +251,7 @@ function initializeEnemies() {
 
 
 
-function drawEnemies() {
-    enemyEdges.x.min = offset.x;
-    enemyEdges.x.max = offset.x;
-    enemyEdges.y.max = offset.y;
-    enemyEdges.y.min = offset.y;
 
-    
-    for (let row = 0; row < enemyPositions.length; row++) {
-        for (let col = 0; col < enemyPositions[row].length; col++) {
-            if (detectCollision(enemyPositions[row][col])) {
-                enemyPositions[row][col].die();
-                bullet = null;
-            } else if (enemyPositions[row][col].dead === true){
-                
-            } else {
-                checkMinMaxX(enemyPositions[row][col].x);
-                checkMinMaxY(enemyPositions[row][col].y);
-    
-                fill(255);
-                enemy = enemyPositions[row][col]
-                image(enemy.image, enemyPositions[row][col].x, enemyPositions[row][col].y, enemyDimensions.x, enemyDimensions.y)
-            }
-        }
-    }
-    if (enemyEdges.x.max > width-(enemyDimensions.x + 10) || enemyEdges.x.min < 10) {
-        enemySpeed.x *= -1;
-        if (enemyEdges.y.max > height-(enemyDimensions.y + 200) || enemyEdges.y.min < 100) {
-            enemySpeed.y *= -1;
-        }
-        advanceEnemiesY()
-    }
-    
-
-}
 
 
 function detectCollision(enemy) {
