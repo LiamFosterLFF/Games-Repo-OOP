@@ -18,8 +18,10 @@ let shipdead = false
 function setup() {
     cnv = createCanvas(screenSize.width, screenSize.height);
     cnv.parent("canvas-parent");
-    initializeEnemies();
-    initializeCover();
+    initializeGame();
+
+    // initializeEnemies();
+    // initializeCover();
 }
 
 function draw() {
@@ -49,6 +51,43 @@ function preload() {
     }
 
 }
+
+function initializeGame() {
+
+    function initializeCover() {
+        for (let i = 0; i < 4; i++) {
+            const block = [];
+            for (let j = 0; j < 100; j++) {
+                const line = [];
+                for (let k = 0; k < 3; k++) {
+                    line.push(new Cover(50 + i*(width/4)+j, height-(100+k*20), 50 + i*(width/4)+j, height-(80+k*20)));
+                }
+                block.push(line)
+            }
+            cover.push(block)
+        }
+    }
+
+    function initializeEnemies() {
+        rowOffset = 0
+        function buildEnemyRows(rows, enemyName, rOffset) {
+            for (let row = 0; row < rows; row++) {
+                enemyPositions.push([]);
+                for (let col = 0; col < 11; col++) {
+                    enemyPositions[row].push(new Enemy(offset.x + 60*col, offset.y + 60*row + rOffset, enemyName));
+                }
+            }
+            return rows*60
+        }
+        rowOffset += buildEnemyRows(2, 'ant', rowOffset);
+        rowOffset += buildEnemyRows(2, 'jelly', rowOffset);
+        rowOffset += buildEnemyRows(2, 'ignignokt', rowOffset);
+    }
+
+    initializeCover();
+    initializeEnemies();
+}
+
 
 function drawGame() {
 
@@ -113,23 +152,9 @@ function drawGame() {
             }
         }
         noStroke();
-    
-        
-        function detectCollisionCoverEnemyBullet(bit, shot) {
-            if (
-                shot !== null && bit.blown !== true
-                && shot.x >= bit.x1 && shot.x <= bit.x2
-                && shot.y >= bit.y1 && shot.y <= bit.y2
-            ) {return true}
-            return false
-        }
-    
-        
     }
     
     function drawShip() {
-        
-    
         for (i=0; i<enemyBullets.length; i++) {
             if (detectShipCollision(enemyBullets[i])) {
                 enemyBullets = enemyBullets.splice(i);
@@ -186,19 +211,7 @@ function drawGame() {
 }
 
 
-function initializeCover() {
-    for (let i = 0; i < 4; i++) {
-        const block = [];
-        for (let j = 0; j < 100; j++) {
-            const line = [];
-            for (let k = 0; k < 3; k++) {
-                line.push(new Cover(50 + i*(width/4)+j, height-(100+k*20), 50 + i*(width/4)+j, height-(80+k*20)));
-            }
-            block.push(line)
-        }
-        cover.push(block)
-    }
-}
+
 
 
 
@@ -231,23 +244,7 @@ function checkMinMaxY(position) {
 }
 
 
-function initializeEnemies() {
-    rowOffset = 0
-    function buildEnemyRows(rows, enemyName, rOffset) {
-        for (let row = 0; row < rows; row++) {
-            enemyPositions.push([]);
-            for (let col = 0; col < 11; col++) {
-                enemyPositions[row].push(new Enemy(offset.x + 60*col, offset.y + 60*row + rOffset, enemyName));
-            }
-        }
-        return rows*60
-    }
-    rowOffset += buildEnemyRows(2, 'ant', rowOffset);
-    rowOffset += buildEnemyRows(2, 'jelly', rowOffset);
-    rowOffset += buildEnemyRows(2, 'ignignokt', rowOffset);
 
-    
-}
 
 
 
