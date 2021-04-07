@@ -1,9 +1,8 @@
 const dim = {width: 600, height: 600}
 var cnv;
-const pieceLoc = [];
 let board;
-const offset = {x: 40, y: 40};
-const sqSize = (dim.width - 2*offset.x)/8
+// const offset = {x: 40, y: 40};
+// const sqSize = (dim.width - 2*offset.x)/8
 let selectedSquare = [];
 const score = {red: 0, black: 0};
 let whoseTurn = "black";
@@ -11,10 +10,10 @@ let img;
 let gameOver = false;
 
 function setup() {
-    cnv = createCanvas(dim.width, dim.height);
-    cnv.parent("canvas-parent");
     setPieces();
-    drawBoard();
+    cnv = createCanvas(board.dimensions.width, board.dimensions.height);
+    cnv.parent("canvas-parent");
+    drawGame();
 
 }
 
@@ -34,44 +33,68 @@ function setPieces() {
 }
 
 
-function drawBoard() {
-    const board = new Board();
-    console.log(board);
-    clear();
-    background(177,98,20);
-    fill(255);
-    stroke(0);
-    textSize(32)
-    
+function drawGame() {
 
-    text(`White: ${score.black} pts.`, width/3, 30);
-    text(`Red: ${score.red} pts.`, width/3, height-10);
-    for (let row = 0; row < 8; row++) {
-        for (let col = 0; col < 8; col++) {
-            let sqColor = ((row + col) % 2 === 0) ? 255: "#25a243";
-            sqColor = (row === selectedSquare[0] && col === selectedSquare[1]) ? "#edcf72" : sqColor;
-            const sqLoc = {x: offset.x + sqSize * col, y: offset.y + sqSize * row }
-            fill(sqColor)
-            square(sqLoc.x, sqLoc.y, sqSize);
-            
-            if (board.pieces[row][col] !== null) {
-                console.log(board.pieces[row][col], row, col);
-                const pieceColor = (board.pieces[row][col].color === "black") ? 255 : "#da1e1e"
-                fill(pieceColor)
-                rect(sqLoc.x, sqLoc.y, sqSize, sqSize, 50)
-
-                if ((row === 7 && board.pieces[row][col].color === "black") || (row === 0 && board.pieces[row][col].color === "red")) {
-                    board.pieces[row][col].king = true;
-                }
-
-                if (board.pieces[row][col].king) {
-                    tint(pieceColor);
-                    image(img, sqLoc.x +sqSize/4, sqLoc.y +sqSize/5, sqSize/2, sqSize/2);
+    function drawBoard() {
+        clear();
+        background(177,98,20);
+        function drawSquares() {
+            for (let row = 0; row < 8; row++) {
+                for (let col = 0; col < 8; col++) {
+                    // Green squares even in odd rows or odd in even rows; others white
+                    if (row === selectedSquare[0] && col === selectedSquare[1]) {
+                        fill(board.colors.selected);
+                    } else {
+                        if ((row + col) % 2 === 0) {
+                            fill(board.colors.white);
+                        } else {
+                            fill(board.colors.green);
+                        }
+                    }
+                    const sqLoc = {x: board.offset.x + board.squareSize * col, y: board.offset.y + board.squareSize * row }
+                    square(sqLoc.x, sqLoc.y, board.squareSize);
                 }
             }
-            
         }
+        
+        function drawPieces() {
+            for (let row = 0; row < 8; row++) {
+                for (let col = 0; col < 8; col++) {
+                    if (board.pieces[row][col] !== null) {
+                        piece = board.pieces[row][col];
+                        fill(piece.color)
+                        const pieceLoc = {x: board.offset.x + board.squareSize * col, y: board.offset.y + board.squareSize * row }
+                        rect(pieceLoc.x, pieceLoc.y, board.squareSize, board.squareSize, 50)
+        
+                        if ((row === 7 && board.pieces[row][col].color === "black") || (row === 0 && board.pieces[row][col].color === "red")) {
+                            board.pieces[row][col].king = true;
+                        }
+        
+                        if (board.pieces[row][col].king) {
+                            tint(pieceColor);
+                            image(img, sqLoc.x +board.squareSize/4, sqLoc.y +board.squareSize/5, board.squareSize/2, board.squareSize/2);
+                        }
+                    }
+                }
+            }
+        }
+
+        drawSquares();
+        drawPieces();
     }
+
+    function drawGameText() {
+        fill(255);
+        stroke(0);
+        textSize(32)
+        text(`White: ${score.black} pts.`, width/3, 30);
+        text(`Red: ${score.red} pts.`, width/3, height-10);
+    }
+    
+    drawBoard();
+    drawGameText();
+
+   
     if (score.black > 11 || score.red > 11) {
         fill(177,98,20);
         rect(0, 0, width, 40);
@@ -86,7 +109,7 @@ function drawBoard() {
 
 
 function selectPiece() {
-    const [row, col] = [floor((mouseY - offset.y)/sqSize), floor((mouseX - offset.x)/sqSize)];
+    const [row, col] = [floor((mouseY - board.offset.y)/board.squareSize), floor((mouseX - board.offset.x)/board.squareSize)];
 
     if ((row + col)%2 === 1) {
         if (selectedSquare.length === 0 && board.pieces[row][col].color === whoseTurn) {
@@ -148,13 +171,16 @@ class Piece {
 class Board {
     constructor() {
         this.pieces = this.setPieces()
+        this.colors = {"green" : "#25a243", "white": 255, "selected": "#edcf72"};
+        this.dimensions = {width: 600, height: 600}
+        this.offset = {x: 40, y: 40};
+        this.squareSize = (this.dimensions.width - 2*this.offset.x)/8;
     }
 
     setPieces() {
         const pieces = []
         for (let row = 0; row < 8; row++) {
             const boardRow = [];
-            console.log("A");
             for (let col = 0; col < 8; col++) {
                 // Only put pieces on green squares: Odd row + even col or even row + odd col
                 if ((row + col) % 2 === 1) { 
