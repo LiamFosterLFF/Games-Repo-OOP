@@ -7,11 +7,12 @@ const enemyPositions = [];
 const enemyEdges = {"x": {"max": 0, "min": 0}, "y": {max: 0, min: 0}};
 const enemySpeed = {"x": 10, "y":50};
 let bullet = null;
+const enemyBullets = []
 const offset = {"x": 70, "y": 150};
 const cover = [];
-const enemyBullets = [];
 sprites = {}
 score = 0
+fireThreshold = .0005
 
 function setup() {
     cnv = createCanvas(screenSize.width, screenSize.height);
@@ -29,6 +30,7 @@ function draw() {
     moveShip();
     drawEnemies();
     moveEnemies();
+    shootEnemies();
     shoot();
 }
 
@@ -233,6 +235,22 @@ function moveEnemies() {
     }
 }
 
+function shootEnemies() {
+    for (let row = 0; row < enemyPositions.length; row++) {
+        for (let col = 0; col < enemyPositions[row].length; col++) {
+            enemyPositions[row][col].shoot();
+        }   
+    }
+
+    if (enemyBullets.length > 0) {
+        for(i=0; i<enemyBullets.length; i++) {
+            enemyBullet = enemyBullets[i]
+            enemyBullet.y -= enemyBullet.speed
+            image(enemyBullet.image, enemyBullet.x, enemyBullet.y, enemyBullet.bulletWidth, enemyBullet.bulletHeight)
+        }
+    }
+}
+
 function shoot() {
     if(keyIsDown(32)) {
         launchBullet();
@@ -262,8 +280,17 @@ class Bullet {
     constructor(x, y) {
         this.x = x;
         this.y = y;
-        this.image = sprites['lightning-bullet']
         this.speed = 10;
+    }
+}
+
+class LightningBolt extends Bullet {
+    constructor(x, y) {
+        super(x, y)
+        this.image = sprites['lightning-bullet']
+        this.bulletWidth = 20;
+        this.bulletHeight = 30;
+        this.speed = -10;
     }
 }
 
@@ -284,6 +311,12 @@ class Enemy {
         setTimeout(() => {
             this.dead = true;
         }, 1000);
+    }
+
+    shoot() {
+        if (Math.random() < fireThreshold) {
+            enemyBullets.push(new LightningBolt(this.x + this.x/2, this.y));
+        }
     }
 }
 
