@@ -215,11 +215,10 @@ class Board {
             if (newlySelectedSquare !== null) {
                 const [iRow, iCol] = newlySelectedSquare;
                 const sPiece = this.pieces[iRow][iCol];
-                if (this.whoseTurn === sPiece.color) {
-                    // Only works for green squares
-                    if ((fRow + fCol)%2 === 1) {
-                        if (piece.isKing()) {
-                        } else {
+                if (sPiece !== null) {
+                    if (this.whoseTurn === sPiece.color) {
+                        // Only works for green squares
+                        if ((fRow + fCol)%2 === 1) {
                             if (this.isLegalMove(sPiece, [iRow, iCol], [fRow, fCol])) {
                                 this.movePiece([iRow, iCol], [fRow, fCol]);
                             } else if (this.isLegalJump(sPiece, [iRow, iCol], [fRow, fCol])) {
@@ -228,11 +227,10 @@ class Board {
                                 this.jumpPiece([iRow, iCol], [iRow + rowGap, iCol + colGap], [fRow, fCol]);
                             }
                         }
-                        
+                    } else {
+                        this.setBanner(`Not ${this.capitalize(sPiece.color)}'s turn, ${this.capitalize(this.whoseTurn)}'s turn`, this.longBannerLoc)
                     }
-                } else {
-                    this.setBanner(`Not ${this.capitalize(sPiece.color)}'s turn, ${this.capitalize(this.whoseTurn)}'s turn`, this.longBannerLoc)
-                }
+                } 
             }
         }
     }
@@ -272,7 +270,8 @@ class Board {
         const [iRow, iCol] = initialSquare;
         const [fRow, fCol] = finalSquare;
         if (this.pieces[fRow][fCol] === null) {
-            if (piece.color === "black") {
+            // If piece is king, it basically means it can jump in either direction; i.e. like a black or a red piece
+            if (piece.color === "black" || piece.isKing()) {
                 if ((iRow + 2) === fRow) {
                     if (((iCol + 2) === fCol) && (board.pieces[iRow+1][iCol+1] !== null) && board.pieces[iRow+1][iCol+1] !== piece.color) {
                         return true
@@ -280,7 +279,7 @@ class Board {
                         return true
                     }
                 }
-            } else if (piece.color === "red") {
+            } else if (piece.color === "red" || piece.isKing()) {
                 if ((iRow - 2) === fRow) {
                     if (((iCol + 2) === fCol) && (board.pieces[iRow-1][iCol+1] !== null) && board.pieces[iRow-1][iCol+1] !== piece.color) {
                         return true
@@ -296,30 +295,26 @@ class Board {
     isLegalDoubleJump(square){
         const [row, col] = square;
         const piece = this.pieces[row][col];
-        if (piece.isKing()) {
-
-        } else {
-            if (piece.color === "black") {
-                if (this.isLegalJump(piece, square, [row+2, col-2]) || this.isLegalJump(piece, square,[row+2, col+2])) {
-                    return true;
-                }
-            } else if (piece.color === "red") {
-                if (this.isLegalJump(piece, square, [row-2, col-2]) || this.isLegalJump(piece, square,[row-2, col+2])) {
-                    return true;
-                }
+        if (piece.color === "black"  || piece.isKing()) {
+            if (this.isLegalJump(piece, square, [row+2, col-2]) || this.isLegalJump(piece, square,[row+2, col+2])) {
+                return true;
+            }
+        } else if (piece.color === "red"  || piece.isKing()) {
+            if (this.isLegalJump(piece, square, [row-2, col-2]) || this.isLegalJump(piece, square,[row-2, col+2])) {
+                return true;
             }
         }
         return false;
     }
 
     isLegalMove(piece, initialSquare, finalSquare) {
-
         const [iRow, iCol] = initialSquare;
         const [fRow, fCol] = finalSquare;
         if (board.pieces[fRow][fCol] === null) {
-            if (piece.color === "black") {
+            // If piece is king, it basically means it can jump in either direction; i.e. like a black or a red piece
+            if (piece.color === "black"  || piece.isKing()) {
                 if ((fRow - iRow) === 1) {return true}
-            } else if (piece.color === "red") {
+            } else if (piece.color === "red" || piece.isKing()) {
                 if ((fRow - iRow) === -1) {return true}
             }
         }
@@ -339,10 +334,8 @@ class Board {
 
 
 //STILL TO DO:
-// double jumping
-// Win condition
-// Take Jumping out into its own function
 // Fix jumping so it includes kings
+// Win condition
 // Bug : Can jump directly on enemies
 // Bug : Kings can't jump? Or kill forwards
 // Show whose turn it is
