@@ -62,7 +62,7 @@ function drawGame() {
                         fill(piece.color)
                         const pieceLoc = {x: board.offset.x + board.squareSize * col, y: board.offset.y + board.squareSize * row }
                         rect(pieceLoc.x, pieceLoc.y, board.squareSize, board.squareSize, 50)
-                        if (piece.king) {
+                        if (piece.isKing()) {
                             tint(piece.color);
                             image(piece.kingImg, pieceLoc.x +board.squareSize/4, pieceLoc.y +board.squareSize/5, board.squareSize/2, board.squareSize/2);
                         }
@@ -79,7 +79,7 @@ function drawGame() {
         stroke(0);
         textSize(32);
         fill(0);
-        text(board.banner, board.dimensions.width/3, 30);
+        text(board.banner, board.bannerLocation.x, board.bannerLocation.y);
         fill(255);
         text(`White: ${score.black} pts.`, board.dimensions.width/3, board.dimensions.textBoxOffset + 30);
         text(`Red: ${score.red} pts.`, board.dimensions.width/3, board.dimensions.height-10);
@@ -133,6 +133,9 @@ class Piece {
         this.kingImg = images.king 
     }
 
+    isKing() {
+        return this.king;
+    }
     kingMe() {
         this.king = true;
     }
@@ -148,10 +151,14 @@ class Board {
         this.selectedSquare = null;
         this.whoseTurn = "red";
         this.banner = `${this.capitalize(this.whoseTurn)}'s Turn.`;
+        this.bannerLocation = {x: this.dimensions.width/3, y: 30}
+        this.shortBannerLoc = {x: this.dimensions.width/3, y: 30}
+        this.longBannerLoc = {x: this.dimensions.width/7, y: 30}
     }
 
-    setBanner(banner) {
+    setBanner(banner, location) {
         this.banner = banner;
+        this.bannerLocation = location
     }
 
     capitalize(string) {
@@ -197,7 +204,7 @@ class Board {
 
     changeTurn() {
         this.whoseTurn = (this.whoseTurn === "red") ? "black" : "red";
-        this.setBanner(`${this.capitalize(this.whoseTurn)}'s Turn.`);
+        this.setBanner(`${this.capitalize(this.whoseTurn)}'s Turn.`, this.shortBannerLoc);
     }
 
     handleMovement(square) {
@@ -211,7 +218,7 @@ class Board {
                 if (this.whoseTurn === sPiece.color) {
                     // Only works for green squares
                     if ((fRow + fCol)%2 === 1) {
-                        if (piece.king) {
+                        if (piece.isKing()) {
                         } else {
                             if (this.isLegalMove(sPiece, [iRow, iCol], [fRow, fCol])) {
                                 this.movePiece([iRow, iCol], [fRow, fCol]);
@@ -224,7 +231,7 @@ class Board {
                         
                     }
                 } else {
-                    this.setBanner(`Not ${this.capitalize(sPiece.color)}'s turn, ${this.capitalize(this.whoseTurn)}'s turn`)
+                    this.setBanner(`Not ${this.capitalize(sPiece.color)}'s turn, ${this.capitalize(this.whoseTurn)}'s turn`, this.longBannerLoc)
                 }
             }
         }
@@ -253,7 +260,12 @@ class Board {
         board.pieces[iRow][iCol] = null;
         board.pieces[mRow][mCol] = null;
         board.pieces[fRow][fCol] = piece;
-        this.changeTurn();
+
+        if (this.isLegalDoubleJump(finalSquare)) {
+            this.setBanner(`Double jump, still  ${this.capitalize(this.whoseTurn)}'s turn`, this.longBannerLoc)
+        } else {
+            this.changeTurn();
+        }
     }
 
     isLegalJump(piece, initialSquare, finalSquare) {
@@ -281,6 +293,24 @@ class Board {
         return false;
     }
 
+    isLegalDoubleJump(square){
+        const [row, col] = square;
+        const piece = this.pieces[row][col];
+        if (piece.isKing()) {
+
+        } else {
+            if (piece.color === "black") {
+                if (this.isLegalJump(piece, square, [row+2, col-2]) || this.isLegalJump(piece, square,[row+2, col+2])) {
+                    return true;
+                }
+            } else if (piece.color === "red") {
+                if (this.isLegalJump(piece, square, [row-2, col-2]) || this.isLegalJump(piece, square,[row-2, col+2])) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 
     isLegalMove(piece, initialSquare, finalSquare) {
 
