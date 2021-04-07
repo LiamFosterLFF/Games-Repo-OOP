@@ -1,6 +1,5 @@
 
 const screenSize = {"width": 800, "height": 800};
-const enemyDimensions = {"x": 40, "y": 30};
 const enemyPositions = [];
 const enemyEdges = {"x": {"max": 0, "min": 0}, "y": {max: 0, min: 0}};
 const enemySpeed = {"x": 10, "y":50};
@@ -196,13 +195,14 @@ function drawGame() {
         
                     fill(255);
                     enemy = enemyPositions[row][col]
-                    image(enemy.image, enemyPositions[row][col].x, enemyPositions[row][col].y, enemyDimensions.x, enemyDimensions.y)
+                    image(enemy.image, enemyPositions[row][col].x, enemyPositions[row][col].y, enemy.width, enemy.height)
                 }
             }
         }
-        if (enemyEdges.x.max > width-(enemyDimensions.x + 10) || enemyEdges.x.min < 10) {
+        
+        if (enemyEdges.x.max > width-50 || enemyEdges.x.min < 10) {
             enemySpeed.x *= -1;
-            if (enemyEdges.y.max > height-(enemyDimensions.y + 200) || enemyEdges.y.min < 100) {
+            if (enemyEdges.y.max > height- 250 || enemyEdges.y.min < 100) {
                 enemySpeed.y *= -1;
             }
             advanceEnemiesY()
@@ -262,8 +262,8 @@ function checkMinMaxY(position) {
 function detectCollision(enemy) {
     if (
         bullet !== null && enemy.dead !== true
-        && bullet.x > enemy.x && bullet.x < enemy.x + enemyDimensions.x
-        && bullet.y > enemy.y && bullet.y < enemy.y + enemyDimensions.y
+        && bullet.x > enemy.x && bullet.x < enemy.x + enemy.width
+        && bullet.y > enemy.y && bullet.y < enemy.y + enemy.height
     ) {return true}
     return false
 }

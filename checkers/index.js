@@ -18,7 +18,7 @@ function setup() {
 }
 
 function preload() {
-    img = loadImage('checkers/250-2506401_clip-art-king-crown-symbol-crown-line-icon.png');
+    img = loadImage('checkers/images/crown.png');
 }
 
 function draw() {
