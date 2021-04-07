@@ -1,11 +1,8 @@
 const dim = {width: 600, height: 600}
 var cnv;
 let board;
-// const offset = {x: 40, y: 40};
-// const sqSize = (dim.width - 2*offset.x)/8
 let selectedSquare = [];
 const score = {red: 0, black: 0};
-let whoseTurn = "black";
 let img;
 let gameOver = false;
 
@@ -23,13 +20,14 @@ function preload() {
 
 function draw() {
     cursor(HAND)
-    cnv.mouseClicked(selectPiece)
+    cnv.mouseClicked(handleClick)
 }
 
 
 
 function setPieces() {
     board = new Board();
+    console.log(board);
 }
 
 
@@ -42,7 +40,7 @@ function drawGame() {
             for (let row = 0; row < 8; row++) {
                 for (let col = 0; col < 8; col++) {
                     // Green squares even in odd rows or odd in even rows; others white
-                    if (row === selectedSquare[0] && col === selectedSquare[1]) {
+                    if (board.selectedSquare !== null && row === board.selectedSquare[0] && col === board.selectedSquare[1]) {
                         fill(board.colors.selected);
                     } else {
                         if ((row + col) % 2 === 0) {
@@ -65,11 +63,13 @@ function drawGame() {
                         fill(piece.color)
                         const pieceLoc = {x: board.offset.x + board.squareSize * col, y: board.offset.y + board.squareSize * row }
                         rect(pieceLoc.x, pieceLoc.y, board.squareSize, board.squareSize, 50)
-        
+
+                        // THIS NEEDS TO BE MOVED TO OWN FUNCTION
                         if ((row === 7 && board.pieces[row][col].color === "black") || (row === 0 && board.pieces[row][col].color === "red")) {
                             board.pieces[row][col].king = true;
                         }
-        
+                        
+                        // THIS NEEDS TO BE MOVED TO OWN FUNCTION
                         if (board.pieces[row][col].king) {
                             tint(pieceColor);
                             image(img, sqLoc.x +board.squareSize/4, sqLoc.y +board.squareSize/5, board.squareSize/2, board.squareSize/2);
@@ -94,7 +94,7 @@ function drawGame() {
     drawBoard();
     drawGameText();
 
-   
+    // THIS NEEDS TO BE MOVED TO OWN FUNCTION
     if (score.black > 11 || score.red > 11) {
         fill(177,98,20);
         rect(0, 0, width, 40);
@@ -108,35 +108,49 @@ function drawGame() {
 
 
 
-function selectPiece() {
-    const [row, col] = [floor((mouseY - board.offset.y)/board.squareSize), floor((mouseX - board.offset.x)/board.squareSize)];
+function handleClick() {
 
-    if ((row + col)%2 === 1) {
-        if (selectedSquare.length === 0 && board.pieces[row][col].color === whoseTurn) {
-            selectedSquare = [row, col];
+    function getSquareClicked(y, x) {
+        // Adjusts for offset and returns mouseClick/squareSize
+        const row = floor((y - board.offset.y)/board.squareSize);
+        const col = floor((x - board.offset.x)/board.squareSize);
+        if (row >= 0 && row < 8 && col >= 0 && col < 8) {
+            return [row, col]
         } else {
-            const pieceColor = (board.pieces[selectedSquare[0]][selectedSquare[1]] === null) ? null : board.pieces[selectedSquare[0]][selectedSquare[1]].color;
-
-            const redLegalJump = (pieceColor === "red" && selectedSquare[0] - 2 === row && abs(selectedSquare[1] - col) === 2 && board.pieces[(row+selectedSquare[0])/2][(col+selectedSquare[1])/2].color !== null && board.pieces[(row+selectedSquare[0])/2][(col+selectedSquare[1])/2].color === "black" && board.pieces[row][col] === null);
-            const blackLegalJump = (pieceColor === "black" && selectedSquare[0] + 2 === row && abs(selectedSquare[1] - col) === 2 && board.pieces[(row+selectedSquare[0])/2][(col+selectedSquare[1])/2] !== null &&  board.pieces[(row+selectedSquare[0])/2][(col+selectedSquare[1])/2].color === "red" && board.pieces[row][col] === null);
-            if (isLegalMove(pieceColor, row, col)) {
-                board.pieces[row][col] = board.pieces[selectedSquare[0]][selectedSquare[1]];
-                board.pieces[selectedSquare[0]][selectedSquare[1]] = null;
-                selectedSquare = [];
-                whoseTurn = (whoseTurn === "black") ? "red" : "black";
-            } else if (redLegalJump || blackLegalJump) {
-                board.pieces[row][col] = board.pieces[selectedSquare[0]][selectedSquare[1]];
-                board.pieces[selectedSquare[0]][selectedSquare[1]] = null;
-                board.pieces[(row+selectedSquare[0])/2][(col+selectedSquare[1])/2] = null;
-                (redLegalJump) ? score.red++ : score.black++;
-                selectedSquare = [];
-                whoseTurn = (whoseTurn === "black") ? "red" : "black";
-            } else {
-                selectedSquare = [];
-            }
-        } 
+            return null
+        }
     }
-    drawBoard();
+    
+
+
+
+    const square = getSquareClicked(mouseY, mouseX);
+
+    board.handleMovement(square)
+    // Square has to be on board
+    
+        // Only cares about green squares
+        
+    
+                // const redLegalJump = (pieceColor === "red" && board.selectedSquare[0] - 2 === row && abs(board.selectedSquare[1] - col) === 2 && board.pieces[(row+board.selectedSquare[0])/2][(col+board.selectedSquare[1])/2].color !== null && board.pieces[(row+board.selectedSquare[0])/2][(col+board.selectedSquare[1])/2].color === "black" && board.pieces[row][col] === null);
+                // const blackLegalJump = (pieceColor === "black" && board.selectedSquare[0] + 2 === row && abs(board.selectedSquare[1] - col) === 2 && board.pieces[(row+board.selectedSquare[0])/2][(col+board.selectedSquare[1])/2] !== null &&  board.pieces[(row+board.selectedSquare[0])/2][(col+board.selectedSquare[1])/2].color === "red" && board.pieces[row][col] === null);
+                // if (isLegalMove(pieceColor, row, col)) {
+                //     board.pieces[row][col] = board.pieces[board.selectedSquare[0]][board.selectedSquare[1]];
+                //     board.pieces[board.selectedSquare[0]][board.selectedSquare[1]] = null;
+                //     board.selectedSquare = [];
+                //     board.whoseTurn = (board.whoseTurn === "black") ? "red" : "black";
+                // } else if (redLegalJump || blackLegalJump) {
+                //     board.pieces[row][col] = board.pieces[board.selectedSquare[0]][board.selectedSquare[1]];
+                //     board.pieces[board.selectedSquare[0]][board.selectedSquare[1]] = null;
+                //     board.pieces[(row+board.selectedSquare[0])/2][(col+board.selectedSquare[1])/2] = null;
+                //     (redLegalJump) ? score.red++ : score.black++;
+                //     board.selectedSquare = [];
+                //     board.whoseTurn = (board.whoseTurn === "black") ? "red" : "black";
+                // } else {
+                //     board.selectedSquare = [];
+                // }
+
+    drawGame();
 
 }
 
@@ -175,6 +189,8 @@ class Board {
         this.dimensions = {width: 600, height: 600}
         this.offset = {x: 40, y: 40};
         this.squareSize = (this.dimensions.width - 2*this.offset.x)/8;
+        this.selectedSquare = null;
+        this.whoseTurn = "red"
     }
 
     setPieces() {
@@ -198,6 +214,109 @@ class Board {
             pieces.push(boardRow) 
         }
         return pieces
+    }
+
+    handleSelectingSquare(row, col) {
+        if (this.selectedSquare === null) {
+            this.selectedSquare = [row, col];
+            return null;
+        } else if (this.selectedSquare[0] === row && this.selectedSquare[1] === col) {
+            this.selectedSquare = null;
+            return null;
+        } else {
+            const sSquare = this.selectedSquare;
+            this.selectedSquare = null;
+            return sSquare;
+        }
+    }
+
+    changeTurn() {
+
+    }
+
+    handleMovement(square) {
+        if (square !== null) {
+            const [fRow, fCol] = square;
+            const newlySelectedSquare = this.handleSelectingSquare(fRow, fCol);
+            // If it's a square select, only selects square, doesn't run move logic
+            if (newlySelectedSquare !== null) {
+                const [iRow, iCol] = newlySelectedSquare;
+                const sPiece = this.pieces[iRow][iCol];
+                // Only works for green squares
+                if ((fRow + fCol)%2 === 1) {
+                    if (piece.king) {
+
+                    } else {
+                        if (this.isLegalMove(sPiece, [iRow, iCol], [fRow, fCol])) {
+                            this.movePiece([iRow, iCol], [fRow, fCol]);
+                        } else if (this.isLegalJump(sPiece, [iRow, iCol], [fRow, fCol])) {
+                            const rowGap = (fRow - iRow)/2;
+                            const colGap = (fCol - iCol)/2;
+                            this.jumpPiece([iRow, iCol], [iRow + rowGap, iCol + colGap], [fRow, fCol]);
+                        }
+                    }
+                    
+                }
+            }
+        }
+        // if (piece.king) {
+
+        // } else {
+        //     if (isLegalMovement(piece, initialSquare, finalSquare) || this.isLegalJump(piece, initialSquare, finalSquare)) {
+        //         return true
+        //     }
+        // }
+        // return false;
+    }
+
+    movePiece(initialSquare, finalSquare) {
+        const [iRow, iCol] = initialSquare;
+        const [fRow, fCol] = finalSquare;
+        const piece = board.pieces[iRow][iCol];
+        board.pieces[iRow][iCol] = null;
+        board.pieces[fRow][fCol] = piece;
+    }
+
+    jumpPiece(initialSquare, midSquare, finalSquare) {
+        const [iRow, iCol] = initialSquare;
+        const [mRow, mCol] = midSquare;
+        const [fRow, fCol] = finalSquare;
+        const piece = board.pieces[iRow][iCol];
+        board.pieces[iRow][iCol] = null;
+        board.pieces[mRow][mCol] = null;
+        board.pieces[fRow][fCol] = piece;
+    }
+
+    isLegalJump(piece, initialSquare, finalSquare) {
+        const [iRow, iCol] = initialSquare;
+        const [fRow, fCol] = finalSquare;
+        if (this.pieces[fRow][fCol] === null) {
+            if (piece.color === "black") {
+                if ((iRow + 2) === fRow) {
+                    if (((iCol + 2) === fCol) && (board.pieces[iRow+1][iCol+1] !== null) && board.pieces[iRow+1][iCol+1] !== piece.color) {
+                        return true
+                    } else if (((iCol - 2) === fCol) && (board.pieces[iRow+1][iCol-1] !== null) && board.pieces[iRow+1][iCol-1] !== piece.color) {
+                        return true
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+
+    isLegalMove(piece, initialSquare, finalSquare) {
+
+        const [iRow, iCol] = initialSquare;
+        const [fRow, fCol] = finalSquare;
+        if (board.pieces[fRow][fCol] === null) {
+            if (piece.color === "black") {
+                if ((fRow - iRow) === 1) {return true}
+            } else if (piece.color === "red") {
+                if ((fRow - iRow) === -1) {return true}
+            }
+        }
+        return false;
     }
 }
 //STILL TO DO:
