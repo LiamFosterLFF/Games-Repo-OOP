@@ -1,4 +1,3 @@
-const dim = {width: 600, height: 600}
 var cnv;
 let board;
 let selectedSquare = [];
@@ -77,15 +76,22 @@ function drawGame() {
     }
 
     function drawGameText() {
-        fill(255);
         stroke(0);
-        textSize(32)
-        text(`White: ${score.black} pts.`, width/3, 30);
-        text(`Red: ${score.red} pts.`, width/3, height-10);
+        textSize(32);
+        fill(0);
+        text(board.banner, board.dimensions.width/3, 30);
+        fill(255);
+        text(`White: ${score.black} pts.`, board.dimensions.width/3, board.dimensions.textBoxOffset + 30);
+        text(`Red: ${score.red} pts.`, board.dimensions.width/3, board.dimensions.height-10);
+    }
+
+    function drawBanner() {
+
     }
     
     drawBoard();
     drawGameText();
+    drawBanner();
 
     // THIS NEEDS TO BE MOVED TO OWN FUNCTION
     if (score.black > 11 || score.red > 11) {
@@ -113,12 +119,8 @@ function handleClick() {
             return null
         }
     }
-    
-
-
 
     const square = getSquareClicked(mouseY, mouseX);
-
     board.handleMovement(square)
     drawGame();
 
@@ -140,11 +142,20 @@ class Board {
     constructor() {
         this.pieces = this.setPieces()
         this.colors = {"green" : "#25a243", "white": 255, "selected": "#edcf72"};
-        this.dimensions = {width: 600, height: 600}
-        this.offset = {x: 40, y: 40};
+        this.dimensions = {width: 600, height: 650, textBoxOffset: 50}
+        this.offset = {x: 40, y: 40 + this.dimensions.textBoxOffset};
         this.squareSize = (this.dimensions.width - 2*this.offset.x)/8;
         this.selectedSquare = null;
         this.whoseTurn = "red";
+        this.banner = `${this.capitalize(this.whoseTurn)}'s Turn.`;
+    }
+
+    setBanner(banner) {
+        this.banner = banner;
+    }
+
+    capitalize(string) {
+        return string[0].toUpperCase() + string.substring(1);
     }
 
     setPieces() {
@@ -186,6 +197,7 @@ class Board {
 
     changeTurn() {
         this.whoseTurn = (this.whoseTurn === "red") ? "black" : "red";
+        this.setBanner(`${this.capitalize(this.whoseTurn)}'s Turn.`);
     }
 
     handleMovement(square) {
@@ -211,6 +223,8 @@ class Board {
                         }
                         
                     }
+                } else {
+                    this.setBanner(`Not ${this.capitalize(sPiece.color)}'s turn, ${this.capitalize(this.whoseTurn)}'s turn`)
                 }
             }
         }
