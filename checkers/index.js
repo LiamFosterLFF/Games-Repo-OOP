@@ -138,7 +138,7 @@ class Board {
         this.squareSize = (this.dimensions.width - 2*this.offset.x)/8;
         this.selectedSquare = null;
         this.whoseTurn = "red";
-        this.score = {red: 11, black: 0};
+        this.score = {red: 0, black: 0};
         this.banner = `${this.capitalize(this.whoseTurn)}'s Turn.`;
         this.bannerLocation = {x: this.dimensions.width/3, y: 30}
         this.shortBannerLoc = {x: this.dimensions.width/3, y: 30}
@@ -359,9 +359,6 @@ class Board {
 
 
 //STILL TO DO:
-// Win condition
 // Drag n drop? 
 // Aesthetic: Double stack for kings
 // Aesthetic: Show dead pieces
-// Aesthetic : Show pieces tht can move
-// Center frame
