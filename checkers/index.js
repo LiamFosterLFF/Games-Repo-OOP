@@ -3,7 +3,7 @@ var cnv;
 let board;
 let selectedSquare = [];
 const score = {red: 0, black: 0};
-let img;
+let images = {};
 let gameOver = false;
 
 function setup() {
@@ -15,7 +15,7 @@ function setup() {
 }
 
 function preload() {
-    img = loadImage('checkers/images/crown.png');
+    images["king"] = loadImage('checkers/images/crown.png');
 }
 
 function draw() {
@@ -63,16 +63,9 @@ function drawGame() {
                         fill(piece.color)
                         const pieceLoc = {x: board.offset.x + board.squareSize * col, y: board.offset.y + board.squareSize * row }
                         rect(pieceLoc.x, pieceLoc.y, board.squareSize, board.squareSize, 50)
-
-                        // THIS NEEDS TO BE MOVED TO OWN FUNCTION
-                        if ((row === 7 && board.pieces[row][col].color === "black") || (row === 0 && board.pieces[row][col].color === "red")) {
-                            board.pieces[row][col].king = true;
-                        }
-                        
-                        // THIS NEEDS TO BE MOVED TO OWN FUNCTION
-                        if (board.pieces[row][col].king) {
-                            tint(pieceColor);
-                            image(img, sqLoc.x +board.squareSize/4, sqLoc.y +board.squareSize/5, board.squareSize/2, board.squareSize/2);
+                        if (piece.king) {
+                            tint(piece.color);
+                            image(piece.kingImg, pieceLoc.x +board.squareSize/4, pieceLoc.y +board.squareSize/5, board.squareSize/2, board.squareSize/2);
                         }
                     }
                 }
@@ -127,60 +120,21 @@ function handleClick() {
     const square = getSquareClicked(mouseY, mouseX);
 
     board.handleMovement(square)
-    // Square has to be on board
-    
-        // Only cares about green squares
-        
-    
-                // const redLegalJump = (pieceColor === "red" && board.selectedSquare[0] - 2 === row && abs(board.selectedSquare[1] - col) === 2 && board.pieces[(row+board.selectedSquare[0])/2][(col+board.selectedSquare[1])/2].color !== null && board.pieces[(row+board.selectedSquare[0])/2][(col+board.selectedSquare[1])/2].color === "black" && board.pieces[row][col] === null);
-                // const blackLegalJump = (pieceColor === "black" && board.selectedSquare[0] + 2 === row && abs(board.selectedSquare[1] - col) === 2 && board.pieces[(row+board.selectedSquare[0])/2][(col+board.selectedSquare[1])/2] !== null &&  board.pieces[(row+board.selectedSquare[0])/2][(col+board.selectedSquare[1])/2].color === "red" && board.pieces[row][col] === null);
-                // if (isLegalMove(pieceColor, row, col)) {
-                //     board.pieces[row][col] = board.pieces[board.selectedSquare[0]][board.selectedSquare[1]];
-                //     board.pieces[board.selectedSquare[0]][board.selectedSquare[1]] = null;
-                //     board.selectedSquare = [];
-                //     board.whoseTurn = (board.whoseTurn === "black") ? "red" : "black";
-                // } else if (redLegalJump || blackLegalJump) {
-                //     board.pieces[row][col] = board.pieces[board.selectedSquare[0]][board.selectedSquare[1]];
-                //     board.pieces[board.selectedSquare[0]][board.selectedSquare[1]] = null;
-                //     board.pieces[(row+board.selectedSquare[0])/2][(col+board.selectedSquare[1])/2] = null;
-                //     (redLegalJump) ? score.red++ : score.black++;
-                //     board.selectedSquare = [];
-                //     board.whoseTurn = (board.whoseTurn === "black") ? "red" : "black";
-                // } else {
-                //     board.selectedSquare = [];
-                // }
-
     drawGame();
 
-}
-
-
-function isLegalMove(color, row, col) {
-    const isKing = (board.pieces[selectedSquare[0]][selectedSquare[1]].king);
-    if (color === "black") {
-        if (selectedSquare[0] + 1 === row || (isKing && abs(selectedSquare[1] - col) === 1)
-            && abs(selectedSquare[1] - col) === 1
-            && board.pieces[row][col] === null
-        ) {return true}
-
-    } else if (color === "red") {
-        if (selectedSquare[0] - 1 === row || (isKing && abs(selectedSquare[1] - col) === 1)
-            && abs(selectedSquare[1] - col) === 1
-            && board.pieces[row][col] === null
-        ) {return true}
-
-    }
-    return false;
 }
 
 class Piece {
     constructor(color) {
         this.color = color;
-        this.king = false;    
+        this.king = false;
+        this.kingImg = images.king 
+    }
+
+    kingMe() {
+        this.king = true;
     }
 }
-
-
 
 class Board {
     constructor() {
@@ -190,7 +144,7 @@ class Board {
         this.offset = {x: 40, y: 40};
         this.squareSize = (this.dimensions.width - 2*this.offset.x)/8;
         this.selectedSquare = null;
-        this.whoseTurn = "red"
+        this.whoseTurn = "red";
     }
 
     setPieces() {
@@ -231,50 +185,47 @@ class Board {
     }
 
     changeTurn() {
-
+        this.whoseTurn = (this.whoseTurn === "red") ? "black" : "red";
     }
 
     handleMovement(square) {
         if (square !== null) {
             const [fRow, fCol] = square;
             const newlySelectedSquare = this.handleSelectingSquare(fRow, fCol);
-            // If it's a square select, only selects square, doesn't run move logic
+            // If it's a square select action, only selects square, doesn't run move logic
             if (newlySelectedSquare !== null) {
                 const [iRow, iCol] = newlySelectedSquare;
                 const sPiece = this.pieces[iRow][iCol];
-                // Only works for green squares
-                if ((fRow + fCol)%2 === 1) {
-                    if (piece.king) {
-
-                    } else {
-                        if (this.isLegalMove(sPiece, [iRow, iCol], [fRow, fCol])) {
-                            this.movePiece([iRow, iCol], [fRow, fCol]);
-                        } else if (this.isLegalJump(sPiece, [iRow, iCol], [fRow, fCol])) {
-                            const rowGap = (fRow - iRow)/2;
-                            const colGap = (fCol - iCol)/2;
-                            this.jumpPiece([iRow, iCol], [iRow + rowGap, iCol + colGap], [fRow, fCol]);
+                if (this.whoseTurn === sPiece.color) {
+                    // Only works for green squares
+                    if ((fRow + fCol)%2 === 1) {
+                        if (piece.king) {
+                        } else {
+                            if (this.isLegalMove(sPiece, [iRow, iCol], [fRow, fCol])) {
+                                this.movePiece([iRow, iCol], [fRow, fCol]);
+                            } else if (this.isLegalJump(sPiece, [iRow, iCol], [fRow, fCol])) {
+                                const rowGap = (fRow - iRow)/2;
+                                const colGap = (fCol - iCol)/2;
+                                this.jumpPiece([iRow, iCol], [iRow + rowGap, iCol + colGap], [fRow, fCol]);
+                            }
                         }
+                        
                     }
-                    
                 }
             }
         }
-        // if (piece.king) {
-
-        // } else {
-        //     if (isLegalMovement(piece, initialSquare, finalSquare) || this.isLegalJump(piece, initialSquare, finalSquare)) {
-        //         return true
-        //     }
-        // }
-        // return false;
     }
 
     movePiece(initialSquare, finalSquare) {
         const [iRow, iCol] = initialSquare;
         const [fRow, fCol] = finalSquare;
         const piece = board.pieces[iRow][iCol];
+        if (this.isKingSquare(piece, [fRow, fCol])) {
+            piece.kingMe();
+        }
         board.pieces[iRow][iCol] = null;
         board.pieces[fRow][fCol] = piece;
+        this.changeTurn();
     }
 
     jumpPiece(initialSquare, midSquare, finalSquare) {
@@ -282,9 +233,13 @@ class Board {
         const [mRow, mCol] = midSquare;
         const [fRow, fCol] = finalSquare;
         const piece = board.pieces[iRow][iCol];
+        if (this.isKingSquare(piece, [fRow, fCol])) {
+            piece.kingMe();
+        }
         board.pieces[iRow][iCol] = null;
         board.pieces[mRow][mCol] = null;
         board.pieces[fRow][fCol] = piece;
+        this.changeTurn();
     }
 
     isLegalJump(piece, initialSquare, finalSquare) {
@@ -296,6 +251,14 @@ class Board {
                     if (((iCol + 2) === fCol) && (board.pieces[iRow+1][iCol+1] !== null) && board.pieces[iRow+1][iCol+1] !== piece.color) {
                         return true
                     } else if (((iCol - 2) === fCol) && (board.pieces[iRow+1][iCol-1] !== null) && board.pieces[iRow+1][iCol-1] !== piece.color) {
+                        return true
+                    }
+                }
+            } else if (piece.color === "red") {
+                if ((iRow - 2) === fRow) {
+                    if (((iCol + 2) === fCol) && (board.pieces[iRow-1][iCol+1] !== null) && board.pieces[iRow-1][iCol+1] !== piece.color) {
+                        return true
+                    } else if (((iCol - 2) === fCol) && (board.pieces[iRow-1][iCol-1] !== null) && board.pieces[iRow-1][iCol-1] !== piece.color) {
                         return true
                     }
                 }
@@ -318,13 +281,24 @@ class Board {
         }
         return false;
     }
+
+    isKingSquare(piece, square) {
+        const [row, col] = square
+        if (piece.color === "red" && row === 0) {
+            return true;
+        } else if (piece.color === "black" && row === 7) { 
+            return true;
+        }
+        return false;
+    }
 }
+
+
 //STILL TO DO:
 // double jumping
 // Win condition
 // Take Jumping out into its own function
 // Fix jumping so it includes kings
-// Clean up functions
 // Bug : Can jump directly on enemies
 // Bug : Kings can't jump? Or kill forwards
 // Show whose turn it is
