@@ -101,11 +101,32 @@ function drawCover() {
                     stroke(86, 252, 3);
                     line(bit.x1, bit.y1, bit.x2, bit.y2)
                 }
+
+                for (i=0; i< enemyBullets.length; i++) {
+                    enemyBullet = enemyBullets[i]
+                    if (detectCollisionCoverEnemyBullet(bit, enemyBullet)) {
+                        cover[block][ln][row].blown = true;
+                        for (let i = 0; i < 4; i++) {
+                            cover[block][ln+i][row].blown = true;
+                            cover[block][ln+i][row].blown = true;      
+                        }
+                        enemyBullets.splice(i);
+                    } 
+                }
                 
             }
         }
     }
     noStroke();
+
+    function detectCollisionCoverEnemyBullet(bit, shot) {
+        if (
+            shot !== null && bit.blown !== true
+            && shot.x >= bit.x1 && shot.x <= bit.x2
+            && shot.y >= bit.y1 && shot.y <= bit.y2
+        ) {return true}
+        return false
+    }
 
     function detectCollisionCover(bit) {
         if (
