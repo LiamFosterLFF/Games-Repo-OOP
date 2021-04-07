@@ -5,7 +5,7 @@ let images = {};
 let gameOver = false;
 
 function setup() {
-    setPieces();
+    initializeBoard();
     cnv = createCanvas(board.dimensions.width, board.dimensions.height);
     cnv.parent("canvas-parent");
     drawGame();
@@ -23,7 +23,7 @@ function draw() {
 
 
 
-function setPieces() {
+function initializeBoard() {
     board = new Board();
     console.log(board);
 }
@@ -226,7 +226,7 @@ class Board {
     }
 
     handleMovement(square) {
-        if (this.gameState === "playing") {
+        if (this.gameState === "playing" || this.gameState === "doubleJump" ) {
             if (square !== null) {
                 const [fRow, fCol] = square;
                 const newlySelectedSquare = this.handleSelectingSquare(fRow, fCol);
@@ -252,7 +252,7 @@ class Board {
                     } 
                 }
             }
-        } else {
+        } else if (this.gameState === "gameOver"){
             this.restartGame()
         }
         // Putting winGame condition here, it makes more sense then putting it in the outer function, although handleMovement not too descriptive...
@@ -280,13 +280,17 @@ class Board {
         if (this.isKingSquare(piece, [fRow, fCol])) {
             piece.kingMe();
         }
+        // Kill both pieces and put jumping piece on new square
         board.pieces[iRow][iCol] = null;
         board.pieces[mRow][mCol] = null;
         board.pieces[fRow][fCol] = piece;
 
         if (this.isLegalDoubleJump(finalSquare)) {
-            this.setBanner(`Double jump, still  ${this.capitalize(this.whoseTurn)}'s turn`, this.longBannerLoc)
+            // Enter a special game state, where turn never changes until jump is made (regular moving now illegal)
+            this.gameState = "doubleJump";
+            this.setBanner(`Double jump, still  ${this.capitalize(this.whoseTurn)}'s turn`, this.longBannerLoc);
         } else {
+            this.gameState = "playing";
             this.changeTurn();
         }
     }
@@ -321,11 +325,11 @@ class Board {
         const [row, col] = square;
         const piece = this.pieces[row][col];
         if (piece.color === "black"  || piece.isKing()) {
-            if (this.isLegalJump(piece, square, [row+2, col-2]) || this.isLegalJump(piece, square,[row+2, col+2])) {
+            if (row < 6 && (this.isLegalJump(piece, square, [row+2, col-2]) || this.isLegalJump(piece, square,[row+2, col+2]))) {
                 return true;
             }
         } else if (piece.color === "red"  || piece.isKing()) {
-            if (this.isLegalJump(piece, square, [row-2, col-2]) || this.isLegalJump(piece, square,[row-2, col+2])) {
+            if (row > 1 && (this.isLegalJump(piece, square, [row-2, col-2]) || this.isLegalJump(piece, square,[row-2, col+2]))) {
                 return true;
             }
         }
@@ -335,6 +339,9 @@ class Board {
     isLegalMove(piece, initialSquare, finalSquare) {
         const [iRow, iCol] = initialSquare;
         const [fRow, fCol] = finalSquare;
+        if (this.gameState === "doubleJump") {
+            return false;
+        }
         if (board.pieces[fRow][fCol] === null) {
             // If piece is king, it basically means it can jump in either direction; i.e. like a black or a red piece
             if (piece.color === "black"  || piece.isKing()) {
@@ -362,3 +369,4 @@ class Board {
 // Drag n drop? 
 // Aesthetic: Double stack for kings
 // Aesthetic: Show dead pieces
+// Aesthetic: Cursor only a pointer over pieces
