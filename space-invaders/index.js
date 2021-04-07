@@ -7,12 +7,13 @@ const enemyPositions = [];
 const enemyEdges = {"x": {"max": 0, "min": 0}, "y": {max: 0, min: 0}};
 const enemySpeed = {"x": 10, "y":50};
 let bullet = null;
-const enemyBullets = []
+let enemyBullets = []
 const offset = {"x": 70, "y": 150};
 const cover = [];
 sprites = {}
 score = 0
 fireThreshold = .0005
+let shipdead = false
 
 function setup() {
     cnv = createCanvas(screenSize.width, screenSize.height);
@@ -117,8 +118,19 @@ function drawCover() {
 }
 
 function drawShip() {
-    fill(255);
-    image(sprites['ship-sprite'], shipPosition.x, shipPosition.y, shipDimensions.x, shipDimensions.y);
+    
+
+    for (i=0; i<enemyBullets.length; i++) {
+        if (detectShipCollision(enemyBullets[i])) {
+            enemyBullets = enemyBullets.splice(i);
+            shipdead = true
+        } else if (shipdead === true){
+            
+        } else {
+            fill(255);
+            image(sprites['ship-sprite'], shipPosition.x, shipPosition.y, shipDimensions.x, shipDimensions.y);
+        }
+    }
 }
 
 function moveShip() {
@@ -215,7 +227,13 @@ function detectCollision(enemy) {
     return false
 }
 
-
+function detectShipCollision(shot) {
+    if (
+        shot.x > shipPosition.x && shot.x < shipPosition.x + shipDimensions.x
+        && shot.y > shipPosition.y && shot.y < shipPosition.y + shipDimensions.y
+    ) {return true}
+    return false
+}
 
 function advanceEnemiesY() {
     for (let row = 0; row < enemyPositions.length; row++) {
