@@ -13,7 +13,8 @@ function setup() {
 }
 
 function preload() {
-    images["king"] = loadImage('checkers/images/crown.png');
+    images["white-crown"] = loadImage('checkers/images/white-crown.png');
+    images["black-crown"] = loadImage('checkers/images/black-crown.png');
 }
 
 function draw() {
@@ -62,7 +63,6 @@ function drawGame() {
                         const pieceLoc = {x: board.offset.x + board.squareSize * col, y: board.offset.y + board.squareSize * row }
                         rect(pieceLoc.x, pieceLoc.y, board.squareSize, board.squareSize, 50)
                         if (piece.isKing()) {
-                            tint(piece.color);
                             image(piece.kingImg, pieceLoc.x +board.squareSize/4, pieceLoc.y +board.squareSize/5, board.squareSize/2, board.squareSize/2);
                         }
                     }
@@ -118,7 +118,7 @@ class Piece {
     constructor(color) {
         this.color = color;
         this.king = false;
-        this.kingImg = images.king 
+        this.kingImg = (this.color === "red") ? images["black-crown"] :  images["white-crown"]
     }
 
     isKing() {
@@ -246,7 +246,7 @@ class Board {
                                     this.jumpPiece([iRow, iCol], [iRow + rowGap, iCol + colGap], [fRow, fCol]);
                                 }
                             }
-                        } else {
+                        } else if (this.gameState === "playing"){
                             this.setBanner(`Not ${this.capitalize(sPiece.color)}'s turn, ${this.capitalize(this.whoseTurn)}'s turn`, this.longBannerLoc)
                         }
                     } 
@@ -308,7 +308,8 @@ class Board {
                         return true
                     }
                 }
-            } else if (piece.color === "red" || piece.isKing()) {
+            } 
+            if (piece.color === "red" || piece.isKing()) {
                 if ((iRow - 2) === fRow) {
                     if (((iCol + 2) === fCol) && (board.pieces[iRow-1][iCol+1] !== null) && board.pieces[iRow-1][iCol+1] !== piece.color) {
                         return true
@@ -324,11 +325,13 @@ class Board {
     isLegalDoubleJump(square){
         const [row, col] = square;
         const piece = this.pieces[row][col];
+        // If piece is king, it basically means it can jump in either direction; i.e. like a black or a red piece
         if (piece.color === "black"  || piece.isKing()) {
             if (row < 6 && (this.isLegalJump(piece, square, [row+2, col-2]) || this.isLegalJump(piece, square,[row+2, col+2]))) {
                 return true;
             }
-        } else if (piece.color === "red"  || piece.isKing()) {
+        } 
+        if (piece.color === "red"  || piece.isKing()) {
             if (row > 1 && (this.isLegalJump(piece, square, [row-2, col-2]) || this.isLegalJump(piece, square,[row-2, col+2]))) {
                 return true;
             }
@@ -343,10 +346,11 @@ class Board {
             return false;
         }
         if (board.pieces[fRow][fCol] === null) {
-            // If piece is king, it basically means it can jump in either direction; i.e. like a black or a red piece
-            if (piece.color === "black"  || piece.isKing()) {
+            if (piece.isKing()) {
+                if (abs(fRow - iRow) === 1) {return true}
+            } else if (piece.color === "black" ) {
                 if ((fRow - iRow) === 1) {return true}
-            } else if (piece.color === "red" || piece.isKing()) {
+            } else if (piece.color === "red") {
                 if ((fRow - iRow) === -1) {return true}
             }
         }
