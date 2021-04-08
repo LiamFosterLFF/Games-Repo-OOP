@@ -302,9 +302,9 @@ class Board {
             // If piece is king, it basically means it can jump in either direction; i.e. like a black or a red piece
             if (piece.color === "black" || piece.isKing()) {
                 if ((iRow + 2) === fRow) {
-                    if (((iCol + 2) === fCol) && (board.pieces[iRow+1][iCol+1] !== null) && board.pieces[iRow+1][iCol+1] !== piece.color) {
+                    if (((iCol + 2) === fCol) && (board.pieces[iRow+1][iCol+1] !== null) && board.pieces[iRow+1][iCol+1].color !== piece.color) {
                         return true
-                    } else if (((iCol - 2) === fCol) && (board.pieces[iRow+1][iCol-1] !== null) && board.pieces[iRow+1][iCol-1] !== piece.color) {
+                    } else if (((iCol - 2) === fCol) && (board.pieces[iRow+1][iCol-1] !== null) && board.pieces[iRow+1][iCol-1].color !== piece.color) {
                         return true
                     }
                 }
