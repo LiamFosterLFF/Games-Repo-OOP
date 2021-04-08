@@ -20,6 +20,7 @@ function preload() {
 function draw() {
     cursor(HAND)
     cnv.mouseClicked(handleClick)
+    cnv.mousePressed(handleMousePressed)
 }
 
 
@@ -93,25 +94,28 @@ function drawGame() {
     drawBanner();
 }
 
+function getMouseSquare(y, x) {
+    // Adjusts for offset and returns mouseClick/squareSize
+    const row = floor((y - board.offset.y)/board.squareSize);
+    const col = floor((x - board.offset.x)/board.squareSize);
+    if (row >= 0 && row < 8 && col >= 0 && col < 8) {
+        return [row, col]
+    } else {
+        return null
+    }
+}
+
+function handleMousePressed() {
+    console.log("BANG");
+    cursor('grabbing')
+}
+
 
 
 function handleClick() {
-
-    function getSquareClicked(y, x) {
-        // Adjusts for offset and returns mouseClick/squareSize
-        const row = floor((y - board.offset.y)/board.squareSize);
-        const col = floor((x - board.offset.x)/board.squareSize);
-        if (row >= 0 && row < 8 && col >= 0 && col < 8) {
-            return [row, col]
-        } else {
-            return null
-        }
-    }
-
-    const square = getSquareClicked(mouseY, mouseX);
+    const square = getMouseSquare(mouseY, mouseX);
     board.handleMovement(square)
     drawGame();
-
 }
 
 class Piece {
