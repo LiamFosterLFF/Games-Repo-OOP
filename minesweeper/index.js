@@ -49,14 +49,51 @@ function handleClick() {
     }
 }
 
+class Button {
+    constructor(text) {
+        this.text = text;
+        this.btn = createButton(this.text);
+    }
+}
+
+class StartOverButton extends Button {
+    constructor() {
+        super("Start Over");
+        this.btn.mousePressed(this.handleClick)
+    }
+
+    handleClick() {
+        board.reset();
+    }
+}
+
+
+class ChangeDifficultyButton extends Button {
+    constructor() {
+        super("Change Difficulty");
+        this.btn.mousePressed(this.handleClick)
+    }
+
+    handleClick() {
+        let mineCount;
+        mineCount = parseInt(window.prompt("Number of Bombs (1-100): "))
+        if (mineCount >= 1 && mineCount <= 100){
+            board.changeMineCount(mineCount);
+            board.reset();
+        }
+    }
+}
+
 class Board {
     constructor(cells, boardSize) {
         this.rows = cells;
         this.cols = cells;
         this.squareSize = boardSize / cells;
         this.size = [this.rows, this.cols];
+        this.mineCount = 50;
         this.cells = this.initializeBoard();
         this.gameState = "playing";
+        this.buttons = this.initializeButtons();
     }
 
     initializeBoard() {
@@ -70,6 +107,13 @@ class Board {
         }
 
         return cellArr;
+    }
+
+    initializeButtons() {
+        const buttonsDict = {}
+        buttonsDict["startOver"] = new StartOverButton();
+        buttonsDict["changeDifficulty"] = new ChangeDifficultyButton();
+        buttonsDict["pause"] = new Button("Pause");
     }
 
     setCounts() {
@@ -95,13 +139,17 @@ class Board {
 
     setBombs() {
         let bombCount = 0;
-        while (bombCount < 50) {
+        while (bombCount < this.mineCount) {
             let [row, col] = [floor(random(this.rows)), floor(random(this.cols))]
             if (this.cells[row][col].bomb === false) {
                 this.cells[row][col].setBomb();
                 bombCount++;
             }
         }
+    }
+
+    changeMineCount(mineCount) {
+        this.mineCount = mineCount;
     }
 
     drawBoard() {
@@ -242,9 +290,11 @@ class Cell {
 // Game over - start over button
 // Bug: Fix colors so they look less bad
 // Bug: Fix stroke color on numbers
+// Bug: Minesweep sweeps corners as well for empty squares, should just be numbered cells
 // Add flagging - disables clicks
 // Add questionable flag
 // Add timer
 // Add flag count/minecount
 // Add buttons
+
 // Responsivity : Can adjust game size??
