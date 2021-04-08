@@ -1,9 +1,7 @@
-const dims = {x: 20, y: 20, width: 800, height: 800}
-const boardSize = 800;
 let board;
-const [w, h] = [dims.width/dims.x, dims.height/dims.y]
-const cellArr = [];
+let boardSize = 800;
 var cnv;
+const images = {}
 
 function setup() {
     cnv = createCanvas(boardSize, boardSize);
@@ -16,6 +14,10 @@ function draw() {
     board.drawBoard();
     cnv.mouseClicked(handleClick);
 
+}
+
+function preload() {
+    images["mine"] = loadImage("minesweeper/images/mine.png")
 }
 
 // function drawHover() {
@@ -48,6 +50,7 @@ function handleClick() {
         board.reset();
     }
 }
+
 
 class Button {
     constructor(text) {
@@ -84,6 +87,18 @@ class ChangeDifficultyButton extends Button {
     }
 }
 
+class PauseButton extends Button {
+    constructor() {
+        super("Pause");
+        this.btn.mousePressed(this.handleClick)
+    }
+
+    handleClick() {
+
+    }
+}
+
+
 class Board {
     constructor(cells, boardSize) {
         this.rows = cells;
@@ -94,6 +109,7 @@ class Board {
         this.cells = this.initializeBoard();
         this.gameState = "playing";
         this.buttons = this.initializeButtons();
+        this.time = 0;
     }
 
     initializeBoard() {
@@ -113,7 +129,7 @@ class Board {
         const buttonsDict = {}
         buttonsDict["startOver"] = new StartOverButton();
         buttonsDict["changeDifficulty"] = new ChangeDifficultyButton();
-        buttonsDict["pause"] = new Button("Pause");
+        buttonsDict["pause"] = new PauseButton();
     }
 
     setCounts() {
@@ -231,6 +247,7 @@ class Cell {
         this.col = col;
         this.clicked = false;
         this.bomb = false;
+        this.bombImage = images["mine"];
         this.count = 0;
     }
 
@@ -271,7 +288,7 @@ class Cell {
         if (this.clicked === true) {
             if (this.bomb === true) {
                 fill(100);
-                rect(col*squareSize + 3, row*squareSize + 3, squareSize- 6, squareSize - 6, 50)
+                image(this.bombImage, col*squareSize + 3, row*squareSize + 3, squareSize- 6, squareSize - 6)
             } else if (this.count > 0) {
                 fill(0);
                 stroke(255);
@@ -287,14 +304,12 @@ class Cell {
 
 
 // Aesthetics: Add color-shift on hover
-// Game over - start over button
 // Bug: Fix colors so they look less bad
 // Bug: Fix stroke color on numbers
 // Bug: Minesweep sweeps corners as well for empty squares, should just be numbered cells
 // Add flagging - disables clicks
 // Add questionable flag
-// Add timer
 // Add flag count/minecount
-// Add buttons
-
+// Add pause button function and timer
+// Make bombs and image instead of a circle
 // Responsivity : Can adjust game size??
