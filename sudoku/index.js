@@ -84,7 +84,7 @@ class Game {
         this.board = this.initializeBoard();
         this.duplicates = [];
         this.inputMode = "normal"
-        this.buttons = new ButtonBar(this.boardSize, this.inputMode);
+        this.buttons = new ButtonBar(this.boardSize);
 
     }
 
@@ -323,7 +323,7 @@ class Game {
     // }
     
 class ButtonBar {
-    constructor(boardSize, inputMode) {
+    constructor(boardSize) {
         this.boardSize = boardSize;
         this.width = 400;
         this.height = 300;
@@ -543,9 +543,9 @@ class Cell {
         this.col = col;
         this.cellSize = cellSize;
         this.dotSize = cellSize/7;
-        this.autoCandidates = [];
         this.selectedCell = false;
-        this.candidates = []
+        this.autoCandidates = [];
+        this.candidates = [1,2,3,4];
         this.duplicate = false;
     }
 
@@ -612,7 +612,7 @@ class Cell {
         for (let i=0; i<candidates.length; i++) {
             const candidate = candidates[i];
             const position = positionDict[candidate];
-            text(candidate, this.cellSize*col + position.y, this.cellSize*row + position.x,)
+            text(candidate, this.cellSize*col + position.x, this.cellSize*row + position.y)
         }
 
         // Draw center candidates (secondary marking)
