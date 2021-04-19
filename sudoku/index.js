@@ -592,7 +592,7 @@ class Cell {
         this.dotSize = cellSize/7;
         this.selectedCell = false;
         this.autoCandidates = [];
-        this.candidates = [1];
+        this.candidates = [];
         this.duplicate = false;
     }
 
@@ -614,7 +614,6 @@ class Cell {
     
     setAutoCandidates(candidates) {
         this.autoCandidates = candidates
-        this.candidates = candidates
     }
 
     deselectCell() {
@@ -659,10 +658,8 @@ class Cell {
         fill(0);
         stroke(0);
         textSize(20)
-        // If not using autoCandidates, use candidates; sort regardless
-        const candidates = (this.autoCandidates.length > 0) ? this.autoCandidates.sort() : this.candidates.sort();
-        for (let i=0; i<candidates.length; i++) {
-            const candidate = candidates[i];
+        for (let i=0; i<this.candidates.length; i++) {
+            const candidate = this.candidates[i];
             const position = positionDict[candidate];
             text(candidate, this.cellSize*col + position.x, this.cellSize*row + position.y)
         }
