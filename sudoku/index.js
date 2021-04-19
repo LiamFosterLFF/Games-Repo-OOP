@@ -665,10 +665,12 @@ class Cell {
         fill(0);
         stroke(0);
         textSize(20)
-        for (let i=0; i<this.candidates.length; i++) {
-            const candidate = this.candidates[i];
-            const position = positionDict[candidate];
-            text(candidate, this.cellSize*col + position.x, this.cellSize*row + position.y)
+        if (this.value === "0") {
+            for (let i=0; i<this.candidates.length; i++) {
+                const candidate = this.candidates[i];
+                const position = positionDict[candidate];
+                text(candidate, this.cellSize*col + position.x, this.cellSize*row + position.y)
+            }
         }
 
         // Draw center candidates (secondary marking)
