@@ -73,6 +73,7 @@ function initializeGame() {
     game.buttons.drawButtons();
     game.loadPresets(presetStr);
     game.drawBoard();
+    game.setAutoCandidates();
 }
 
 class Game {
@@ -271,6 +272,52 @@ class Game {
             }
         }
         return duplicates;
+    }
+
+    checkCandidate(cell, number) {
+        const [cRow, cCol] = cell.getLocation();
+        for (let row=0; row<9; row++) {
+            if (this.board[row][cCol].getValue() === String(number)) {
+                return false
+            }
+        }
+        for (let col=0; col<9; col++) {
+            if (this.board[cRow][col].getValue() === String(number)) {
+                return false
+            }
+        }
+        const [bRow, bCol] = [3*Math.floor(cRow/3), 3*Math.floor(cCol/3)]
+        for (let row=0; row<3; row++) {
+            for (let col=0; col<3; col++) {
+                if (this.board[bRow+row][bCol+col].getValue() === String(number)) {
+                    return false
+                }
+            }
+        }
+        return true
+    }
+
+    setAutoCandidates() {
+
+
+        for (let row=0; row<9; row++) {
+            for (let col=0; col<9; col++) {
+                const candidates = []
+                let cell = this.board[row][col]
+                let value = cell.getValue()
+                if (value === "0") {
+                    for (let candidate=1; candidate<=9; candidate++) {
+                        if (this.checkCandidate(cell, candidate)) {
+                            candidates.push(candidate)
+                        }
+                    }
+                }
+                // console.log(row, col, candidates);
+                cell.setAutoCandidates(candidates)
+            }
+        }
+        this.drawBoard()
+
     }
 
 }
@@ -545,7 +592,7 @@ class Cell {
         this.dotSize = cellSize/7;
         this.selectedCell = false;
         this.autoCandidates = [];
-        this.candidates = [1,2,3,4];
+        this.candidates = [1];
         this.duplicate = false;
     }
 
@@ -563,6 +610,11 @@ class Cell {
 
     isDuplicate() {
         return this.duplicate;
+    }
+    
+    setAutoCandidates(candidates) {
+        this.autoCandidates = candidates
+        this.candidates = candidates
     }
 
     deselectCell() {
