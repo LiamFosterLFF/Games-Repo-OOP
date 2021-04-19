@@ -168,8 +168,14 @@ class Game {
         if (this.selectedCell.length > 0) {
             const [row, col] = this.selectedCell;
             const cell = this.board[row][col]
-            cell.enterValue(key);
-            this.checkDuplicates(cell)
+            if (this.inputMode === "normal") {
+                cell.enterValue(key);
+                this.checkDuplicates(cell)
+            }  else if (this.inputMode === "center") {
+                cell.enterCenterValue(key);
+            } else if (this.inputMode === "corner") {
+                cell.enterCandidateValue(key);
+            }
         }
         this.drawBoard();
     }
@@ -593,6 +599,7 @@ class Cell {
         this.selectedCell = false;
         this.autoCandidates = [];
         this.candidates = [];
+        this.candidates = [];
         this.duplicate = false;
     }
 
@@ -682,6 +689,26 @@ class Cell {
 
     getValue() {
         return this.value;
+    }
+
+    enterCenterValue(value) {
+        if (!this.centerValues.includes(value)) {
+            this.centerValues.push(value)
+        }
+    }
+
+    getCenterValues() {
+        return this.centerValues;
+    }
+
+    enterCandidateValue(value) {
+        if (!this.candidates.includes(value)) {
+            this.candidates.push(value)
+        }
+    }
+
+    getCandidateValues() {
+        return this.candidates;
     }
 
     enterSetValue(value) {
