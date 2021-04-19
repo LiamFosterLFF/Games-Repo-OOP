@@ -177,12 +177,11 @@ class Game {
     handleInputModeKeyPressed(inputMode) {
         this.buttons.restyleNumberButtons(inputMode)
         this.buttons.restyleInputModeButtons(inputMode)
+        this.setInputMode(inputMode)
     }
 
     setInputMode(mode) {
         this.inputMode = mode;
-        this.buttons.setInputMode(mode);
-        this.drawBoard();
     }
 
     getInputMode(mode) {
