@@ -13,6 +13,7 @@ function draw() {
     // drawHover();
     board.drawBoard();
     cnv.mouseClicked(handleClick);
+    handleRightClick();
 
 }
 
@@ -48,6 +49,14 @@ function handleClick() {
         }
     } else {
         board.reset();
+    }
+}
+
+function handleRightClick() {
+    if (mouseIsPressed) {
+        if (mouseButton === RIGHT) {
+            console.log("RIGHT");
+        }
     }
 }
 
@@ -311,5 +320,4 @@ class Cell {
 // Add questionable flag
 // Add flag count/minecount
 // Add pause button function and timer
-// Make bombs and image instead of a circle
 // Responsivity : Can adjust game size??

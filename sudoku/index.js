@@ -1,4 +1,7 @@
+// const csv = require('fast-csv');
 
+let game;
+const boardSize = 810;
 const board = [
     [null, null, null, null, null, null, null, null, null], 
     [null, null, null, null, null, null, null, null, null], 
@@ -11,17 +14,7 @@ const board = [
     [null, null, null, null, null, null, null, null, null]
 ]
 
-const presetBoard = [
-    [6, null, 9, 1, null, 2, null, 8, null], 
-    [null, null, null, null, null, null, 4, null, null], 
-    [5, null, 2, null, null, null, null, null, null], 
-    [null, null, null, null, 2, null, 3, null, 4], 
-    [1, null, null, null, null, 5, null, null, null], 
-    [null, 2, null, null, null, null, 5, null, 6], 
-    [null, null, null, 8, null, 1, null, null, null], 
-    [null, null, null, null, null, null, null, null, 9], 
-    [8, null, 5, 9, null, 7, null, 4, null]
-]
+const presetStr = "004300209005009001070060043006002087190007400050083000600000105003508690042910300,864371259325849761971265843436192587198657432257483916689734125713528694542916378"
 
 const markings = new Array(9).fill().map(
     () => new Array(9).fill().map(
@@ -39,317 +32,396 @@ var selectedSquare = null;
 let inputMode = "normal";
 
 function setup() {
-    cnv = createCanvas(800, 800);
+    cnv = createCanvas(boardSize, boardSize);
     cnv.parent("canvas-parent");
-    loadPresets();
-    drawBoard();
+    cnv.id('main-canvas');
+    initializeGame();
 }
 
 function draw() {
-    cnv.mouseClicked(numberInput)
+    cnv.mouseClicked(handleClick)
 }
 
-
-
-
-function loadPresets() {
-    for (let row = 0; row < 9; row++) {
-        for (let col = 0; col < 9; col++) {
-            if (presetBoard[row][col] !== null) {
-                board[row][col] = presetBoard[row][col];
-            }
-        }
-        
+function handleClick() {
+    const location = game.getCellClicked(mouseX, mouseY);
+    if (location !== null) {
+        const [row, col] = location;
+        game.selectCell(row, col)
     }
+
+    game.drawBoard();
 }
 
 function keyPressed() {
-
-    function checkBoard(num) {
-        var [row, col] = selectedSquare;
-
-        function removeMatches() {
-            for (let i = 0; i < matchingPairs.length; i++) {
-                const firstPairMatch = (matchingPairs[i][0][0] === row && matchingPairs[i][0][1] === col);
-                const secondPairmMatch = (matchingPairs[i][1][0] === row && matchingPairs[i][1][1] === col);
-                if (firstPairMatch || secondPairmMatch) {
-                    matchingPairs[i] = [[null, null], [null, null]];
-                }
-                
-            }
-        }
-
-        function checkRows() {
-            for (let checkCol= 0; checkCol< 9; checkCol++) {
-                if (checkCol !== col) {
-                    if (board[row][checkCol] === num) {
-                        matchingPairs.push([[row, col], [row,checkCol]])
-                    }
-                }
-            }
-        }
-
-        function checkColumns() {
-            for (let checkRow= 0; checkRow< 9; checkRow++) {
-                if (checkRow !== row) {
-                    if (board[checkRow][col] === num) {
-                        matchingPairs.push([[row, col], [checkRow,col]])
-                    }
-                }
-            }
-        }
-
-        function checkLargeSquare() {
-            const [bigRow, bigCol] = [floor(row/3), floor(col/3)];
-            for (let i = 0; i < 3; i++) {
-                for (let j = 0; j < 3; j++) {
-                    if (i === row%3 && j === col%3) {
-                        //Passes over if checking position is same as selected position
-                    } else {
-                        const [checkRow, checkCol] = [bigRow*3 + i, bigCol*3 + j];
-                        if (board[checkRow][checkCol] === num) {
-                            matchingPairs.push([[row, col], [checkRow, checkCol]]);
-                        }
-                    }
-                    
-                }
-                
-            }
-        }
-
-        removeMatches();
-        checkRows();
-        checkColumns();
-        checkLargeSquare();
+    if (!isNaN(key)) {
+        game.handleNumberKeyPressed(key);
+    } else if (keyCode === CONTROL) {
+        game.handleInputModeKeyPressed("corner")
+    } else if (keyCode === SHIFT) {
+        game.handleInputModeKeyPressed("center")
     }
-
-    if (selectedSquare !== null) {
-        var [row, col] = selectedSquare;
-
-        if (keyIsDown(SHIFT)) {
-            inputMode = "corner"
-        } else if (keyIsDown(CONTROL)) {
-            inputMode = "center"
-        } else (
-            inputMode = "normal"
-        )
-
-        if (inputMode === "normal" && !isNaN(key) && key > 0) {
-            if (presetBoard[row][col] === null) {
-                board[row][col] = key;
-                checkBoard(key);
-            }
-        }
-
-        const shiftDict = {"!" : 1, "@" : 2, "#" : 3, "$" : 4, "%" : 5, "^" : 6, "&" : 7, "*" : 8, "(" : 9}
-        if (inputMode === "corner" && shiftDict[key] !== undefined) {
-            const value = Number(shiftDict[key])
-            const squareAlreadyContainsMarking = (markings[row][col].corner.includes(value))
-            if (!squareAlreadyContainsMarking) {
-                markings[row][col].corner.push(value)
-            } else { // Remove number from array if double-typed
-                const index = markings[row][col].corner.indexOf(value)
-                markings[row][col].corner.splice(index, 1)
-            }
-        } 
-        
-        if (inputMode === "center" && key !== "Control") {
-            const value = Number(key)
-            const squareAlreadyContainsMarking = (markings[row][col].center.includes(value))
-            if (!squareAlreadyContainsMarking) {
-                markings[row][col].center.push(value)
-            } else { // Remove number from array if double-typed
-                const index = markings[row][col].center.indexOf(value)
-                markings[row][col].center.splice(index, 1)
-            }
-        }
-    
-    }
-
-    drawBoard();
-    return false
 }
 
+function keyReleased() {
+    if (keyCode === SHIFT || keyCode === CONTROL) {
+        game.handleInputModeKeyPressed("normal")
+    }
+}
+
+function initializeGame() {
+    game = new Game(boardSize);
+    game.buttons.drawButtons();
+    game.loadPresets(presetStr);
+    game.drawBoard();
+}
+
+class Game {
+    constructor(boardSize) {
+        this.boardSize = boardSize;
+        this.cellSize = floor(this.boardSize / 9);
+        this.boxSize = floor(this.boardSize / 3);
+        this.selectedCell = [];
+        this.board = this.initializeBoard();
+        this.duplicates = [];
+        this.inputMode = "normal"
+        this.buttons = new ButtonBar(this.boardSize, this.inputMode);
+
+    }
+
+    initializeBoard() {
+        const board = [];
+        for (let row = 0; row < 9; row++) {
+            const bRow = []
+            for (let col = 0; col < 9; col++) {
+                bRow.push(new Cell(0, row, col, this.cellSize));
+            }
+            board.push(bRow)
+        }
+        return board;
+    }
+
+    loadPresets(presetStr) {
+
+        function loadPresetFromCSV(presetStr) {
+            // splits string into two sections and then into individual numbers
+            return presetStr.split(',')[0].split('')
+        }
+
+        const presetBoard = loadPresetFromCSV(presetStr);
+
+        let i = 0;
+        for (let row = 0; row < 9; row++) {
+            for (let col = 0; col < 9; col++) {
+                if (presetBoard[row][col] !== null) {
+                    this.board[row][col].enterSetValue(presetBoard[i]);
+                    i++;
+                }
+            }
+        }
+    }
+
+    drawBoard() {
+        // Draw small boxes
+        for (let row = 0; row < 9; row++) {
+            for (let col = 0; col < 9; col++) {
+                const cell = this.board[row][col]
+                // Draw individual cell
+                cell.drawCell(row, col);
+            }
+        }
+
+        // Draw big boxes
+        for (let row = 0; row < 3; row++) {
+            for (let col = 0; col < 3; col++) {
+                strokeWeight(10);
+                stroke(0)
+
+                noFill();
+                square(this.boxSize*row, this.boxSize*col, this.boxSize);
+            }
+        }
+    }
+
+    selectCell(row, col) {
+        if (this.selectedCell.length > 0) {
+            const [oRow, oCol] = this.selectedCell;
+            this.board[oRow][oCol].deselectCell();
+        }
+        this.selectedCell = [row, col];
+        this.board[row][col].selectCell();
+    }
+
+    getCellClicked(x, y) {
+        const row = floor(y / this.cellSize);
+        const col = floor(x / this.cellSize);
+        if (row >= 0 && row < 9 && col >= 0 && col < 9) {
+            return [row, col]
+        } else {
+            return null
+        }
+    }
 
 
-function drawBoard() {
-    function drawSelectSquareHighlight() {
-        if (selectedSquare !== null) {
-            var [row, col] = selectedSquare;
-            fill(242, 221, 102);
+    handleNumberKeyPressed(key) {
+        // Checks if input is number
+        if (this.selectedCell.length > 0) {
+            const [row, col] = this.selectedCell;
+            const cell = this.board[row][col]
+            cell.enterValue(key);
+            this.checkDuplicates(cell)
+        }
+        this.drawBoard();
+    }
+
+
+    handleInputModeKeyPressed(inputMode) {
+        this.buttons.restyleNumberButtons(inputMode)
+        this.buttons.restyleInputModeButtons(inputMode)
+    }
+
+    setInputMode(mode) {
+        this.inputMode = mode;
+        this.buttons.setInputMode(mode);
+        this.drawBoard();
+    }
+
+    getInputMode(mode) {
+        return this.inputMode;
+    }
+
+    checkDuplicates(cell) {
+        function arraysEqual(arr1, arr2) {
+            if (arr1.length === arr2.length) {
+                if (arr1[0] === arr2[0] && arr1[1] === arr2[1]) {
+                    return true;
+                }
+            }
+            return false
+        }
+
+        function arrayContainsPair(array, pair) {
+            for(let i=0; i<array.length; i++) {
+                if (arraysEqual(array[i], pair)){
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        const foundDuplicates = this.getDuplicates(cell)
+
+        // If a duplicate is found, add it and all duplicates found to duplicate array, and turn red dot on (unless already is a duplicate)
+        if (foundDuplicates.length > 0) {
+            foundDuplicates.push(cell.getLocation())
+            for(let i=0; i<foundDuplicates.length; i++) {
+                const [r, c] = foundDuplicates[i];
+                if (!arrayContainsPair(this.duplicates, [r, c])) {
+                    this.duplicates.push([r, c])
+                    const foundCell = this.board[r][c];
+                    foundCell.setDuplicate(true)
+                }
+            } 
+        }
+
+        // Check all duplicates to see if they are still duplicates, if not, remove from board duplicate array
+        const newDuplicates = foundDuplicates;
+        for(let i=0; i<this.duplicates.length; i++) {
+            const duplicate = this.duplicates[i];
+            // Enter old duplicate into get duplicates to see if still duplicated
+            const [r, c] = duplicate;
+            const duplicateCell = this.board[r][c];
+            if (this.getDuplicates(duplicateCell).length > 0) {
+                //If it is, add to new duplicates array
+                newDuplicates.push(duplicate)
+            } else {
+                // Turn off duplication on that cell
+                duplicateCell.setDuplicate(false);
+            }
+        }
+        this.duplicates = newDuplicates;
+    }
+
+    getDuplicates(cell) {
+        if (cell.value === "0") {
+            return []
+        }
+        const [cRow, cCol] = cell.getLocation();
+        const duplicates = []
+        // Check if duplicates in cell row
+        for (let row = 0; row < 9; row++) {
+            if (row !== cRow && this.board[row][cCol].getValue() === cell.getValue()) {
+                duplicates.push([row, cCol])
+            }
+        }
+
+        // Check if duplicates in cell col
+        for (let col = 0; col < 9; col++) {
+            if (col !== cCol && this.board[cRow][col].getValue() === cell.getValue()) {
+                duplicates.push([cRow, col])
+            }
+        }
+
+        // Check if duplicates in cell box
+        const [bRow, bCol] = [floor(cRow/3), floor(cCol/3)]
+        for (let row=0; row<3; row++) {
+            for (let col=0; col<3; col++) {
+                const [bbRow, bbCol] = [bRow*3 + row, bCol*3 + col]
+                if ((bbRow !== cRow && bbCol !== cCol) && this.board[bbRow][bbCol].getValue() === cell.getValue()) {
+                    duplicates.push([bbRow, bbCol])
+                }
+            }
+        }
+        return duplicates;
+    }
+
+}
+
+// if (selectedSquare !== null) {
+    //         var [row, col] = selectedSquare;
     
-            rect(
-                width*(1/9)*col,
-                height*(1/9)*row,
-                width*(1/9),
-                height*(1/9)
-            )
-        }
+    //         if (keyIsDown(SHIFT)) {
+    //             inputMode = "corner"
+    //         } else if (keyIsDown(CONTROL)) {
+    //             inputMode = "center"
+    //         } else (
+    //             inputMode = "normal"
+    //         )
+    
+    //         if (inputMode === "normal" && !isNaN(key) && key > 0) {
+    //             if (presetBoard[row][col] === null) {
+    //                 board[row][col] = key;
+    //                 checkBoard(key);
+    //             }
+    //         }
+    
+    //         const shiftDict = {"!" : 1, "@" : 2, "#" : 3, "$" : 4, "%" : 5, "^" : 6, "&" : 7, "*" : 8, "(" : 9}
+    //         if (inputMode === "corner" && shiftDict[key] !== undefined) {
+    //             const value = Number(shiftDict[key])
+    //             const squareAlreadyContainsMarking = (markings[row][col].corner.includes(value))
+    //             if (!squareAlreadyContainsMarking) {
+    //                 markings[row][col].corner.push(value)
+    //             } else { // Remove number from array if double-typed
+    //                 const index = markings[row][col].corner.indexOf(value)
+    //                 markings[row][col].corner.splice(index, 1)
+    //             }
+    //         } 
+            
+    //         if (inputMode === "center" && key !== "Control") {
+    //             const value = Number(key)
+    //             const squareAlreadyContainsMarking = (markings[row][col].center.includes(value))
+    //             if (!squareAlreadyContainsMarking) {
+    //                 markings[row][col].center.push(value)
+    //             } else { // Remove number from array if double-typed
+    //                 const index = markings[row][col].center.indexOf(value)
+    //                 markings[row][col].center.splice(index, 1)
+    //             }
+    //         }
+        
+    //     }
+    
+    //     drawBoard();
+    //     return false
+    // }
+    
+class ButtonBar {
+    constructor(boardSize, inputMode) {
+        this.boardSize = boardSize;
+        this.width = 400;
+        this.height = 300;
+        this.leftBarWidth = (this.width * 9/30);
+        this.centerBoxWidth = (this.width * 12/30);
+        this.rightBarWidth = (this.width * 9/30);
+        this.sideButtonWidth = 105;
+        this.sideButtonHeight = 40;
+        this.deleteButtonWidth = 150;
+        this.deleteButtonHeight = 40;
+        this.buttonArray = {"number": [], "inputMode": []}
     }
 
-    function drawBoardLines() {
-        fill(0);
-        strokeWeight(2);
-        stroke(0);
-        for (let i=0; i<4; i++) {
-            line(width*i*(1/3), 0, width*i*(1/3), height);
-            line(0, height*i*(1/3), width, height*i*(1/3));            
-        }
-        strokeWeight(1);
-        for (let i=0; i<4; i++) {
-            line(width*i*(1/3) + width*1/9, 0, width*i*(1/3) + width*1/9, height);
-            line(width*i*(1/3) + width*2/9, 0, width*i*(1/3) + width*2/9, height);
+    restyleNumberButtons(inputMode) {
+        for (let i=0; i<this.buttonArray["number"].length; i++) {
+            let button = this.buttonArray["number"][i]
+            if (inputMode === "normal") {
+                button.style("font-size", "30px");
+                button.style("font-weight", "900");
 
-            line(0, height*i*(1/3) + height*1/9, width, height*i*(1/3) + height*1/9);            
-            line(0, height*i*(1/3) + height*2/9, width, height*i*(1/3) + height*2/9);            
-        }
-    }
+            } else if (inputMode === "center") {
+                button.style("font-size", "20px");
+                button.style("font-weight", "0");
 
-    function drawNumbers() {
-        function drawPresetNumbers(){
-            for (let row=0; row<=8; row++) {
-                for (let col=0; col<=8; col++) {
-                    if (presetBoard[row][col] !== null) {
-                        fill(0);
-                        stroke(0)
-                        textSize(70);
-                        text(
-                            `${presetBoard[row][col]}`, 
-                            width*col*(1/9) + width*1/36, 
-                            height*row*(1/9) + height*1/11
-                            )
-                    }
+            } else if (inputMode === "corner") {
+                button.style("font-size", "20px");
+                button.style("font-weight", "0");
+                if (button.id() === "one" || button.id() === "four" || button.id() === "seven") {
+                    button.style("text-align", "left");
+                } else if (button.id() === "two" || button.id() === "five" || button.id() === "eight"){
+                    button.style("text-align", "center");
+                } else if (button.id() === "three" || button.id() === "six" || button.id() === "nine") {
+                    button.style("text-align", "right");
                 }
-            }
-        }
-
-        function drawInputNumbers() {
-            for (let row=0; row<=8; row++) {
-                for (let col=0; col<=8; col++) {
-                    if (board[row][col] !== null && presetBoard[row][col] === null) {
-                        fill(51, 107, 166);
-                        stroke(51, 107, 166);
-                        textSize(70);
-                        text(
-                            `${board[row][col]}`, 
-                            width*col*(1/9) + width*1/36, 
-                            height*row*(1/9) + height*1/11
-                            )
-                    }
+                if (button.id() === "one" || button.id() === "two" || button.id() === "three") {
+                    button.style("padding-top", "0px");
                 }
-            }
-        }
-
-        function drawMarkings() {
-            for (let row = 0; row < 9; row++) {
-                for (let col = 0; col < 9; col++) {
-                    if (board[row][col] === null) {
-                        const positionDict = {
-                            0: {x: 10, y: 20},
-                            1: {x: width/9 - 20, y: 20},
-                            2: {x: 10, y: height/9 - 10},
-                            3: {x: width/9 - 20, y: height/9 - 10},
-                            4: {x: width/9/2 - 4, y: 20},
-                            5: {x: width/9/2 - 4, y: height/9 - 10},
-                            6: {x: 10, y: height/9/2 + 4},
-                            7: {x: width/9 - 20, y: height/9/2 + 4},
-                            8: {x: width/9/2 - 4, y: height/9/2 + 4}
-                        }
-
-                        const cornerMarkings = markings[row][col].corner.sort()
-                        for (let i = 0; i < cornerMarkings.length; i++) {
-                            const mark = cornerMarkings[i];
-                            fill(0);
-                            stroke(0);
-                            textSize(20);
-                            text(
-                                `${mark}`, 
-                                width*col*(1/9) + positionDict[i].x, 
-                                height*row*(1/9) + positionDict[i].y
-                            )
-                        }
-
-                        const centerMarkings = markings[row][col].center.sort()
-                        for (let i = 0; i < centerMarkings.length; i++) {
-                            const mark = centerMarkings[i];
-                            const xOffset = width/9/2 - 4;
-                            const yOffset = height/9/2 + 4;
-                            const xLeftEdge = xOffset - xOffset*centerMarkings.length/8;
-                            const xNumberOffset = i * 12;
-                            fill(0);
-                            stroke(0);
-                            textSize(20);
-                            text(
-                                `${mark}`, 
-                                width*col*(1/9) + xLeftEdge + xNumberOffset, 
-                                height*row*(1/9) + yOffset
-                            )
-                        }
-                    }
-                    
-                }
+                
+            } else if (inputMode === "color") {
                 
             }
         }
-
-        drawPresetNumbers();
-        drawInputNumbers();
-        drawMarkings();
     }
 
-    function drawMatchCircles() {
-        for (let m = 0; m < matchingPairs.length; m++) {
-            const matches = matchingPairs[m];
-            for (let n = 0; n < matches.length; n++) {
-                const match = matches[n];
-                if (match[0] !== null) {
-                    fill(245, 53, 5);
-                    stroke(245, 53, 5);
-                    const [xOffset, yOffset] = [.8*width/9, .8*height/9]
-                    const [xVal, yVal] = [match[1]*height/9 + xOffset, match[0]*width/9 + yOffset]
-                    circle(xVal, yVal, 15)
-                }
+    restyleInputModeButtons(inputMode) {
+        for (let i=0; i<this.buttonArray["inputMode"].length; i++) {
+            let button = this.buttonArray["inputMode"][i]
+            if (button.id() === inputMode) {
+                button.style("background-color", "#6a309a");
+                button.style("color", "#fff");
+            } else {
+                button.style("background-color", "#fff");
+                button.style("color", "#6a309a");
             }
-            
-    
         }
+        
     }
 
-    function drawButtons() {
-        const div0 = createDiv()
-        div0.size(400, 300)
-        div0.position(width/2-190, height + 50)
+    drawButtons() {
+        // Top-level Div
+        noFill();
+        const fullBox = createDiv()
+        fullBox.size(this.width, this.height)
+        fullBox.parent("canvas-parent")
 
-        const div1 = createDiv();
-        const div2 = createDiv();
-        const div3 = createDiv();
-        div1.size(400*9/30, 300);
-        div1.position(0, 0, 'inherit')
-        div2.size(400*12/30, 300);
-        div2.position(400*9/30, 0, 'inherit')
-        div3.size(400*9/30, 300);
-        div3.position(400*21/30, 0, 'inherit')
+        const leftBox = createDiv();
+        const centerBox = createDiv();
+        const rightBox = createDiv();
+        leftBox.size(this.leftBarWidth, this.height);
+        centerBox.size(this.centerBoxWidth, this.height);
+        rightBox.size(this.rightBarWidth, this.height);
 
         const normal = createButton("normal").class("normal").id("normal");
         const corner = createButton("corner").class("corner").id("corner");
-        const center = createButton("center").class("center");
-        const color = createButton("color").class("color");
+        const center = createButton("center").class("center").id("center");
+        const color = createButton("color").class("color").id("color");
+        this.buttonArray["inputMode"].push(normal, corner, center,color)
 
-        const one = createButton("1").id("one");
-        const two = createButton("2").id("two");
-        const three = createButton("3").id("three");
-        const four = createButton("4").id("four");
-        const five = createButton("5").id("five");
-        const six = createButton("6").id("six");
-        const seven = createButton("7").id("seven");
-        const eight = createButton("8").id("eight");
-        const nine = createButton("9").id("nine");
+
+        const one = createButton(1).id("one");
+        const two = createButton(2).id("two");
+        const three = createButton(3).id("three");
+        const four = createButton(4).id("four");
+        const five = createButton(5).id("five");
+        const six = createButton(6).id("six");
+        const seven = createButton(7).id("seven");
+        const eight = createButton(8).id("eight");
+        const nine = createButton(9).id("nine");
+        this.buttonArray["number"].push(one, two, three, four, five, six, seven ,eight, nine)
+
         const del = createButton("delete");
 
         const undo = createButton("undo");
         const redo = createButton("redo");
         const restart = createButton("restart");
         const check = createButton("check");
+
 
         function createAsChildrenOfDiv(div, buttonArr) {
             for (let i = 0; i < buttonArr.length; i++) {
@@ -358,138 +430,227 @@ function drawBoard() {
             }
         }
 
+        createAsChildrenOfDiv(leftBox, [normal, corner, center, color]);
+        createAsChildrenOfDiv(centerBox, [one, two, three, four, five, six, seven, eight, nine, del]);
+        createAsChildrenOfDiv(rightBox, [undo, redo, restart, check]);
+        createAsChildrenOfDiv(fullBox, [leftBox, centerBox, rightBox])
 
-        createAsChildrenOfDiv(div0, [normal, corner, center, color, one, two, three, four, five, six, seven, eight, nine, del, undo, redo, restart, check, div1, div2, div3])
-        createAsChildrenOfDiv(div1, [normal, corner, center, color]);
-        createAsChildrenOfDiv(div2, [one, two, three, four, five, six, seven, eight, nine, del]);
-        createAsChildrenOfDiv(div3, [undo, redo, restart, check]);
+        this.rowDecorator(fullBox);
+        this.columnDecorator([leftBox, centerBox, rightBox])
+        this.numberButtonDecorator([one, two, three, four, five, six, seven, eight, nine]);
+        this.leftSideButtonDecorator([normal, corner, center, color]);
+        this.rightSideButtonDecorator([undo, redo, restart, check]);
+        this.deleteButtonDecorator(del);
+    }
 
-        function numberButtonDecorator(buttonArr) {
-            for (let i = 0; i < buttonArr.length; i++) {
-                const button = buttonArr[i];
-                button.size(47, 47);
-                button.style("background-color", "#6a309a");
-                button.style("color", "#fff");
-                button.style("border", "none");
-                button.style("border", "2px solid #b5b3b8");
-                button.style("border-radius", "5px")
-                button.style("margin", "2px");
-                if (inputMode === "normal") {
-                    button.style("font-size", "40px");
-                    button.style("font-weight", "900");
-                } else if (inputMode === "corner") {
-                    button.style("font-size", "20px");
-                    button.style("font-weight", "0");
-                    if (button.id === "one" || button.id === "four" || button.id === "seven") {
-                        button.style("font-weight", "0");
-                    } else if (button.id === "two" || button.id === "five" || button.id === "eight"){
-                        button.style("font-weight", "0");
-                    } else if (button.id === "three" || button.id === "six" || button.id === "nine") {
-                        button.style("font-weight", "0");
-                    }
-                } else if (inputMode === "center") {
-                    
-                } else if (inputMode === "color") {
-                    
-                }
-                
-            } 
+
+    rowDecorator(rowDiv) {
+        rowDiv.style("display", "table");
+        rowDiv.style("table-layout", "fixed");
+        // rowDiv.style("border-spacing", "10px");
+    }
+
+    columnDecorator(columnDivs) {
+        for (let i = 0; i < columnDivs.length; i++) {
+            const column = columnDivs[i];
+            column.style("display", "table-cell");
         }
+    }
 
-        
+    numberButtonDecorator(buttonArr) {
 
-        function sideButtonDecorator(button) {
-            
-            button.size(105, 40);
-            if (button.class() === inputMode) {
-                button.style("background-color", "#6a309a");
-                button.style("color", "#fff");
-
-            } else {
-                button.style("background-color", "#fff");
-                button.style("color", "#6a309a");
-            }
-            button.style("border", "none");
-            button.style("border", "2px solid #b5b3b8");
-            button.style("font-size", "20px");
-            button.style("font-weight", "900");
-            button.style("border-radius", "5px")
-            button.style("margin", "4px")
-        }
-
-        function leftSideButtonDecorator(buttonArr) {
-
-            for (let i = 0; i < buttonArr.length; i++) {
-                const button = buttonArr[i];
-                button.mouseClicked(() => {
-                    inputMode = button.class()
-                    drawBoard();
-                }) // Changes input mode which sets the color of the button
-                sideButtonDecorator(button);
-            }
-        }
-
-        function rightSideButtonDecorator(buttonArr) {
-            for (let i = 0; i < buttonArr.length; i++) {
-                const button = buttonArr[i];
-                sideButtonDecorator(button);
-            }
-        }
-
-        function deleteButtonDecorator(button) {
-            button.size(150, 40);
-            button.style("background-color", "#fff");
-            button.style("color", "#6a309a");
-            button.style("font-size", "20px");
-            button.style("font-weight", "900");
+        for (let i = 0; i < buttonArr.length; i++) {
+            const button = buttonArr[i];
+            console.log(button.html());
+            button.mouseClicked(() => game.handleNumberKeyPressed(button.html()))
+            button.size(47, 47);
+            button.style("background-color", "#6a309a");
+            button.style("color", "#fff");
             button.style("border", "none");
             button.style("border", "2px solid #b5b3b8");
             button.style("border-radius", "5px")
             button.style("margin", "2px");
-        }
-
-        numberButtonDecorator([one, two, three, four, five, six, seven, eight, nine]);
-        leftSideButtonDecorator([normal, corner, center, color]);
-        rightSideButtonDecorator([undo, redo, restart, check]);
-        deleteButtonDecorator(del);
-
+        } 
     }
 
-    clear();
-    drawButtons();
-    drawSelectSquareHighlight();
-    drawBoardLines();
-    drawNumbers();
-    drawMatchCircles();
-}
-
-
-function numberInput() {
-    function sameAsSelectedSquare(square) {
-        if (selectedSquare === null) {return false}
-        for (let i=0; i<4; i++) {
-            if (square[i] !== selectedSquare[i]) {
-                return false
-            }
-        }
-        return true;
-    }
     
-    var newSquare = [
-        floor(mouseY/(height/9)),
-        floor(mouseX/(width/9))
-    ]
 
-    if (!sameAsSelectedSquare(newSquare)) {
-        selectedSquare = newSquare;
+    sideButtonDecorator(button) {
+        
+        button.mouseClicked(() => game.handleInputModeKeyPressed(button.html()));
+
+        if (button.id() === "normal") {
+            button.style("background-color", "#6a309a");
+            button.style("color", "#fff");
+        } else {
+            button.style("background-color", "#fff");
+            button.style("color", "#6a309a");
+        }
+        button.size(this.sideButtonWidth, this.sideButtonHeight);
+        button.style("border", "none");
+        button.style("border", "2px solid #b5b3b8");
+        button.style("font-size", "20px");
+        button.style("font-weight", "900");
+        button.style("border-radius", "5px")
+        button.style("margin", "4px")
     }
 
-    drawBoard();
+    leftSideButtonDecorator(buttonArr) {
+        for (let i = 0; i < buttonArr.length; i++) {
+            const button = buttonArr[i];
+            // Changes input mode which sets the color of the button
+            button.mouseClicked(() => {
+                inputMode = button.class()
+            }) 
+            this.sideButtonDecorator(button);
+        }
+    }
+
+    rightSideButtonDecorator(buttonArr) {
+        for (let i = 0; i < buttonArr.length; i++) {
+            const button = buttonArr[i];
+            this.sideButtonDecorator(button);
+        }
+    }
+
+    deleteButtonDecorator(button) {
+        button.size(this.deleteButtonWidth, this.deleteButtonHeight);
+        button.style("background-color", "#fff");
+        button.style("color", "#6a309a");
+        button.style("font-size", "20px");
+        button.style("font-weight", "900");
+        button.style("border", "none");
+        button.style("border", "2px solid #b5b3b8");
+        button.style("border-radius", "5px")
+        button.style("margin", "2px");
+    }
+}
+    
+    
+    
+    
+
+    
+
+    
+    
+
+
+class Cell {
+    constructor(value, row, col, cellSize) {
+        this.setValue = value;
+        this.value = value;
+        this.row = row;
+        this.col = col;
+        this.cellSize = cellSize;
+        this.dotSize = cellSize/7;
+        this.autoCandidates = [];
+        this.selectedCell = false;
+        this.candidates = []
+        this.duplicate = false;
+    }
+
+    getLocation() {
+        return [this.row, this.col];
+    }
+
+    selectCell() {
+        this.selectedCell = true;
+    }
+
+    setDuplicate(bool) {
+        this.duplicate=bool;
+    }
+
+    isDuplicate() {
+        return this.duplicate;
+    }
+
+    deselectCell() {
+        this.selectedCell = false;
+    }
+
+    drawCell(row, col) {
+        // Draw box
+        // Color selected cell yellow
+        if (this.selectedCell) {
+            fill(242, 221, 102)
+        } else {
+            fill(256)
+        }
+        strokeWeight(1);
+        square(this.cellSize*col, this.cellSize*row, this.cellSize);
+
+        // Draw text
+        if (this.value !== "0") {
+            fill(0);
+            stroke(0);
+            strokeWeight(1);
+            textSize(50);
+            textAlign(CENTER, CENTER);
+            text(this.value, this.cellSize*col, this.cellSize*row, this.cellSize, this.cellSize)
+        }
+
+        // Draw candidates
+        // Position relative to box
+        const positionDict = {
+            1: {x: 15, y: 20},
+            2: {x: 45, y: 20},
+            3: {x: 75, y: 20},
+            4: {x: 15, y: 50},
+            5: {x: 45, y: 50},
+            6: {x: 75, y: 50},
+            7: {x: 15, y: 75},
+            8: {x: 45, y: 75},
+            9: {x: 75, y: 75}
+        }
+
+        fill(0);
+        stroke(0);
+        textSize(20)
+        // If not using autoCandidates, use candidates; sort regardless
+        const candidates = (this.autoCandidates.length > 0) ? this.autoCandidates.sort() : this.candidates.sort();
+        for (let i=0; i<candidates.length; i++) {
+            const candidate = candidates[i];
+            const position = positionDict[candidate];
+            text(candidate, this.cellSize*col + position.y, this.cellSize*row + position.x,)
+        }
+
+        // Draw center candidates (secondary marking)
+
+        // Draw match circle
+        if (this.duplicate){
+            fill(224, 41, 4)
+            stroke(224, 41, 4)
+            rect(this.cellSize*(col+1)-20, this.cellSize*row+5, this.dotSize, this.dotSize, 50);
+        }
+    }
+
+    enterValue(value) {
+        if (this.setValue === '0') {
+            this.value = value
+        }
+    }
+
+    getValue() {
+        return this.value;
+    }
+
+    enterSetValue(value) {
+        this.setValue = value;
+        this.value = value;
+    }
 }
 
 
 
-// Add buttons - clear, undo, redo, restart, delete, button entry
+
+
+//    
+
+
+
+// Add buttons functionality - clear, undo, redo, restart, delete, button entry
 // Add checker
 // Add validator
 // Add solver?
