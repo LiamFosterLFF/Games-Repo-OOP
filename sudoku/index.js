@@ -114,16 +114,18 @@ class Game {
     loadPresets(presetStr) {
         function loadPresetFromCSV(presetStr) {
             // splits string into two sections and then into individual numbers
-            return presetStr.split(',')[0].split('')
+            return presetStr.split(',').map((string) => string.split(''))
         }
 
-        const presetBoard = loadPresetFromCSV(presetStr);
+        const [presetBoard, solvedPresetBoard] = loadPresetFromCSV(presetStr);
 
         let i = 0;
         for (let row = 0; row < 9; row++) {
             for (let col = 0; col < 9; col++) {
                 if (presetBoard[row][col] !== null) {
-                    this.board[row][col].enterSetValue(presetBoard[i]);
+                    const cell = this.board[row][col]
+                    cell.enterSetValue(presetBoard[i]);
+                    cell.enterAnswer(solvedPresetBoard[i]);
                     i++;
                 }
             }
@@ -207,7 +209,6 @@ class Game {
 
 
     handleNumberKeyPressed(key) {
-        console.log(key);
         // Checks if input is number
         if (this.selectedCell.length > 0) {
             const [row, col] = this.selectedCell;
@@ -240,9 +241,11 @@ class Game {
             this.undoLastMove();
         } else if (command === "redo") {
             this.redoLastMove();
+        } else if (command === "check") {
+            this.checkCells()
         } else if (command === "delete") {
             this.handleNumberKeyPressed("0")
-        }
+        } 
     }
 
     setInputMode(mode) {
@@ -359,6 +362,16 @@ class Game {
             }
         }
         return true
+    }
+
+    checkCells() {
+        for (let row=0; row<9; row++) {
+            for (let col=0; col<9; col++) {
+                this.board[row][col].setCorrect();
+            }
+        }
+        this.drawBoard();
+
     }
 
     setAutoCandidates() {
@@ -620,7 +633,6 @@ class ButtonBar {
         this.deleteButtonDecorator(del);
     }
 
-
     rowDecorator(rowDiv) {
         rowDiv.style("display", "table");
         rowDiv.style("table-layout", "fixed");
@@ -648,8 +660,6 @@ class ButtonBar {
             button.style("margin", "2px");
         } 
     }
-
-    
 
     sideButtonDecorator(button) {
         
@@ -722,6 +732,8 @@ class Cell {
     constructor(value, row, col, cellSize) {
         this.setValue = value;
         this.value = value;
+        this.answer = 0;
+        this.correct = null;
         this.row = row;
         this.col = col;
         this.cellSize = cellSize;
@@ -771,8 +783,24 @@ class Cell {
 
         // Draw text
         if (this.value !== "0") {
+
             fill(0);
             stroke(0);
+            // Change color if correct, cross out if incorrect
+            if (this.correct !== null) {
+                if (this.correct) {
+                    // Blue
+                    fill(66, 114, 245);
+                    stroke(66, 114, 245);
+                } else {
+                    // Draw red crossout
+                    stroke(235, 20, 50);
+                    strokeWeight(4);
+                    line(this.cellSize*col, this.cellSize*row, this.cellSize*col+this.cellSize, this.cellSize*row+this.cellSize);
+                    // Line color back to normal
+                    stroke(0);
+                }
+            } 
             strokeWeight(1);
             textSize(50);
             textAlign(CENTER, CENTER);
@@ -814,6 +842,8 @@ class Cell {
             stroke(224, 41, 4)
             rect(this.cellSize*(col+1)-20, this.cellSize*row+5, this.dotSize, this.dotSize, 50);
         }
+
+
     }
 
     enterValue(value) {
@@ -821,6 +851,8 @@ class Cell {
             this.value = value
         }
     }
+
+
 
     getValue() {
         return this.value;
@@ -859,6 +891,14 @@ class Cell {
         this.value = value;
     }
 
+    enterAnswer(value) {
+        this.answer = value;
+    }
+
+    setCorrect() {
+        this.correct = this.value === this.answer;
+    }
+
 }
 
 
@@ -869,7 +909,7 @@ class Cell {
 
 
 
-// Add buttons functionality - clear, undo, redo, restart, delete
+// Add buttons functionality -
 // Add checker
 // Add validator
 // Add solver?
