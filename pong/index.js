@@ -1,6 +1,8 @@
 var cnv;
 const score = [0, 0];
 var gameStart = false;
+var countingDown = false;
+var countdown = ""
 var [w, h] = [800, 800];
 var [paddleSize, paddleSpeed] = [80, 20];
 var paddlePositions = [h/2 - 80, h/2 - 40];
@@ -33,15 +35,43 @@ function drawBoard() {
 }
 
 function drawGame() {
-    if (keyIsPressed) {gameStart = true}
+    if (keyIsPressed) {
+        if (!countingDown && !gameStart) {
+            startCountdown()
+        }
+    }
     clear();
     drawBoard();
     drawScore();
+    drawCountdown();
     drawPaddles();
     drawBall();
     moveBall();
     ballBounce();
     updateScore();
+}
+
+function startCountdown() {
+    countingDown = true;
+    const seconds = 3
+    let i = seconds
+    countdown = String(i)
+    var countdownInterval = setInterval(() => {
+        countdown = String(i--)
+    }, 1000);
+        
+    setTimeout(() => {
+        gameStart = true;
+        countingDown = false;
+        countdown = ""
+        clearInterval(countdownInterval);
+    }, 1000*seconds);
+}
+
+function drawCountdown() {
+    stroke(255);
+    text(countdown, width/2, height/2);
+
 }
 
 
@@ -141,7 +171,6 @@ function resetGame() {
     gameStart = false;
 }
 
-// Change serve after win
 // Paddle movement too fast but also too slow, speed up over time
 // Add sounds - bounce, start, point, win
 // Show score between points
