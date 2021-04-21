@@ -83,6 +83,7 @@ class Game {
         this.board = this.initializeBoard();
         this.duplicates = [];
         this.inputMode = "normal"
+        this.cellsChecked = false;
         this.buttons = new ButtonBar(this.boardSize);
         this.presetStr = presetStr
         this.lastMove = {"previous": undefined, "new": undefined, "location": []};
@@ -242,7 +243,13 @@ class Game {
         } else if (command === "redo") {
             this.redoLastMove();
         } else if (command === "check") {
-            this.checkCells()
+            if (this.cellsChecked) {
+                this.uncheckCells()
+                this.buttons.restyleCheckButton(false)
+            } else {
+                this.checkCells()
+                this.buttons.restyleCheckButton(true)
+            }
         } else if (command === "delete") {
             this.handleNumberKeyPressed("0")
         } 
@@ -370,8 +377,19 @@ class Game {
                 this.board[row][col].setCorrect();
             }
         }
+        this.cellsChecked = true;
         this.drawBoard();
 
+    }
+
+    uncheckCells() {
+        for (let row=0; row<9; row++) {
+            for (let col=0; col<9; col++) {
+                this.board[row][col].resetCorrect();
+            }
+        }
+        this.cellsChecked = false;
+        this.drawBoard();
     }
 
     setAutoCandidates() {
@@ -525,7 +543,7 @@ class ButtonBar {
         this.sideButtonHeight = 40;
         this.deleteButtonWidth = 150;
         this.deleteButtonHeight = 40;
-        this.buttonArray = {"number": [], "inputMode": []}
+        this.buttonArray = {"number": [], "inputMode": [], "check": null}
     }
 
     restyleNumberButtons(inputMode) {
@@ -573,6 +591,17 @@ class ButtonBar {
         
     }
 
+    restyleCheckButton(buttonChecked) {
+        let button = this.buttonArray["check"]
+        if (buttonChecked) {
+            button.style("background-color", "#6a309a");
+            button.style("color", "#fff");
+        } else {
+            button.style("background-color", "#fff");
+            button.style("color", "#6a309a");
+        }
+    }
+
     drawButtons() {
         // Top-level Div
         noFill();
@@ -611,6 +640,7 @@ class ButtonBar {
         const redo = createButton("redo");
         const restart = createButton("restart");
         const check = createButton("check");
+        this.buttonArray["check"] = check;
 
 
         function createAsChildrenOfDiv(div, buttonArr) {
@@ -899,29 +929,18 @@ class Cell {
         this.correct = this.value === this.answer;
     }
 
+    resetCorrect() {
+        this.correct = null;
+    }
+
 }
 
-
-
-
-
-//    
-
-
-
-// Add buttons functionality -
-// Add checker
 // Add validator
 // Add solver?
-// Add a detector that can highlight all the other numbers that match the selected one
-// Add an auto-candidate filler
-// Add can select multiple cells
-// Add inputs get stored in local storage
-// Add selectors - normal, corner, centre, colour
-// Aesthetics - change color for entered or non-entered,
+// Add inputs get stored in local storage?
+// Add selectors - colour
+// Aesthetics - change color for entered or non-entered?
 // Add a set of sudokus to pay
-// Add hint giver?
+// Add check box for autodisplay, 
 // Add auto filler
 // Bug: Same row doesn't work if different cell types
-// Back button
-// Center frame
