@@ -195,15 +195,15 @@ class Game {
         }
     }
 
-    // redoLastMove() {
-    //     if (this.lastMove.location.length > 0 ) {
-    //         const [row, col] = this.lastMove.location;
-    //         const cell = this.board[row][col]
-    //         cell.enterValue(this.lastMove.previous)
-    //         this.checkDuplicates(cell)
-    //         this.drawBoard();
-    //     }
-    // }
+    redoLastMove() {
+        if (this.lastMove.location.length > 0 ) {
+            const [row, col] = this.lastMove.location;
+            const cell = this.board[row][col]
+            cell.enterValue(this.lastMove.new)
+            this.checkDuplicates(cell)
+            this.drawBoard();
+        }
+    }
 
     handleNumberKeyPressed(key) {
         // Checks if input is number
@@ -236,6 +236,8 @@ class Game {
             this.resetGame()
         } else if (command === "undo") {
             this.undoLastMove();
+        } else if (command === "redo") {
+            this.redoLastMove();
         }
     }
 
