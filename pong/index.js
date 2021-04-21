@@ -7,6 +7,7 @@ var paddlePositions = [h/2 - 80, h/2 - 40];
 var ballPosition = [w/2 - 50, h/2];;
 var ballDirection = -1;
 var ballVector = [-10, -2];
+var whoseServe = "left"
 
 function setup() {
     cnv = createCanvas(w, h);
@@ -75,6 +76,8 @@ function movePaddles() {
     drawGame();
 }
 
+
+
 function drawBall() {
     fill(255);
     rect(ballPosition[0], ballPosition[1], 10, 10, 50);
@@ -116,16 +119,24 @@ function calculateBounceAngle(paddle) {
 function updateScore() {
     if (ballPosition[0] < 0) {
         score[0] += 1;
+        whoseServe = "right";
         resetGame();
     } else if (ballPosition[0] > width) {
         score[1] += 1;
+        whoseServe = "left";
         resetGame();
     }
 }
 
 function resetGame() {
-    ballPosition = [w/2 - 50, h/2];
-    ballVector = [-10, -3];
+    if (whoseServe === "left") {
+        ballPosition = [w/2 - 50, h/2];
+        ballVector = [-10, -3];
+    } else {
+        console.log("A");
+        ballPosition = [w/2 + 50, h/2];
+        ballVector = [+10, -3];
+    }
     paddlePositions = [h/2 - 80, h/2 - 40];
     gameStart = false;
 }

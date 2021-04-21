@@ -45,7 +45,7 @@ function keyReleased() {
 function initializeGame() {
     game = new Game(boardSize, presetString=presetStr);
     game.resetGame();
-    // console.log(game.solvePuzzle());
+    // console.log(game.solvePuzzleRecursive());
 }
 
 class Game {
@@ -386,7 +386,7 @@ class Game {
 
     }
 
-    solvePuzzle() {
+    solvePuzzleRecursive() {
         function replaceAt(string, index, replacement) {
             return string.substr(0, index) + replacement + string.substr(index + replacement.length);
         }
@@ -458,6 +458,8 @@ class Game {
 
 }
 
+
+//DEAD CODE
 // if (selectedSquare !== null) {
     //         var [row, col] = selectedSquare;
     
@@ -722,16 +724,6 @@ class ButtonBar {
     }
 }
     
-    
-    
-    
-
-    
-
-    
-    
-
-
 class Cell {
     constructor(value, row, col, cellSize) {
         this.setValue = value;
@@ -908,13 +900,12 @@ class Cell {
     }
 
 }
-
-// Add validator
-// Add solver?
-// Add inputs get stored in local storage?
-// Add selectors - colour
-// Aesthetics - change color for entered or non-entered?
-// Add a set of sudokus to pay
-// Add check box for autodisplay, 
-// Add auto filler
-// Bug: Same row doesn't work if different cell types
+// Still to do
+    // Add validator?
+    // Add solver?
+    // Add inputs get stored in local storage?
+    // Aesthetics - change color for entered or non-entered?
+    // Add selectors - colour
+    // Add a set of sudokus to play
+    // Add auto filler/solution shower?
+    // Can enter center cells and corner cells? By typing? On hover?
