@@ -205,7 +205,9 @@ class Game {
         }
     }
 
+
     handleNumberKeyPressed(key) {
+        console.log(key);
         // Checks if input is number
         if (this.selectedCell.length > 0) {
             const [row, col] = this.selectedCell;
@@ -238,6 +240,8 @@ class Game {
             this.undoLastMove();
         } else if (command === "redo") {
             this.redoLastMove();
+        } else if (command === "delete") {
+            this.handleNumberKeyPressed("0")
         }
     }
 
@@ -689,6 +693,9 @@ class ButtonBar {
     }
 
     deleteButtonDecorator(button) {
+        button.mouseClicked(() => {
+            game.handleControlButtonPressed(button.html())
+        }) 
         button.size(this.deleteButtonWidth, this.deleteButtonHeight);
         button.style("background-color", "#fff");
         button.style("color", "#6a309a");
