@@ -101,7 +101,9 @@ class Game {
     }
 
     resetGame() {
-        this.inputMode = "normal"
+        this.inputMode = "normal";
+        this.duplicates = []
+        this.selectedCell = []
         this.board = this.initializeBoard();
         this.loadPresets(this.presetStr);
         this.setAutoCandidates();
