@@ -1,24 +1,9 @@
 // const csv = require('fast-csv');
 
 let game;
-const boardSize = 810;
-
-const presetStr = "004300209005009001070060043006002087190007400050083000600000105003508690042910300,864371259325849761971265843436192587198657432257483916689734125713528694542916378"
-
-const markings = new Array(9).fill().map(
-    () => new Array(9).fill().map(
-        () => ({
-            corner: [],
-            center: []
-        })
-    )
-)
-
-const matchingPairs = [];
-
 var cnv;
-var selectedSquare = null;
-let inputMode = "normal";
+const boardSize = 810;
+const presetStr = "004300209005009001070060043006002087190007400050083000600000105003508690042910300,864371259325849761971265843436192587198657432257483916689734125713528694542916378"
 
 function setup() {
     cnv = createCanvas(boardSize, boardSize);
