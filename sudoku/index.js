@@ -74,6 +74,7 @@ function initializeGame() {
     game.loadPresets(presetStr);
     game.drawBoard();
     game.setAutoCandidates();
+    console.log(game.solvePuzzle());
 }
 
 class Game {
@@ -304,8 +305,6 @@ class Game {
     }
 
     setAutoCandidates() {
-
-
         for (let row=0; row<9; row++) {
             for (let col=0; col<9; col++) {
                 const candidates = []
@@ -318,11 +317,83 @@ class Game {
                         }
                     }
                 }
-                // console.log(row, col, candidates);
                 cell.setAutoCandidates(candidates)
             }
         }
         this.drawBoard()
+
+    }
+
+    solvePuzzle() {
+        function replaceAt(string, index, replacement) {
+            return string.substr(0, index) + replacement + string.substr(index + replacement.length);
+        }
+
+        let checkingValues = "000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+        const candidateValues = [
+            [null, null, null, null, null, null, null, null, null], 
+            [null, null, null, null, null, null, null, null, null], 
+            [null, null, null, null, null, null, null, null, null], 
+            [null, null, null, null, null, null, null, null, null], 
+            [null, null, null, null, null, null, null, null, null], 
+            [null, null, null, null, null, null, null, null, null], 
+            [null, null, null, null, null, null, null, null, null], 
+            [null, null, null, null, null, null, null, null, null], 
+            [null, null, null, null, null, null, null, null, null]
+        ]
+
+        for (let row=0; row<9; row++) {
+            for (let col=0; col<9; col++) {
+                checkingValues = replaceAt(checkingValues, row*9+col, this.board[row][col].getSetValue())
+                // console.log(this.board[row][col].getAutoCandidateValues());
+                candidateValues[row][col] = this.board[row][col].getAutoCandidateValues();
+            }
+        }
+
+        function innerLoop(valueBoardStr, candBoardArr) {
+            function candidateFits(boardStr, cRow, cCol, value) {
+                for (let row=0; row<9; row++) {
+                    if (boardStr[row*9+cCol] === String(value)) {
+                        return false
+                    }
+                }
+                for (let col=0; col<9; col++) {
+                    if (boardStr[cRow+col] === String(value)) {
+                        return false
+                    }
+                }
+                const [bRow, bCol] = [3*Math.floor(cRow/3), 3*Math.floor(cCol/3)]
+                for (let row=0; row<3; row++) {
+                    for (let col=0; col<3; col++) {
+                        if (boardStr[bRow+row+bCol+col] === String(value)) {
+                            return false
+                        }
+                    }
+                }
+                return true
+            }
+
+            for (let row=0; row<9; row++) {
+                for (let col=0; col<9; col++) {
+                    if (valueBoardStr[row*9+col] === "0") {
+                        const candidates = candBoardArr[row][col]
+                        // console.log(candBoardArr);
+                        for (let i=0; i<candidates.length; i++) {
+                            const candidate = candidates[i];
+                            console.log(row, col, candidate);
+                            let copyBoardStr = valueBoardStr.slice();
+                            if (candidateFits(copyBoardStr, row, col, candidate)) {
+                                copyBoardStr = replaceAt(copyBoardStr, row*9+col, candidate);
+                                valueBoardStr = innerLoop(copyBoardStr, candBoardArr)
+    
+                            } 
+                        }
+                    }
+                }
+            }
+            return valueBoardStr
+        }
+        return innerLoop(checkingValues, candidateValues)
 
     }
 
@@ -597,9 +668,10 @@ class Cell {
         this.cellSize = cellSize;
         this.dotSize = cellSize/7;
         this.selectedCell = false;
+        this.useAutoCandidates = false;
         this.autoCandidates = [];
         this.candidates = [];
-        this.candidates = [];
+        this.centerValues = [];
         this.duplicate = false;
     }
 
@@ -665,9 +737,11 @@ class Cell {
         fill(0);
         stroke(0);
         textSize(20)
+
+        const candidates = this.candidates
         if (this.value === "0") {
-            for (let i=0; i<this.candidates.length; i++) {
-                const candidate = this.candidates[i];
+            for (let i=0; i<candidates.length; i++) {
+                const candidate = candidates[i];
                 const position = positionDict[candidate];
                 text(candidate, this.cellSize*col + position.x, this.cellSize*row + position.y)
             }
@@ -693,6 +767,10 @@ class Cell {
         return this.value;
     }
 
+    getSetValue() {
+        return this.setValue;
+    }
+
     enterCenterValue(value) {
         if (!this.centerValues.includes(value)) {
             this.centerValues.push(value)
@@ -713,10 +791,16 @@ class Cell {
         return this.candidates;
     }
 
+    getAutoCandidateValues() {
+        // console.log(this.autoCandidates);
+        return this.autoCandidates;
+    }
+
     enterSetValue(value) {
         this.setValue = value;
         this.value = value;
     }
+
 }
 
 
@@ -727,7 +811,7 @@ class Cell {
 
 
 
-// Add buttons functionality - clear, undo, redo, restart, delete, button entry
+// Add buttons functionality - clear, undo, redo, restart, delete
 // Add checker
 // Add validator
 // Add solver?
