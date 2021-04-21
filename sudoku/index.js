@@ -85,6 +85,7 @@ class Game {
         this.inputMode = "normal"
         this.buttons = new ButtonBar(this.boardSize);
         this.presetStr = presetStr
+        this.lastMove = {"previous": undefined, "new": undefined, "location": []};
 
     }
 
@@ -165,6 +166,7 @@ class Game {
         this.board[row][col].selectCell();
     }
 
+
     getCellClicked(x, y) {
         const row = floor(y / this.cellSize);
         const col = floor(x / this.cellSize);
@@ -176,12 +178,41 @@ class Game {
     }
 
 
+    setLastMove(previousValue, newValue, type, row, col) {
+        this.lastMove.previous = previousValue
+        this.lastMove.new = newValue
+        this.lastMove.location = [row, col]
+    }
+
+
+    undoLastMove() {
+        if (this.lastMove.location.length > 0 ) {
+            const [row, col] = this.lastMove.location;
+            const cell = this.board[row][col]
+            cell.enterValue(this.lastMove.previous)
+            this.checkDuplicates(cell)
+            this.drawBoard();
+        }
+    }
+
+    // redoLastMove() {
+    //     if (this.lastMove.location.length > 0 ) {
+    //         const [row, col] = this.lastMove.location;
+    //         const cell = this.board[row][col]
+    //         cell.enterValue(this.lastMove.previous)
+    //         this.checkDuplicates(cell)
+    //         this.drawBoard();
+    //     }
+    // }
+
     handleNumberKeyPressed(key) {
         // Checks if input is number
         if (this.selectedCell.length > 0) {
             const [row, col] = this.selectedCell;
             const cell = this.board[row][col]
             if (this.inputMode === "normal") {
+                const previousValue = cell.getValue();
+                this.setLastMove(previousValue, key, this.inputMode, row, col);
                 cell.enterValue(key);
                 this.checkDuplicates(cell)
             }  else if (this.inputMode === "center") {
@@ -201,9 +232,10 @@ class Game {
     }
 
     handleControlButtonPressed(command) {
-        console.log(command);
         if (command === "restart") {
             this.resetGame()
+        } else if (command === "undo") {
+            this.undoLastMove();
         }
     }
 
