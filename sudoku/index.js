@@ -69,16 +69,13 @@ function keyReleased() {
 }
 
 function initializeGame() {
-    game = new Game(boardSize);
-    game.buttons.drawButtons();
-    game.loadPresets(presetStr);
-    game.drawBoard();
-    game.setAutoCandidates();
-    console.log(game.solvePuzzle());
+    game = new Game(boardSize, presetString=presetStr);
+    game.resetGame();
+    // console.log(game.solvePuzzle());
 }
 
 class Game {
-    constructor(boardSize) {
+    constructor(boardSize, presetString = "") {
         this.boardSize = boardSize;
         this.cellSize = floor(this.boardSize / 9);
         this.boxSize = floor(this.boardSize / 3);
@@ -87,6 +84,7 @@ class Game {
         this.duplicates = [];
         this.inputMode = "normal"
         this.buttons = new ButtonBar(this.boardSize);
+        this.presetStr = presetStr
 
     }
 
@@ -102,8 +100,15 @@ class Game {
         return board;
     }
 
-    loadPresets(presetStr) {
+    resetGame() {
+        this.inputMode = "normal"
+        this.board = this.initializeBoard();
+        this.loadPresets(this.presetStr);
+        this.setAutoCandidates();
+        this.drawGame();
+    }
 
+    loadPresets(presetStr) {
         function loadPresetFromCSV(presetStr) {
             // splits string into two sections and then into individual numbers
             return presetStr.split(',')[0].split('')
@@ -142,6 +147,11 @@ class Game {
                 square(this.boxSize*row, this.boxSize*col, this.boxSize);
             }
         }
+    }
+
+    drawGame() {
+        this.buttons.drawButtons();
+        this.drawBoard();
     }
 
     selectCell(row, col) {
@@ -186,6 +196,13 @@ class Game {
         this.buttons.restyleNumberButtons(inputMode)
         this.buttons.restyleInputModeButtons(inputMode)
         this.setInputMode(inputMode)
+    }
+
+    handleControlButtonPressed(command) {
+        console.log(command);
+        if (command === "restart") {
+            this.resetGame()
+        }
     }
 
     setInputMode(mode) {
@@ -345,7 +362,6 @@ class Game {
         for (let row=0; row<9; row++) {
             for (let col=0; col<9; col++) {
                 checkingValues = replaceAt(checkingValues, row*9+col, this.board[row][col].getSetValue())
-                // console.log(this.board[row][col].getAutoCandidateValues());
                 candidateValues[row][col] = this.board[row][col].getAutoCandidateValues();
             }
         }
@@ -377,10 +393,8 @@ class Game {
                 for (let col=0; col<9; col++) {
                     if (valueBoardStr[row*9+col] === "0") {
                         const candidates = candBoardArr[row][col]
-                        // console.log(candBoardArr);
                         for (let i=0; i<candidates.length; i++) {
                             const candidate = candidates[i];
-                            console.log(row, col, candidate);
                             let copyBoardStr = valueBoardStr.slice();
                             if (candidateFits(copyBoardStr, row, col, candidate)) {
                                 copyBoardStr = replaceAt(copyBoardStr, row*9+col, candidate);
@@ -584,7 +598,6 @@ class ButtonBar {
 
         for (let i = 0; i < buttonArr.length; i++) {
             const button = buttonArr[i];
-            console.log(button.html());
             button.mouseClicked(() => game.handleNumberKeyPressed(button.html()))
             button.size(47, 47);
             button.style("background-color", "#6a309a");
@@ -600,7 +613,7 @@ class ButtonBar {
 
     sideButtonDecorator(button) {
         
-        button.mouseClicked(() => game.handleInputModeKeyPressed(button.html()));
+        // button.mouseClicked(() => game.handleInputModeKeyPressed(button.html()));
 
         if (button.id() === "normal") {
             button.style("background-color", "#6a309a");
@@ -619,11 +632,11 @@ class ButtonBar {
     }
 
     leftSideButtonDecorator(buttonArr) {
+
         for (let i = 0; i < buttonArr.length; i++) {
             const button = buttonArr[i];
-            // Changes input mode which sets the color of the button
             button.mouseClicked(() => {
-                inputMode = button.class()
+            game.handleInputModeKeyPressed(button.html())
             }) 
             this.sideButtonDecorator(button);
         }
@@ -632,6 +645,9 @@ class ButtonBar {
     rightSideButtonDecorator(buttonArr) {
         for (let i = 0; i < buttonArr.length; i++) {
             const button = buttonArr[i];
+            button.mouseClicked(() => {
+                game.handleControlButtonPressed(button.html())
+            }) 
             this.sideButtonDecorator(button);
         }
     }
@@ -792,7 +808,6 @@ class Cell {
     }
 
     getAutoCandidateValues() {
-        // console.log(this.autoCandidates);
         return this.autoCandidates;
     }
 
