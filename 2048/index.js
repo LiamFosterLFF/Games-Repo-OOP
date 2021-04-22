@@ -43,7 +43,30 @@ function shiftCells(direction) {
     }
     if (shiftMade) {
         addNumbers(1);
+    }
+    if (boardFull(numberSet)) {
+        console.log("Game Over");
+    }
 
+    function boardFull(array) {
+        for (let row = 0; row < array.length; row++) {
+            for (let col = 0; col < array[row].length; col++) {
+                if (array[row][col] === null) {
+                    return false
+                }
+                const arrayValue = array[row][col]
+                if (row + 1 < array.length && array[row+1][col] === arrayValue) {
+                    return false
+                } if (col + 1 < array[row].length && array[row][col+1] === arrayValue) {
+                    return false
+                } if (row - 1 >= 0 && array[row-1][col] === arrayValue) {
+                    return false
+                } if (col - 1 >= 0 && array[row][col-1] === arrayValue) {
+                    return false
+                }
+            }
+        }
+        return true;
     }
 
 
@@ -182,6 +205,5 @@ function drawBoard() {
 // Add animations for moving 
 // Add aniamations for popping in
 // Aesthetic: Fix colors and edges so it looks like the real thing
-// Bug : Numbers run off the edge of page4
 // Game over condition
 // Play again
