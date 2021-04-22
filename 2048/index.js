@@ -1,6 +1,7 @@
 var cnv;
 const numberSet = Array(4).fill(null).map(x => Array(4).fill(null))
 const dimensions = {width: 400, height: 400}
+let gameover = false;
 
 function setup() {
     cnv = createCanvas(dimensions.width, dimensions.height)
@@ -45,7 +46,17 @@ function shiftCells(direction) {
         addNumbers(1);
     }
     if (boardFull(numberSet)) {
-        console.log("Game Over");
+        gameOver();
+    }
+
+    function gameOver() {
+        if (!gameover) {
+            gameover = true
+            const button = createButton("Play Again")
+            button.parent("canvas-parent");
+            button.position(dimensions.width/2, dimensions.height+10);
+            button.mouseClicked(() => {console.log("Reset");})
+        }
     }
 
     function boardFull(array) {
