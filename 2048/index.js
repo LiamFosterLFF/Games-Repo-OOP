@@ -162,14 +162,17 @@ function drawBoard() {
     const textOffset = {x: squareSize/2-20, y: squareSize/2+20}
     for (let row = 0; row < 4; row++) {
         for (let col = 0; col < 4; col++) {
-            console.log(fillColors[numberSet[row][col]]);
             fill(fillColors[numberSet[row][col]]);
             const squareLocation = {x: col*(squareSize+gap) + offset.x, y: row*(squareSize + gap) + offset.y}
             square(squareLocation.x, squareLocation.y , squareSize);
             if (numberSet[row][col] !== null) {
                 fill(0)
-                textSize(62)
-                text(numberSet[row][col], squareLocation.x + textOffset.x, squareLocation.y + textOffset.y)
+                const number = numberSet[row][col];
+                const numberSize = String(number).length
+                const textDecrement = (numberSize-1)*10
+                textSize(62 - textDecrement)
+                const locationDecrement = (numberSize-1)*8
+                text(numberSet[row][col], squareLocation.x + textOffset.x - locationDecrement, squareLocation.y + textOffset.y - locationDecrement)
             }
         }
     }
@@ -181,7 +184,4 @@ function drawBoard() {
 // Aesthetic: Fix colors and edges so it looks like the real thing
 // Bug : Numbers run off the edge of page4
 // Game over condition
-// Win condition?
 // Play again
-// Back button
-// Center frame
