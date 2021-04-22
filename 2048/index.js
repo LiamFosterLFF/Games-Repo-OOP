@@ -1,7 +1,10 @@
 var cnv;
-const numberSet = Array(4).fill(null).map(x => Array(4).fill(null))
+var numberSet = resetNumbers();
+var resetButton = null;
 const dimensions = {width: 400, height: 400}
 let gameover = false;
+
+
 
 function setup() {
     cnv = createCanvas(dimensions.width, dimensions.height)
@@ -11,7 +14,6 @@ function setup() {
 
 function draw() {
     background(0);
-    
     drawBoard();
 }
 
@@ -25,6 +27,10 @@ function keyPressed() {
     } else if (keyCode === RIGHT_ARROW) {
         shiftCells("right")
     } 
+}
+
+function resetNumbers() {
+    return Array(4).fill(null).map(x => Array(4).fill(null))
 }
 
 function shiftCells(direction) {
@@ -52,11 +58,18 @@ function shiftCells(direction) {
     function gameOver() {
         if (!gameover) {
             gameover = true
-            const button = createButton("Play Again")
-            button.parent("canvas-parent");
-            button.position(dimensions.width/2, dimensions.height+10);
-            button.mouseClicked(() => {console.log("Reset");})
+            resetButton = createButton("Play Again")
+            resetButton.parent("canvas-parent");
+            resetButton.position(dimensions.width, dimensions.height+80);
+            resetButton.mouseClicked(() => {reset()})
         }
+    }
+
+    function reset() {
+        numberSet = resetNumbers();
+        gameover = false;
+        addNumbers(2);
+        resetButton.remove()
     }
 
     function boardFull(array) {
