@@ -40,16 +40,18 @@ function setup() {
 function draw() {
     frameRate()
     game.drawGame();
-    moveShip();
-    // game.moveEnemies();
-    game.shootEnemies();
-    moveBullet();
-}
-
-function keyPressed() {
     if(keyIsDown(32)) {
         game.fireShipLaser();
     }
+    if (keyIsDown(LEFT_ARROW)) {
+        game.ship.move(-5);
+    } else if (keyIsDown(RIGHT_ARROW)) {
+        game.ship.move(5);
+    }
+}
+
+function keyPressed() {
+
 }
 
 class Game {
@@ -310,19 +312,6 @@ class Game {
 }
 
 
-function moveShip() {
-    if (keyIsDown(LEFT_ARROW)) {
-        if (ship.x > 20) {
-            ship.x -= 5;
-        }
-    } else if (keyIsDown(RIGHT_ARROW)) {
-        if (ship.x < width-(20+ship.width)) {
-            ship.x += 5;
-        }
-    }
-}
-
-
 function detectCollision(enemy) {
     if (
         bullet !== null && enemy.dead !== true
@@ -330,30 +319,6 @@ function detectCollision(enemy) {
         && bullet.y > enemy.y && bullet.y < enemy.y + enemy.height
     ) {return true}
     return false
-}
-
-
-
-
-
-function moveBullet() {
-    if (bullet !== null) {
-        bullet.y -= bullet.speed;
-            
-        // frameRate(25);
-        strokeWeight(5);
-        stroke(255);
-        line(bullet.x, bullet.y, bullet.x, bullet.y+5)
-        if (bullet.y < 0) {
-            bullet = null;
-        }
-    }
-}
-
-function launchBullet() {
-    if (bullet === null) {
-    }
-
 }
 
 class Ship {
@@ -371,8 +336,8 @@ class Ship {
         image(this.image, this.x, this.y, this.width, this.height);
     }
 
-    move() {
-        
+    move(shift) {
+        this.x += shift;
     }
 
     shoot() {
