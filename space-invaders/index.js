@@ -41,7 +41,7 @@ function draw() {
     frameRate()
     game.drawGame();
     moveShip();
-    game.moveEnemies();
+    // game.moveEnemies();
     game.shootEnemies();
     moveBullet();
 }
@@ -59,8 +59,7 @@ class Game {
         this.ship = this.initializeShip();
         this.cover = this.initializeCover();
         this.enemies = this.initializeEnemies();
-        this.bullet = null;
-        this.enemyBullets = [];
+        this.bullets = [];
     }
 
     initializeShip() {
@@ -202,92 +201,71 @@ class Game {
         }
         
 
-        function drawBullet(game) {
-            for (let i=0; i<game.enemyBullets.length; i++) {
-                const bullet = game.enemyBullets[i];
+        function drawBullets(game) {
+            for (let i=0; i<game.bullets.length; i++) {
+                const bullet = game.bullets[i];
                 bullet.draw();
                 bullet.move();
             }
         }
     
         function drawEnemies(game) {
-
-            function checkMinMaxX(position) {
-                if (position > enemyEdges.x.max) {
-                    enemyEdges.x.max = position;
-                } else if (position < enemyEdges.x.min) {
-                    enemyEdges.x.min = position
-                } 
-            }
-            
-            function checkMinMaxY(position) {
-                if (position > enemyEdges.y.max) {
-                    enemyEdges.y.max = position
-                } else if (position < enemyEdges.y.min) {
-                    enemyEdges.y.min = position
-                }
-            }
-
-
-            enemyEdges.x.min = offset.x;
-            enemyEdges.x.max = offset.x;
-            enemyEdges.y.max = offset.y;
-            enemyEdges.y.min = offset.y;
-            // console.log(game);
             for (let row = 0; row < game.enemies.length; row++) {
                 for (let col = 0; col < game.enemies[row].length; col++) {
-                    // console.log("A");
-
-                    checkMinMaxX(game.enemies[row][col].x);
-                    checkMinMaxY(game.enemies[row][col].y);
-        
-
                     const enemy = game.enemies[row][col];
-                    enemy.draw();
+                    if (!enemy.isDead()) {
+                        enemy.draw();
+                        enemy.move();
+                        if (enemy.shoot()) {
+                            game.bullets.push(new LightningBolt(enemy.x + enemy.x/2, enemy.y));
+                        }
+                    }
                     // if (detectCollision(game.enemies[row][col])) {
                     //     game.enemies[row][col].die();
                     //     bullet = null;
-                    // } else if (game.enemies[row][col].dead === true){
                         
-                    // } else {
-                    //     checkMinMaxX(game.enemies[row][col].x);
-                    //     checkMinMaxY(game.enemies[row][col].y);
-            
-                    //     fill(255);
-                    //     enemy = game.enemies[row][col]
-                    //     image(enemy.image, game.enemies[row][col].x, game.enemies[row][col].y, enemy.width, enemy.height)
-                    // }
                 }
             }
+
+            function enemiesAtEdgeX(game) {
+                for (let row = 0; row < game.enemies.length; row++) {
+                    for (let col = 0; col < game.enemies[row].length; col++) {
+                        const enemy = game.enemies[row][col]
+                        if (enemy.x > game.width-50 || enemy.x < 10) {
+                            return true;
+                        }
+                    }
+                }
+                return false;
+            }
             
-            if (enemyEdges.x.max > game.width-50 || enemyEdges.x.min < 10) {
-                console.log("A");
+            function enemiesAtEdgeY(game) {
+                for (let row = 0; row < game.enemies.length; row++) {
+                    for (let col = 0; col < game.enemies[row].length; col++) {
+                        const enemy = game.enemies[row][col]
+                        if (enemy.y > game.width-250 || enemy.y < 100) {
+                            return true;
+                        }
+                    }
+                }
+                return false;
+            }
+            
+            if (enemiesAtEdgeX(game)) {
                 game.reverseShipsX();
-                // enemy.speed.x *= -1;
-                if (enemyEdges.y.max > game.height- 250 || enemyEdges.y.min < 100) {
+                if (enemiesAtEdgeY(game)) {
                     game.reverseShipsY();
                 }
                 game.advanceEnemies()
             }
             
-            
-        
         }
-    
         drawBoard();
         drawScore();
         drawCover(this);
         drawShip(this);
         drawEnemies(this);
-    }
-
-    moveEnemies() {
-        for (let row = 0; row < this.enemies.length; row++) {
-            for (let col = 0; col < this.enemies[row].length; col++) {
-                this.enemies[row][col].move();
-            }
-            
-        }
+        drawBullets(this);
     }
     
     shootEnemies() {
@@ -297,13 +275,7 @@ class Game {
             }   
         }
     
-        // if (enemyBullets.length > 0) {
-        //     for(let i=0; i<enemyBullets.length; i++) {
-        //         enemyBullet = enemyBullets[i]
-        //         enemyBullet.y -= enemyBullet.speed
-        //         image(enemyBullet.image, enemyBullet.x, enemyBullet.y, enemyBullet.bulletWidth, enemyBullet.bulletHeight)
-        //     }
-        // }
+
     }
 
 
@@ -383,16 +355,21 @@ function launchBullet() {
 
 class Ship {
     constructor(xPos, yPos, width, height) {
-        this.x = xPos
-        this.y = yPos
-        this.width = width
-        this.height = height
-        this.dead = false
+        this.x = xPos;
+        this.y = yPos;
+        this.width = width;
+        this.height = height;
+        this.dead = false;
+        this.image = sprites['ship-sprite']
     }
 
     draw() {
         fill(255);
-        image(sprites['ship-sprite'], this.x, this.y, this.width, this.height);
+        image(this.image, this.x, this.y, this.width, this.height);
+    }
+
+    move() {
+        
     }
 }
 
@@ -401,14 +378,17 @@ class Bullet {
         this.x = x;
         this.y = y;
         this.speed = 10;
+        this.bulletWidth = 20;
+        this.bulletHeight = 30;
+        this.image = sprites['lightning-bullet']
     }
 
     draw() {
-
+        image(this.image, this.x, this.y, this.bulletWidth, this.bulletHeight)
     }
 
     move() {
-
+        this.y += this.speed;
     }
 }
 
@@ -419,6 +399,10 @@ class LightningBolt extends Bullet {
         this.bulletWidth = 20;
         this.bulletHeight = 30;
         this.speed = -10;
+    }
+
+    move() {
+        this.y -= this.speed;
     }
 }
 
@@ -465,10 +449,12 @@ class Enemy {
         }, 1000);
     }
 
+    isDead() {
+        return this.dead;
+    }
+
     shoot() {
-        if (Math.random() < fireThreshold) {
-            enemyBullets.push(new LightningBolt(this.x + this.x/2, this.y));
-        }
+        return (Math.random() < fireThreshold) 
     }
 }
 
