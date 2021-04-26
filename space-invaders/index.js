@@ -1,8 +1,7 @@
 
 const screenSize = {"width": 800, "height": 800};
-const enemyPositions = [];
+const enemies = [];
 const enemyEdges = {"x": {"max": 0, "min": 0}, "y": {max: 0, min: 0}};
-const enemySpeed = {"x": 10, "y":50};
 let bullet = null;
 let enemyBullets = []
 const offset = {"x": 70, "y": 150};
@@ -72,9 +71,9 @@ function initializeGame() {
         rowOffset = 0
         function buildEnemyRows(rows, enemyName, rOffset) {
             for (let row = 0; row < rows; row++) {
-                enemyPositions.push([]);
+                enemies.push([]);
                 for (let col = 0; col < 11; col++) {
-                    enemyPositions[row].push(new Enemy(offset.x + 60*col, offset.y + 60*row + rOffset, enemyName));
+                    enemies[row].push(new Enemy(offset.x + 60*col, offset.y + 60*row + rOffset, enemyName));
                 }
             }
             return rows*60
@@ -182,30 +181,31 @@ function drawGame() {
         enemyEdges.y.min = offset.y;
     
         
-        for (let row = 0; row < enemyPositions.length; row++) {
-            for (let col = 0; col < enemyPositions[row].length; col++) {
-                if (detectCollision(enemyPositions[row][col])) {
-                    enemyPositions[row][col].die();
+        for (let row = 0; row < enemies.length; row++) {
+            for (let col = 0; col < enemies[row].length; col++) {
+                if (detectCollision(enemies[row][col])) {
+                    enemies[row][col].die();
                     bullet = null;
-                } else if (enemyPositions[row][col].dead === true){
+                } else if (enemies[row][col].dead === true){
                     
                 } else {
-                    checkMinMaxX(enemyPositions[row][col].x);
-                    checkMinMaxY(enemyPositions[row][col].y);
+                    checkMinMaxX(enemies[row][col].x);
+                    checkMinMaxY(enemies[row][col].y);
         
                     fill(255);
-                    enemy = enemyPositions[row][col]
-                    image(enemy.image, enemyPositions[row][col].x, enemyPositions[row][col].y, enemy.width, enemy.height)
+                    enemy = enemies[row][col]
+                    image(enemy.image, enemies[row][col].x, enemies[row][col].y, enemy.width, enemy.height)
                 }
             }
         }
         
         if (enemyEdges.x.max > width-50 || enemyEdges.x.min < 10) {
-            enemySpeed.x *= -1;
+            reverseShipsX();
+            // enemy.speed.x *= -1;
             if (enemyEdges.y.max > height- 250 || enemyEdges.y.min < 100) {
-                enemySpeed.y *= -1;
+                reverseShipsY();
             }
-            advanceEnemiesY()
+            advanceEnemies()
         }
         
     
@@ -220,6 +220,21 @@ function drawGame() {
 
 
 
+function reverseShipsX() {
+    for (let row = 0; row < enemies.length; row++) {
+        for (let col = 0; col < enemies[row].length; col++) {
+            enemies[row][col].flipXSpeed();
+        }
+    }
+}
+
+function reverseShipsY() {
+    for (let row = 0; row < enemies.length; row++) {
+        for (let col = 0; col < enemies[row].length; col++) {
+            enemies[row][col].flipYSpeed();
+        }
+    }
+}
 
 
 
@@ -269,28 +284,28 @@ function detectCollision(enemy) {
 }
 
 
-function advanceEnemiesY() {
-    for (let row = 0; row < enemyPositions.length; row++) {
-        for (let col = 0; col < enemyPositions[row].length; col++) {
-            enemyPositions[row][col].y += enemySpeed.y;
+function advanceEnemies() {
+    for (let row = 0; row < enemies.length; row++) {
+        for (let col = 0; col < enemies[row].length; col++) {
+            enemies[row][col].advance();
         }
         
     }
 }
 // 
 function moveEnemies() {
-    for (let row = 0; row < enemyPositions.length; row++) {
-        for (let col = 0; col < enemyPositions[row].length; col++) {
-            enemyPositions[row][col].x += enemySpeed.x;
+    for (let row = 0; row < enemies.length; row++) {
+        for (let col = 0; col < enemies[row].length; col++) {
+            enemies[row][col].move();
         }
         
     }
 }
 
 function shootEnemies() {
-    for (let row = 0; row < enemyPositions.length; row++) {
-        for (let col = 0; col < enemyPositions[row].length; col++) {
-            enemyPositions[row][col].shoot();
+    for (let row = 0; row < enemies.length; row++) {
+        for (let col = 0; col < enemies[row].length; col++) {
+            enemies[row][col].shoot();
         }   
     }
 
@@ -367,6 +382,23 @@ class Enemy {
         this.name = name
         this.image = sprites[`${this.name}-enemy-sprite-1`]
         this.death = sprites['pop-explosion']
+        this.speed = {"x": 10, "y":50};
+    }
+
+    move() {
+        this.x += this.speed.x;
+    }
+
+    advance() {
+        this.y += this.speed.y
+    }
+
+    flipXSpeed() {
+        this.speed.x *= -1;
+    }
+
+    flipYSpeed() {
+        this.speed.y *= -1;
     }
 
     die() {
@@ -395,8 +427,6 @@ class Cover {
     }
 }
 
-// Enemies fire bullets and do damage
-// Keep Score
 // Clean up functions
 // Add special enemies
 // Increase explosion radius for enemy bombs

@@ -229,5 +229,3 @@ function drawBoard() {
 // Add animations for moving 
 // Add aniamations for popping in
 // Aesthetic: Fix colors and edges so it looks like the real thing
-// Game over condition
-// Play again
