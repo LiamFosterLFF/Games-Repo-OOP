@@ -10,6 +10,7 @@ sprites = {}
 score = 0
 fireThreshold = .0005
 let ship = null;
+let game = null;
 
 function preload() {
     doubleSpriteEnemies = ['ant', 'big-jelly', 'jelly', 'ignignokt', 'urr', 'point-jelly', 'shroom']
@@ -33,27 +34,41 @@ function preload() {
 function setup() {
     cnv = createCanvas(screenSize.width, screenSize.height);
     cnv.parent("canvas-parent");
-    initializeGame();
+    game = new Game(screenSize.width, screenSize.height);
 }
 
 function draw() {
     frameRate()
-    drawGame();
+    game.drawGame();
     moveShip();
-    moveEnemies();
-    shootEnemies();
-    shoot();
+    game.moveEnemies();
+    game.shootEnemies();
+    moveBullet();
 }
 
+function keyPressed() {
+    if(keyIsDown(32)) {
+        launchBullet();
+    }
+}
 
-
-function initializeGame() {
-
-    function initializeShip() {
-        ship = new Ship(screenSize.width/2, screenSize.height-40, 50, 20);
+class Game {
+    constructor(width, height) {
+        this.width = width;
+        this.height = height;
+        this.ship = this.initializeShip();
+        this.cover = this.initializeCover();
+        this.enemies = this.initializeEnemies();
+        this.bullet = null;
+        this.enemyBullets = [];
     }
 
-    function initializeCover() {
+    initializeShip() {
+       return new Ship(screenSize.width/2, screenSize.height-40, 50, 20);
+    }
+    
+    initializeCover() {
+        const cover = [];
         for (let i = 0; i < 4; i++) {
             const block = [];
             for (let j = 0; j < 100; j++) {
@@ -65,177 +80,258 @@ function initializeGame() {
             }
             cover.push(block)
         }
+        return cover;
     }
-
-    function initializeEnemies() {
-        rowOffset = 0
+    
+    initializeEnemies() {
         function buildEnemyRows(rows, enemyName, rOffset) {
+            const enemyRows = []
             for (let row = 0; row < rows; row++) {
-                enemies.push([]);
+                const enemyRow = []
                 for (let col = 0; col < 11; col++) {
-                    enemies[row].push(new Enemy(offset.x + 60*col, offset.y + 60*row + rOffset, enemyName));
+                    enemyRow.push(new Enemy(offset.x + 60*col, offset.y + 60*row + rOffset, enemyName));
                 }
+                enemyRows.push(enemyRow)
             }
-            return rows*60
-        }
-        rowOffset += buildEnemyRows(2, 'ant', rowOffset);
-        rowOffset += buildEnemyRows(2, 'jelly', rowOffset);
-        rowOffset += buildEnemyRows(2, 'ignignokt', rowOffset);
-    }
-    initializeShip();
-    initializeCover();
-    initializeEnemies();
-}
-
-
-function drawGame() {
-
-    function drawBoard() {
-        clear();
-        noStroke();
-        background(0);
-    }
-
-    function drawScore() {
-        textSize(50);
-        fill(256);
-        text(`${score}`, screenSize["width"]/2 - 10, 45);
-    }
-
-    
-
-    function drawCover() {
-
-        function detectCollisionCover(coverSegment, shot) {
-            if (
-                shot !== null && coverSegment.blown !== true
-                && shot.x >= coverSegment.x1 && shot.x <= coverSegment.x2
-                && shot.y >= coverSegment.y1 && shot.y <= coverSegment.y2
-            ) {return true}
-            return false
+            return enemyRows
         }
 
-        strokeWeight(1)
-        for (let block = 0; block < cover.length; block++) {
-            for (let ln = 0; ln < cover[block].length; ln++) {
-                for (let row = 0; row < cover[block][ln].length; row++) {
-                    
-                    const bit = cover[block][ln][row];
-                    if (detectCollisionCover(bit, bullet)) {
-                        cover[block][ln][row].blown = true;
-                        for (let i = 0; i < 4; i++) {
-                            cover[block][ln+i][row].blown = true;
-                            cover[block][ln+i][row].blown = true;      
-                        }
-                        bullet = null;
-                    } else if (cover[block][ln][row].blown === true) {
+        let enemies = []
+        let rowOffset = 0
+        enemies = enemies.concat(buildEnemyRows(2, 'ant', rowOffset));
+        console.log(enemies);
+        rowOffset += 2*60;
+        enemies = enemies.concat(buildEnemyRows(2, 'jelly', rowOffset));
+        rowOffset += 2*60;
+        enemies = enemies.concat(buildEnemyRows(2, 'ignignokt', rowOffset));
+        rowOffset += 2*60;
+
+        return enemies
+    }
+
+
+    drawGame() {
+
+        function drawBoard() {
+            clear();
+            noStroke();
+            background(0);
+        }
     
-                    } else {
-                        stroke(86, 252, 3);
-                        line(bit.x1, bit.y1, bit.x2, bit.y2)
-                    }
+        function drawScore() {
+            textSize(50);
+            fill(256);
+            text(`${score}`, screenSize["width"]/2 - 10, 45);
+        }
     
-                    for (i=0; i< enemyBullets.length; i++) {
-                        enemyBullet = enemyBullets[i]
-                        if (detectCollisionCover(bit, enemyBullet)) {
-                            cover[block][ln][row].blown = true;
+        function drawCover(game) {
+    
+            function detectCollisionCover(coverSegment, shot) {
+                if (
+                    shot !== null && coverSegment.blown !== true
+                    && shot.x >= coverSegment.x1 && shot.x <= coverSegment.x2
+                    && shot.y >= coverSegment.y1 && shot.y <= coverSegment.y2
+                ) {return true}
+                return false
+            }
+    
+            strokeWeight(1)
+            for (let block = 0; block < game.cover.length; block++) {
+                for (let ln = 0; ln < game.cover[block].length; ln++) {
+                    for (let row = 0; row < game.cover[block][ln].length; row++) {
+                        
+                        const bit = game.cover[block][ln][row];
+                        if (detectCollisionCover(bit, bullet)) {
+                            game.cover[block][ln][row].blown = true;
                             for (let i = 0; i < 4; i++) {
-                                cover[block][ln+i][row].blown = true;
-                                cover[block][ln+i][row].blown = true;      
+                                game.cover[block][ln+i][row].blown = true;
+                                game.cover[block][ln+i][row].blown = true;      
                             }
-                            enemyBullets.splice(i);
-                        } 
+                            bullet = null;
+                        } else if (game.cover[block][ln][row].blown === true) {
+        
+                        } else {
+                            stroke(86, 252, 3);
+                            line(bit.x1, bit.y1, bit.x2, bit.y2)
+                        }
+        
+                        // for (let i=0; i< enemyBullets.length; i++) {
+                        //     enemyBullet = enemyBullets[i]
+                        //     if (detectCollisionCover(bit, enemyBullet)) {
+                        //         game.cover[block][ln][row].blown = true;
+                        //         for (let i = 0; i < 4; i++) {
+                        //             game.cover[block][ln+i][row].blown = true;
+                        //             game.cover[block][ln+i][row].blown = true;      
+                        //         }
+                        //         enemyBullets.splice(i);
+                        //     } 
+                        // }
+                        
                     }
-                    
                 }
             }
-        }
-        noStroke();
-    }
-    
-    function drawShip() {
-        function detectShipCollision(shot) {
-            if (
-                shot.x > ship.x && shot.x < ship.x + ship.width
-                && shot.y > ship.y && shot.y < ship.y + ship.height
-            ) {return true}
-            return false
+            noStroke();
         }
         
-        for (i=0; i<enemyBullets.length; i++) {
-            if (detectShipCollision(enemyBullets[i])) {
-                enemyBullets = enemyBullets.splice(i);
-                ship.dead = true
-            } else if (ship.dead === true){
-            } else {
-                fill(255);
-                image(sprites['ship-sprite'], ship.x, ship.y, ship.width, ship.height);
+        function drawShip(game) {
+            // function detectShipCollision(shot, game) {
+            //     if (
+            //         shot.x > game.ship.x && shot.x < game.ship.x + game.ship.width
+            //         && shot.y > game.ship.y && shot.y < game.ship.y + game.ship.height
+            //     ) {return true}
+            //     return false
+            // }
+
+            game.ship.draw();
+            
+            // for (let i=0; i<enemyBullets.length; i++) {
+            //     console.log("B");
+
+            //     if (detectShipCollision(enemyBullets[i], game)) {
+
+            //         enemyBullets = enemyBullets.splice(i);
+            //         game.ship.dead = true
+            //     } else if (game.ship.dead === true){
+
+            //     } else {
+
+            //         fill(255);
+            //         image(sprites['ship-sprite'], game.ship.x, game.ship.y, game.ship.width, game.ship.height);
+            //     }
+            // }
+        }
+        
+
+        function drawBullet(game) {
+            for (let i=0; i<game.enemyBullets.length; i++) {
+                const bullet = game.enemyBullets[i];
+                bullet.draw();
+                bullet.move();
             }
         }
-    }
-
-    function drawEnemies() {
-        enemyEdges.x.min = offset.x;
-        enemyEdges.x.max = offset.x;
-        enemyEdges.y.max = offset.y;
-        enemyEdges.y.min = offset.y;
     
-        
-        for (let row = 0; row < enemies.length; row++) {
-            for (let col = 0; col < enemies[row].length; col++) {
-                if (detectCollision(enemies[row][col])) {
-                    enemies[row][col].die();
-                    bullet = null;
-                } else if (enemies[row][col].dead === true){
-                    
-                } else {
-                    checkMinMaxX(enemies[row][col].x);
-                    checkMinMaxY(enemies[row][col].y);
-        
-                    fill(255);
-                    enemy = enemies[row][col]
-                    image(enemy.image, enemies[row][col].x, enemies[row][col].y, enemy.width, enemy.height)
+        function drawEnemies(game) {
+
+            function checkMinMaxX(position) {
+                if (position > enemyEdges.x.max) {
+                    enemyEdges.x.max = position;
+                } else if (position < enemyEdges.x.min) {
+                    enemyEdges.x.min = position
+                } 
+            }
+            
+            function checkMinMaxY(position) {
+                if (position > enemyEdges.y.max) {
+                    enemyEdges.y.max = position
+                } else if (position < enemyEdges.y.min) {
+                    enemyEdges.y.min = position
                 }
             }
-        }
+
+
+            enemyEdges.x.min = offset.x;
+            enemyEdges.x.max = offset.x;
+            enemyEdges.y.max = offset.y;
+            enemyEdges.y.min = offset.y;
+            // console.log(game);
+            for (let row = 0; row < game.enemies.length; row++) {
+                for (let col = 0; col < game.enemies[row].length; col++) {
+                    // console.log("A");
+
+                    checkMinMaxX(game.enemies[row][col].x);
+                    checkMinMaxY(game.enemies[row][col].y);
         
-        if (enemyEdges.x.max > width-50 || enemyEdges.x.min < 10) {
-            reverseShipsX();
-            // enemy.speed.x *= -1;
-            if (enemyEdges.y.max > height- 250 || enemyEdges.y.min < 100) {
-                reverseShipsY();
+
+                    const enemy = game.enemies[row][col];
+                    enemy.draw();
+                    // if (detectCollision(game.enemies[row][col])) {
+                    //     game.enemies[row][col].die();
+                    //     bullet = null;
+                    // } else if (game.enemies[row][col].dead === true){
+                        
+                    // } else {
+                    //     checkMinMaxX(game.enemies[row][col].x);
+                    //     checkMinMaxY(game.enemies[row][col].y);
+            
+                    //     fill(255);
+                    //     enemy = game.enemies[row][col]
+                    //     image(enemy.image, game.enemies[row][col].x, game.enemies[row][col].y, enemy.width, enemy.height)
+                    // }
+                }
             }
-            advanceEnemies()
-        }
+            
+            if (enemyEdges.x.max > game.width-50 || enemyEdges.x.min < 10) {
+                console.log("A");
+                game.reverseShipsX();
+                // enemy.speed.x *= -1;
+                if (enemyEdges.y.max > game.height- 250 || enemyEdges.y.min < 100) {
+                    game.reverseShipsY();
+                }
+                game.advanceEnemies()
+            }
+            
+            
         
+        }
     
+        drawBoard();
+        drawScore();
+        drawCover(this);
+        drawShip(this);
+        drawEnemies(this);
     }
 
-    drawBoard();
-    drawScore();
-    drawCover();
-    drawShip();
-    drawEnemies();
-}
+    moveEnemies() {
+        for (let row = 0; row < this.enemies.length; row++) {
+            for (let col = 0; col < this.enemies[row].length; col++) {
+                this.enemies[row][col].move();
+            }
+            
+        }
+    }
+    
+    shootEnemies() {
+        for (let row = 0; row < this.enemies.length; row++) {
+            for (let col = 0; col < this.enemies[row].length; col++) {
+                this.enemies[row][col].shoot();
+            }   
+        }
+    
+        // if (enemyBullets.length > 0) {
+        //     for(let i=0; i<enemyBullets.length; i++) {
+        //         enemyBullet = enemyBullets[i]
+        //         enemyBullet.y -= enemyBullet.speed
+        //         image(enemyBullet.image, enemyBullet.x, enemyBullet.y, enemyBullet.bulletWidth, enemyBullet.bulletHeight)
+        //     }
+        // }
+    }
 
 
+    reverseShipsX() {
+        for (let row = 0; row < this.enemies.length; row++) {
+            for (let col = 0; col < this.enemies[row].length; col++) {
+                this.enemies[row][col].flipXSpeed();
+            }
+        }
+    }
+    
+    reverseShipsY() {
+        for (let row = 0; row < this.enemies.length; row++) {
+            for (let col = 0; col < this.enemies[row].length; col++) {
+                this.enemies[row][col].flipYSpeed();
+            }
+        }
+    }
 
-function reverseShipsX() {
-    for (let row = 0; row < enemies.length; row++) {
-        for (let col = 0; col < enemies[row].length; col++) {
-            enemies[row][col].flipXSpeed();
+    advanceEnemies() {
+        for (let row = 0; row < this.enemies.length; row++) {
+            for (let col = 0; col < this.enemies[row].length; col++) {
+                this.enemies[row][col].advance();
+            }
+            
         }
     }
 }
-
-function reverseShipsY() {
-    for (let row = 0; row < enemies.length; row++) {
-        for (let col = 0; col < enemies[row].length; col++) {
-            enemies[row][col].flipYSpeed();
-        }
-    }
-}
-
 
 
 function moveShip() {
@@ -250,29 +346,6 @@ function moveShip() {
     }
 }
 
-function checkMinMaxX(position) {
-    if (position > enemyEdges.x.max) {
-        enemyEdges.x.max = position;
-    } else if (position < enemyEdges.x.min) {
-        enemyEdges.x.min = position
-    } 
-}
-
-function checkMinMaxY(position) {
-    if (position > enemyEdges.y.max) {
-        enemyEdges.y.max = position
-    } else if (position < enemyEdges.y.min) {
-        enemyEdges.y.min = position
-    }
-}
-
-
-
-
-
-
-
-
 
 function detectCollision(enemy) {
     if (
@@ -284,45 +357,10 @@ function detectCollision(enemy) {
 }
 
 
-function advanceEnemies() {
-    for (let row = 0; row < enemies.length; row++) {
-        for (let col = 0; col < enemies[row].length; col++) {
-            enemies[row][col].advance();
-        }
-        
-    }
-}
-// 
-function moveEnemies() {
-    for (let row = 0; row < enemies.length; row++) {
-        for (let col = 0; col < enemies[row].length; col++) {
-            enemies[row][col].move();
-        }
-        
-    }
-}
 
-function shootEnemies() {
-    for (let row = 0; row < enemies.length; row++) {
-        for (let col = 0; col < enemies[row].length; col++) {
-            enemies[row][col].shoot();
-        }   
-    }
 
-    if (enemyBullets.length > 0) {
-        for(i=0; i<enemyBullets.length; i++) {
-            enemyBullet = enemyBullets[i]
-            enemyBullet.y -= enemyBullet.speed
-            image(enemyBullet.image, enemyBullet.x, enemyBullet.y, enemyBullet.bulletWidth, enemyBullet.bulletHeight)
-        }
-    }
-}
 
-function shoot() {
-    if(keyIsDown(32)) {
-        launchBullet();
-    }
-
+function moveBullet() {
     if (bullet !== null) {
         bullet.y -= bullet.speed;
             
@@ -351,6 +389,11 @@ class Ship {
         this.height = height
         this.dead = false
     }
+
+    draw() {
+        fill(255);
+        image(sprites['ship-sprite'], this.x, this.y, this.width, this.height);
+    }
 }
 
 class Bullet {
@@ -358,6 +401,14 @@ class Bullet {
         this.x = x;
         this.y = y;
         this.speed = 10;
+    }
+
+    draw() {
+
+    }
+
+    move() {
+
     }
 }
 
@@ -383,6 +434,11 @@ class Enemy {
         this.image = sprites[`${this.name}-enemy-sprite-1`]
         this.death = sprites['pop-explosion']
         this.speed = {"x": 10, "y":50};
+    }
+
+    draw() {
+        fill(255);
+        image(this.image, this.x, this.y, this.width, this.height)
     }
 
     move() {
