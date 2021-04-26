@@ -48,7 +48,7 @@ function draw() {
 
 function keyPressed() {
     if(keyIsDown(32)) {
-        launchBullet();
+        game.fireShipLaser();
     }
 }
 
@@ -303,6 +303,10 @@ class Game {
             
         }
     }
+
+    fireShipLaser() {
+        this.bullets.push(this.ship.shoot());
+    }
 }
 
 
@@ -348,7 +352,6 @@ function moveBullet() {
 
 function launchBullet() {
     if (bullet === null) {
-        bullet = new Bullet(ship.x + ship.width/2, ship.y);
     }
 
 }
@@ -371,13 +374,18 @@ class Ship {
     move() {
         
     }
+
+    shoot() {
+        return new Bullet(this.x + this.width/2, this.y);
+    }
+
 }
 
 class Bullet {
     constructor(x, y) {
         this.x = x;
         this.y = y;
-        this.speed = 10;
+        this.speed = -10;
         this.bulletWidth = 20;
         this.bulletHeight = 30;
         this.image = sprites['lightning-bullet']
@@ -398,12 +406,14 @@ class LightningBolt extends Bullet {
         this.image = sprites['lightning-bullet']
         this.bulletWidth = 20;
         this.bulletHeight = 30;
-        this.speed = -10;
+        this.speed = 10;
     }
 
-    move() {
-        this.y -= this.speed;
+    draw() {
+        image(this.image, this.x, this.y, this.bulletWidth, this.bulletHeight)
     }
+
+
 }
 
 
