@@ -147,104 +147,116 @@ class Game {
             detectCollisionsCover(game);
             detectCollisionsShips(game);
         }
+        
+        function drawGame(game) {
+            function drawBoard() {
+                clear();
+                noStroke();
+                background(0);
+            }
+        
+            function drawScore(game) {
+                textSize(50);
+                fill(256);
+                text(`${game.score}`, screenSize["width"]/2 - 10, 45);
+            }
 
-        function drawBoard() {
-            clear();
-            noStroke();
-            background(0);
-        }
-    
-        function drawScore(game) {
-            textSize(50);
-            fill(256);
-            text(`${game.score}`, screenSize["width"]/2 - 10, 45);
-        }
-    
-        function drawCover(game) {
-            for (let block = 0; block < game.cover.length; block++) {
-                for (let ln = 0; ln < game.cover[block].length; ln++) {
-                    for (let row = 0; row < game.cover[block][ln].length; row++) {
-                        const coverSegment = game.cover[block][ln][row];
-                        if (!(coverSegment.isBlown())) {
-                            coverSegment.draw();
-                        }    
-                    }
+            function drawLives(game) {
+                for (let heart=0; heart < game.lives; heart++) {
+                    image(sprites[`ship-sprite`], 10 + heart*50, 10, 50, 50);
                 }
             }
-            noStroke();
-        }
         
-        function drawShip(game) {
-            if (!(game.ship.isDead())) {
-                game.ship.draw();
+            function drawCover(game) {
+                for (let block = 0; block < game.cover.length; block++) {
+                    for (let ln = 0; ln < game.cover[block].length; ln++) {
+                        for (let row = 0; row < game.cover[block][ln].length; row++) {
+                            const coverSegment = game.cover[block][ln][row];
+                            if (!(coverSegment.isBlown())) {
+                                coverSegment.draw();
+                            }    
+                        }
+                    }
+                }
+                noStroke();
             }
-        }
-        
-
-        function drawBullets(game) {
-            for (let i=0; i<game.bullets.length; i++) {
-                const bullet = game.bullets[i];
-                bullet.draw();
-                bullet.move();
+            
+            function drawShip(game) {
+                if (!(game.ship.isDead())) {
+                    game.ship.draw();
+                }
             }
-        }
+            
     
-        function drawEnemies(game) {
-
-            function enemiesAtEdgeX(game) {
+            function drawBullets(game) {
+                for (let i=0; i<game.bullets.length; i++) {
+                    const bullet = game.bullets[i];
+                    bullet.draw();
+                    bullet.move();
+                }
+            }
+        
+            function drawEnemies(game) {
+    
+                function enemiesAtEdgeX(game) {
+                    for (let row = 0; row < game.enemies.length; row++) {
+                        for (let col = 0; col < game.enemies[row].length; col++) {
+                            const enemy = game.enemies[row][col]
+                            if (enemy.x > game.width-50 || enemy.x < 10) {
+                                return true;
+                            }
+                        }
+                    }
+                    return false;
+                }
+                
+                function enemiesAtEdgeY(game) {
+                    for (let row = 0; row < game.enemies.length; row++) {
+                        for (let col = 0; col < game.enemies[row].length; col++) {
+                            const enemy = game.enemies[row][col]
+                            if (enemy.y > game.width-250 || enemy.y < 100) {
+                                return true;
+                            }
+                        }
+                    }
+                    return false;
+                }
+    
                 for (let row = 0; row < game.enemies.length; row++) {
                     for (let col = 0; col < game.enemies[row].length; col++) {
-                        const enemy = game.enemies[row][col]
-                        if (enemy.x > game.width-50 || enemy.x < 10) {
-                            return true;
-                        }
+                        const enemy = game.enemies[row][col];
+                        if (!enemy.isDead()) {
+                            enemy.draw();
+                            enemy.move();
+                            if (enemy.shoot()) {
+                                game.bullets.push(new LightningBolt(enemy.x + enemy.x/2, enemy.y));
+                            }
+                        }                        
                     }
                 }
-                return false;
-            }
-            
-            function enemiesAtEdgeY(game) {
-                for (let row = 0; row < game.enemies.length; row++) {
-                    for (let col = 0; col < game.enemies[row].length; col++) {
-                        const enemy = game.enemies[row][col]
-                        if (enemy.y > game.width-250 || enemy.y < 100) {
-                            return true;
-                        }
+                
+                if (enemiesAtEdgeX(game)) {
+                    game.reverseShipsX();
+                    if (enemiesAtEdgeY(game)) {
+                        game.reverseShipsY();
                     }
+                    game.advanceEnemies()
                 }
-                return false;
+                
             }
-
-            for (let row = 0; row < game.enemies.length; row++) {
-                for (let col = 0; col < game.enemies[row].length; col++) {
-                    const enemy = game.enemies[row][col];
-                    if (!enemy.isDead()) {
-                        enemy.draw();
-                        enemy.move();
-                        if (enemy.shoot()) {
-                            game.bullets.push(new LightningBolt(enemy.x + enemy.x/2, enemy.y));
-                        }
-                    }                        
-                }
-            }
-            
-            if (enemiesAtEdgeX(game)) {
-                game.reverseShipsX();
-                if (enemiesAtEdgeY(game)) {
-                    game.reverseShipsY();
-                }
-                game.advanceEnemies()
-            }
-            
+    
+            drawBoard();
+            drawScore(game);
+            drawLives(game);
+            drawCover(game);
+            drawShip(game);
+            drawEnemies(game);
+            drawBullets(game);
         }
 
-        detectCollisions(this);
-        drawBoard();
-        drawScore(this);
-        drawCover(this);
-        drawShip(this);
-        drawEnemies(this);
-        drawBullets(this);
+        detectCollisions(game);
+        drawGame(game);
+
     }
     
     shootEnemies() {
@@ -270,7 +282,6 @@ class Game {
             }, 1000);
         }
     }
-
 
     reverseShipsX() {
         for (let row = 0; row < this.enemies.length; row++) {
