@@ -52,6 +52,7 @@ class Game {
         this.enemies = this.initializeEnemies();
         this.bullets = [];
         this.cooldown = false;
+        this.lives = 3;
     }
 
     initializeShip() {
@@ -99,7 +100,6 @@ class Game {
         return enemies
     }
 
-
     playGame() {
 
         function detectCollisions(game){
@@ -136,7 +136,7 @@ class Game {
                         }
                     } else {
                         if (game.ship.detectCollision(shot)) {
-                            game.ship.die();
+                            game.blowUpShip();
                             game.destroyBullet(i)
                         }
                     }
@@ -259,6 +259,16 @@ class Game {
 
     destroyBullet(index) {
         this.bullets.splice(index, 1);
+    }
+
+    blowUpShip() {
+        game.ship.die();
+        this.lives -= 1;
+        if (this.lives > 0) {
+            setTimeout(() => {
+                this.ship = this.initializeShip();
+            }, 1000);
+        }
     }
 
 
@@ -401,7 +411,7 @@ class Enemy {
         this.image = sprites[`${this.name}-enemy-sprite-1`]
         this.deathImage = sprites['pop-explosion']
         this.speed = {"x": 10, "y":50};
-        this.fireThreshold = .0005;
+        this.fireThreshold = .01;
     }
 
     draw() {
