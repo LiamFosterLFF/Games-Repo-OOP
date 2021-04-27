@@ -288,7 +288,9 @@ class Game {
     }
 
     fireShipLaser() {
-        this.bullets.push(this.ship.shoot());
+        if (!this.ship.isDead()) {
+            this.bullets.push(this.ship.shoot());
+        }
     }
 }
 
@@ -323,7 +325,7 @@ class Ship {
     }
 
     shoot() {
-        return new Bullet(this.x + this.width/2, this.y);
+            return new Bullet(this.x + this.width/2, this.y);
     }
 
     die() {
