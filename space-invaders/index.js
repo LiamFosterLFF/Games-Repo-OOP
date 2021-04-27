@@ -258,7 +258,7 @@ class Game {
     }
 
     destroyBullet(index) {
-        this.bullets = this.bullets.splice(index, 1);
+        this.bullets.splice(index, 1);
     }
 
 
@@ -478,8 +478,6 @@ class Cover {
 
 }
 
-// Clean up functions
-// Get Collisions working again
 // Add special enemies
 // Increase explosion radius for enemy bombs
 // Add levels
