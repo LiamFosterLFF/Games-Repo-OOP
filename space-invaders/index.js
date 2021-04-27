@@ -51,7 +51,8 @@ class Game {
         this.cover = this.initializeCover();
         this.enemies = this.initializeEnemies();
         this.bullets = [];
-        this.cooldown = false;
+        this.shotCooldown = false;
+        this.shipDeathCooldown = false;
         this.lives = 3;
     }
 
@@ -274,13 +275,18 @@ class Game {
     }
 
     blowUpShip() {
-        game.ship.die();
-        this.lives -= 1;
-        if (this.lives > 0) {
-            setTimeout(() => {
-                this.ship = this.initializeShip();
-            }, 1000);
+        if (!this.shipDeathCooldown) {
+            game.ship.die();
+            this.shipDeathCooldown = true;
+            this.lives -= 1;
+            if (this.lives > 0) {
+                setTimeout(() => {
+                    this.shipDeathCooldown = false;
+                    this.ship = this.initializeShip();
+                }, 1000);
+            }
         }
+
     }
 
     reverseShipsX() {
@@ -311,9 +317,9 @@ class Game {
     fireShipLaser() {
         if (!this.ship.isDead() && !this.cooldown) {
             this.bullets.push(this.ship.shoot());
-            this.cooldown = true;
+            this.shotCooldown = true;
             setTimeout(() => {
-                this.cooldown = false;
+                this.shotCooldown = false;
             }, 1000);
         }
     }
@@ -414,7 +420,7 @@ class Enemy {
         this.image = sprites[`${this.name}-enemy-sprite-1`]
         this.deathImage = sprites['pop-explosion']
         this.speed = {"x": 10, "y":50};
-        this.fireThreshold = .001;
+        this.fireThreshold = .01;
     }
 
     draw() {
