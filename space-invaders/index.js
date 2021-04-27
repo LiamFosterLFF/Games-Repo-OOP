@@ -51,7 +51,7 @@ class Game {
         this.cover = this.initializeCover();
         this.enemies = this.initializeEnemies();
         this.bullets = [];
-
+        this.cooldown = false;
     }
 
     initializeShip() {
@@ -288,8 +288,12 @@ class Game {
     }
 
     fireShipLaser() {
-        if (!this.ship.isDead()) {
+        if (!this.ship.isDead() && !this.cooldown) {
             this.bullets.push(this.ship.shoot());
+            this.cooldown = true;
+            setTimeout(() => {
+                this.cooldown = false;
+            }, 1000);
         }
     }
 }
