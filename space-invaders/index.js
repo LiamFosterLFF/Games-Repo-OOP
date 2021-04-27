@@ -165,45 +165,13 @@ class Game {
         }
     
         function drawCover(game) {
-    
-            function detectCollisionsCover(coverSegment, shot) {
-                if (
-                    shot !== null && coverSegment.blown !== true
-                    && shot.x >= coverSegment.x1 && shot.x <= coverSegment.x2
-                    && shot.y >= coverSegment.y1 && shot.y <= coverSegment.y2
-                ) {return true}
-                return false
-            }
-    
-            strokeWeight(1)
             for (let block = 0; block < game.cover.length; block++) {
                 for (let ln = 0; ln < game.cover[block].length; ln++) {
                     for (let row = 0; row < game.cover[block][ln].length; row++) {
-                        const bit = game.cover[block][ln][row];
-                        stroke(86, 252, 3);
-                        line(bit.x1, bit.y1, bit.x2, bit.y2)
-                        // if (detectCollisionCover(bit, bullet)) {
-                        //     game.cover[block][ln][row].blown = true;
-                        //     for (let i = 0; i < 4; i++) {
-                        //         game.cover[block][ln+i][row].blown = true;
-                        //         game.cover[block][ln+i][row].blown = true;      
-                        //     }
-                        //     bullet = null;
-                        // } else if (game.cover[block][ln][row].blown === true) {
-        
-        
-                        // for (let i=0; i< enemyBullets.length; i++) {
-                        //     enemyBullet = enemyBullets[i]
-                        //     if (detectCollisionCover(bit, enemyBullet)) {
-                        //         game.cover[block][ln][row].blown = true;
-                        //         for (let i = 0; i < 4; i++) {
-                        //             game.cover[block][ln+i][row].blown = true;
-                        //             game.cover[block][ln+i][row].blown = true;      
-                        //         }
-                        //         enemyBullets.splice(i);
-                        //     } 
-                        // }
-                        
+                        const coverSegment = game.cover[block][ln][row];
+                        if (!(coverSegment.isBlown())) {
+                            coverSegment.draw();
+                        }    
                     }
                 }
             }
@@ -211,31 +179,9 @@ class Game {
         }
         
         function drawShip(game) {
-            // function detectShipCollision(shot, game) {
-            //     if (
-            //         shot.x > game.ship.x && shot.x < game.ship.x + game.ship.width
-            //         && shot.y > game.ship.y && shot.y < game.ship.y + game.ship.height
-            //     ) {return true}
-            //     return false
-            // }
-
-            game.ship.draw();
-            
-            // for (let i=0; i<enemyBullets.length; i++) {
-            //     console.log("B");
-
-            //     if (detectShipCollision(enemyBullets[i], game)) {
-
-            //         enemyBullets = enemyBullets.splice(i);
-            //         game.ship.dead = true
-            //     } else if (game.ship.dead === true){
-
-            //     } else {
-
-            //         fill(255);
-            //         image(sprites['ship-sprite'], game.ship.x, game.ship.y, game.ship.width, game.ship.height);
-            //     }
-            // }
+            if (!(game.ship.isDead())) {
+                game.ship.draw();
+            }
         }
         
 
@@ -393,6 +339,10 @@ class Ship {
         }, 1000);
     }
 
+    isDead() {
+        return this.dead;
+    }
+
     detectCollision(shot) {
         if (
             shot !== null && !this.dead
@@ -522,6 +472,16 @@ class Cover {
     blowUp() {
         this.blown = true;
     }
+
+    isBlown() {
+        return this.blown;
+    }
+
+    draw() {
+        stroke(86, 252, 3);
+        line(this.x1, this.y1, this.x2, this.y2)
+    }
+
 }
 
 // Clean up functions
