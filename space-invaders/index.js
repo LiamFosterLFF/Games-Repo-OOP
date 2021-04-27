@@ -41,10 +41,6 @@ function draw() {
     }
 }
 
-function keyPressed() {
-
-}
-
 class Game {
     constructor(width, height) {
         this.width = width;
@@ -194,22 +190,6 @@ class Game {
         }
     
         function drawEnemies(game) {
-            for (let row = 0; row < game.enemies.length; row++) {
-                for (let col = 0; col < game.enemies[row].length; col++) {
-                    const enemy = game.enemies[row][col];
-                    if (!enemy.isDead()) {
-                        enemy.draw();
-                        enemy.move();
-                        if (enemy.shoot()) {
-                            game.bullets.push(new LightningBolt(enemy.x + enemy.x/2, enemy.y));
-                        }
-                    }
-                    // if (detectCollision(game.enemies[row][col])) {
-                    //     game.enemies[row][col].die();
-                    //     bullet = null;
-                        
-                }
-            }
 
             function enemiesAtEdgeX(game) {
                 for (let row = 0; row < game.enemies.length; row++) {
@@ -234,6 +214,19 @@ class Game {
                 }
                 return false;
             }
+
+            for (let row = 0; row < game.enemies.length; row++) {
+                for (let col = 0; col < game.enemies[row].length; col++) {
+                    const enemy = game.enemies[row][col];
+                    if (!enemy.isDead()) {
+                        enemy.draw();
+                        enemy.move();
+                        if (enemy.shoot()) {
+                            game.bullets.push(new LightningBolt(enemy.x + enemy.x/2, enemy.y));
+                        }
+                    }                        
+                }
+            }
             
             if (enemiesAtEdgeX(game)) {
                 game.reverseShipsX();
@@ -244,6 +237,7 @@ class Game {
             }
             
         }
+
         detectCollisions(this);
         drawBoard();
         drawScore(this);
