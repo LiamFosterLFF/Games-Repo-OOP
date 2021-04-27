@@ -309,14 +309,6 @@ class Game {
 }
 
 
-function detectCollision(enemy) {
-    if (
-        bullet !== null && enemy.dead !== true
-        && bullet.x > enemy.x && bullet.x < enemy.x + enemy.width
-        && bullet.y > enemy.y && bullet.y < enemy.y + enemy.height
-    ) {return true}
-    return false
-}
 
 class Ship {
     constructor(xPos, yPos, width, height) {
@@ -411,7 +403,7 @@ class Enemy {
         this.image = sprites[`${this.name}-enemy-sprite-1`]
         this.deathImage = sprites['pop-explosion']
         this.speed = {"x": 10, "y":50};
-        this.fireThreshold = .01;
+        this.fireThreshold = .001;
     }
 
     draw() {
