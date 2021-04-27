@@ -107,9 +107,6 @@ class Game {
     playGame() {
 
         function detectCollisions(game){
-
-            
-
             function detectCollisionsCover(game) {
                 for (let i=0; i<game.bullets.length; i++) {
                     const shot = game.bullets[i];
@@ -135,14 +132,19 @@ class Game {
                             for (let col = 0; col < game.enemies[row].length; col++) {
                                 const enemy = game.enemies[row][col];
                                 if (enemy.detectCollision(shot)) {
-                                    console.log("AA");
                                     enemy.die();
                                     game.score += 10
                                     game.destroyBullet(i)
                                 }
                             }
                         }
+                    } else {
+                        if (game.ship.detectCollision(shot)) {
+                            game.ship.die();
+                            game.destroyBullet(i)
+                        }
                     }
+
                 }
             }   
 
@@ -368,6 +370,7 @@ class Ship {
         this.height = height;
         this.dead = false;
         this.image = sprites['ship-sprite']
+        this.deathImage = sprites['burning-wreckage']
     }
 
     draw() {
@@ -384,7 +387,19 @@ class Ship {
     }
 
     die() {
-        console.log("BANG");
+        this.image = this.deathImage;
+        setTimeout(() => {
+            this.dead = true;
+        }, 1000);
+    }
+
+    detectCollision(shot) {
+        if (
+            shot !== null && !this.dead
+            && shot.x >= this.x && shot.x <= this.x + this.width
+            && shot.y >= this.y && shot.y <= this.y + this.height
+        ) {return true}
+        return false
     }
 
 }
@@ -434,7 +449,7 @@ class Enemy {
         this.dead = false;
         this.name = name
         this.image = sprites[`${this.name}-enemy-sprite-1`]
-        this.death = sprites['pop-explosion']
+        this.deathImage = sprites['pop-explosion']
         this.speed = {"x": 10, "y":50};
         this.fireThreshold = .0005;
     }
@@ -461,7 +476,7 @@ class Enemy {
     }
 
     die() {
-        this.image = this.death;
+        this.image = this.deathImage;
         setTimeout(() => {
             this.dead = true;
         }, 1000);
