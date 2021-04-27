@@ -30,7 +30,7 @@ function setup() {
 
 function draw() {
     frameRate()
-    game.drawGame();
+    game.playGame();
     if(keyIsDown(32)) {
         game.fireShipLaser();
     }
@@ -104,7 +104,51 @@ class Game {
     }
 
 
-    drawGame() {
+    playGame() {
+
+        function detectCollisions(game){
+
+            
+
+            function detectCollisionsCover(game) {
+                for (let i=0; i<game.bullets.length; i++) {
+                    const shot = game.bullets[i];
+                    for (let block = 0; block < game.cover.length; block++) {
+                        for (let ln = 0; ln < game.cover[block].length; ln++) {
+                            for (let i = 0; i < game.cover[block][ln].length; i++) {
+                                const coverSegment = game.cover[block][ln][i];
+                                if (coverSegment.detectCollision(shot)) {
+                                    coverSegment.blowUp();
+                                    game.destroyBullet(i)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            function detectCollisionsShips(game) {
+                for (let i=0; i<game.bullets.length; i++) {
+                    const shot = game.bullets[i];
+                    if (!(shot instanceof LightningBolt)) {
+                        for (let row = 0; row < game.enemies.length; row++) {
+                            for (let col = 0; col < game.enemies[row].length; col++) {
+                                const enemy = game.enemies[row][col];
+                                if (enemy.detectCollision(shot)) {
+                                    console.log("AA");
+                                    enemy.die();
+                                    game.score += 10
+                                    game.destroyBullet(i)
+                                }
+                            }
+                        }
+                    }
+                }
+            }   
+
+            detectCollisionsCover(game);
+            detectCollisionsShips(game);
+        }
 
         function drawBoard() {
             clear();
@@ -120,7 +164,7 @@ class Game {
     
         function drawCover(game) {
     
-            function detectCollisionCover(coverSegment, shot) {
+            function detectCollisionsCover(coverSegment, shot) {
                 if (
                     shot !== null && coverSegment.blown !== true
                     && shot.x >= coverSegment.x1 && shot.x <= coverSegment.x2
@@ -133,7 +177,6 @@ class Game {
             for (let block = 0; block < game.cover.length; block++) {
                 for (let ln = 0; ln < game.cover[block].length; ln++) {
                     for (let row = 0; row < game.cover[block][ln].length; row++) {
-                        
                         const bit = game.cover[block][ln][row];
                         stroke(86, 252, 3);
                         line(bit.x1, bit.y1, bit.x2, bit.y2)
@@ -253,6 +296,7 @@ class Game {
             }
             
         }
+        detectCollisions(this);
         drawBoard();
         drawScore(this);
         drawCover(this);
@@ -269,6 +313,10 @@ class Game {
         }
     
 
+    }
+
+    destroyBullet(index) {
+        this.bullets = this.bullets.splice(index, 1);
     }
 
 
@@ -333,6 +381,10 @@ class Ship {
 
     shoot() {
         return new Bullet(this.x + this.width/2, this.y);
+    }
+
+    die() {
+        console.log("BANG");
     }
 
 }
@@ -410,7 +462,6 @@ class Enemy {
 
     die() {
         this.image = this.death;
-        score += 10
         setTimeout(() => {
             this.dead = true;
         }, 1000);
@@ -423,6 +474,15 @@ class Enemy {
     shoot() {
         return (Math.random() < this.fireThreshold) 
     }
+
+    detectCollision(shot) {
+        if (
+            shot !== null && !this.dead
+            && shot.x >= this.x && shot.x <= this.x + this.width
+            && shot.y >= this.y && shot.y <= this.y + this.height
+        ) {return true}
+        return false
+    }
 }
 
 
@@ -433,6 +493,19 @@ class Cover {
         this.x2 = x2;
         this.y2 = y2;
         this.blown = false;
+    }
+
+    detectCollision(shot) {
+        if (
+            shot !== null && !this.blown
+            && shot.x >= this.x1 && shot.x <= this.x2
+            && shot.y >= this.y1 && shot.y <= this.y2
+        ) {return true}
+        return false
+    }
+
+    blowUp() {
+        this.blown = true;
     }
 }
 
