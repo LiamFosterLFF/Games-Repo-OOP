@@ -1,15 +1,6 @@
 
 const screenSize = {"width": 800, "height": 800};
-const enemies = [];
-const enemyEdges = {"x": {"max": 0, "min": 0}, "y": {max: 0, min: 0}};
-let bullet = null;
-let enemyBullets = []
-const offset = {"x": 70, "y": 150};
-const cover = [];
 sprites = {}
-score = 0
-fireThreshold = .0005
-let ship = null;
 let game = null;
 
 function preload() {
@@ -58,10 +49,13 @@ class Game {
     constructor(width, height) {
         this.width = width;
         this.height = height;
+        this.offset = {"x": 70, "y": 150};
+        this.score = 0;
         this.ship = this.initializeShip();
         this.cover = this.initializeCover();
         this.enemies = this.initializeEnemies();
         this.bullets = [];
+
     }
 
     initializeShip() {
@@ -85,12 +79,12 @@ class Game {
     }
     
     initializeEnemies() {
-        function buildEnemyRows(rows, enemyName, rOffset) {
+        function buildEnemyRows(rows, enemyName, rOffset, game) {
             const enemyRows = []
             for (let row = 0; row < rows; row++) {
                 const enemyRow = []
                 for (let col = 0; col < 11; col++) {
-                    enemyRow.push(new Enemy(offset.x + 60*col, offset.y + 60*row + rOffset, enemyName));
+                    enemyRow.push(new Enemy(game.offset.x + 60*col, game.offset.y + 60*row + rOffset, enemyName));
                 }
                 enemyRows.push(enemyRow)
             }
@@ -99,12 +93,11 @@ class Game {
 
         let enemies = []
         let rowOffset = 0
-        enemies = enemies.concat(buildEnemyRows(2, 'ant', rowOffset));
-        console.log(enemies);
+        enemies = enemies.concat(buildEnemyRows(2, 'ant', rowOffset, this));
         rowOffset += 2*60;
-        enemies = enemies.concat(buildEnemyRows(2, 'jelly', rowOffset));
+        enemies = enemies.concat(buildEnemyRows(2, 'jelly', rowOffset, this));
         rowOffset += 2*60;
-        enemies = enemies.concat(buildEnemyRows(2, 'ignignokt', rowOffset));
+        enemies = enemies.concat(buildEnemyRows(2, 'ignignokt', rowOffset, this));
         rowOffset += 2*60;
 
         return enemies
@@ -119,10 +112,10 @@ class Game {
             background(0);
         }
     
-        function drawScore() {
+        function drawScore(game) {
             textSize(50);
             fill(256);
-            text(`${score}`, screenSize["width"]/2 - 10, 45);
+            text(`${game.score}`, screenSize["width"]/2 - 10, 45);
         }
     
         function drawCover(game) {
@@ -142,19 +135,17 @@ class Game {
                     for (let row = 0; row < game.cover[block][ln].length; row++) {
                         
                         const bit = game.cover[block][ln][row];
-                        if (detectCollisionCover(bit, bullet)) {
-                            game.cover[block][ln][row].blown = true;
-                            for (let i = 0; i < 4; i++) {
-                                game.cover[block][ln+i][row].blown = true;
-                                game.cover[block][ln+i][row].blown = true;      
-                            }
-                            bullet = null;
-                        } else if (game.cover[block][ln][row].blown === true) {
+                        stroke(86, 252, 3);
+                        line(bit.x1, bit.y1, bit.x2, bit.y2)
+                        // if (detectCollisionCover(bit, bullet)) {
+                        //     game.cover[block][ln][row].blown = true;
+                        //     for (let i = 0; i < 4; i++) {
+                        //         game.cover[block][ln+i][row].blown = true;
+                        //         game.cover[block][ln+i][row].blown = true;      
+                        //     }
+                        //     bullet = null;
+                        // } else if (game.cover[block][ln][row].blown === true) {
         
-                        } else {
-                            stroke(86, 252, 3);
-                            line(bit.x1, bit.y1, bit.x2, bit.y2)
-                        }
         
                         // for (let i=0; i< enemyBullets.length; i++) {
                         //     enemyBullet = enemyBullets[i]
@@ -263,7 +254,7 @@ class Game {
             
         }
         drawBoard();
-        drawScore();
+        drawScore(this);
         drawCover(this);
         drawShip(this);
         drawEnemies(this);
@@ -393,6 +384,7 @@ class Enemy {
         this.image = sprites[`${this.name}-enemy-sprite-1`]
         this.death = sprites['pop-explosion']
         this.speed = {"x": 10, "y":50};
+        this.fireThreshold = .0005;
     }
 
     draw() {
@@ -429,7 +421,7 @@ class Enemy {
     }
 
     shoot() {
-        return (Math.random() < fireThreshold) 
+        return (Math.random() < this.fireThreshold) 
     }
 }
 
@@ -445,6 +437,7 @@ class Cover {
 }
 
 // Clean up functions
+// Get Collisions working again
 // Add special enemies
 // Increase explosion radius for enemy bombs
 // Add levels
