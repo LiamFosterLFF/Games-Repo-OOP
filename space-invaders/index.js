@@ -54,6 +54,7 @@ class Game {
         this.shotCooldown = false;
         this.shipDeathCooldown = false;
         this.lives = 3;
+        this.count = 0;
     }
 
     initializeShip() {
@@ -78,15 +79,13 @@ class Game {
     
     initializeEnemies() {
         function buildEnemyRows(rows, enemyName, rOffset, game) {
-            const enemyRows = []
+            const enemies = []
             for (let row = 0; row < rows; row++) {
-                const enemyRow = []
                 for (let col = 0; col < 11; col++) {
-                    enemyRow.push(new Enemy(game.offset.x + 60*col, game.offset.y + 60*row + rOffset, enemyName));
+                    enemies.push(new Enemy(game.offset.x + 60*col, game.offset.y + 60*row + rOffset, enemyName));
                 }
-                enemyRows.push(enemyRow)
             }
-            return enemyRows
+            return enemies
         }
 
         let enemies = []
@@ -102,6 +101,12 @@ class Game {
     }
 
     playGame() {
+
+        function launchUFO(game) {
+            if (count % 50 === 0) {
+                enemies.push()
+            }
+        }
 
         function detectCollisions(game){
             function detectCollisionsCover(game) {
@@ -200,42 +205,35 @@ class Game {
             function drawEnemies(game) {
     
                 function enemiesAtEdgeX(game) {
-                    for (let row = 0; row < game.enemies.length; row++) {
-                        for (let col = 0; col < game.enemies[row].length; col++) {
-                            const enemy = game.enemies[row][col]
-                            if (enemy.x > game.width-50 || enemy.x < 10) {
-                                return true;
-                            }
+                    for (let e = 0; e < game.enemies.length; e++) {
+                        const enemy = game.enemies[e]
+                        if (enemy.x > game.width-50 || enemy.x < 10) {
+                            return true;
                         }
                     }
                     return false;
                 }
                 
                 function enemiesAtEdgeY(game) {
-                    for (let row = 0; row < game.enemies.length; row++) {
-                        for (let col = 0; col < game.enemies[row].length; col++) {
-                            const enemy = game.enemies[row][col]
-                            if (enemy.y > game.width-250 || enemy.y < 100) {
-                                return true;
-                            }
+                    for (let e = 0; e < game.enemies.length; e++) {
+                        const enemy = game.enemies[e]
+                        if (enemy.y > game.width-250 || enemy.y < 100) {
+                            return true;
                         }
                     }
                     return false;
                 }
     
-                for (let row = 0; row < game.enemies.length; row++) {
-                    for (let col = 0; col < game.enemies[row].length; col++) {
-                        const enemy = game.enemies[row][col];
-                        if (!enemy.isDead()) {
-                            enemy.draw();
-                            enemy.move();
-                            if (enemy.shoot()) {
-                                game.bullets.push(new LightningBolt(enemy.x + enemy.x/2, enemy.y));
-                            }
-                        }                        
-                    }
+                for (let e = 0; e < game.enemies.length; e++) {
+                    const enemy = game.enemies[e];
+                    if (!enemy.isDead()) {
+                        enemy.draw();
+                        enemy.move();
+                        if (enemy.shoot()) {
+                            game.bullets.push(new LightningBolt(enemy.x + enemy.x/2, enemy.y));
+                        }
+                    }                        
                 }
-                
                 if (enemiesAtEdgeX(game)) {
                     game.reverseShipsX();
                     if (enemiesAtEdgeY(game)) {
@@ -254,17 +252,15 @@ class Game {
             drawEnemies(game);
             drawBullets(game);
         }
-
+        // launchUfO(game);
         detectCollisions(game);
         drawGame(game);
 
     }
     
     shootEnemies() {
-        for (let row = 0; row < this.enemies.length; row++) {
-            for (let col = 0; col < this.enemies[row].length; col++) {
-                this.enemies[row][col].shoot();
-            }   
+        for (let e = 0; e < this.enemies.length; e++) {
+            this.enemies[e].shoot();
         }
     
 
@@ -290,27 +286,20 @@ class Game {
     }
 
     reverseShipsX() {
-        for (let row = 0; row < this.enemies.length; row++) {
-            for (let col = 0; col < this.enemies[row].length; col++) {
-                this.enemies[row][col].flipXSpeed();
-            }
+        for (let e = 0; e < this.enemies.length; e++) {
+            this.enemies[e].flipXSpeed();
         }
     }
     
     reverseShipsY() {
-        for (let row = 0; row < this.enemies.length; row++) {
-            for (let col = 0; col < this.enemies[row].length; col++) {
-                this.enemies[row][col].flipYSpeed();
-            }
+        for (let e = 0; e < this.enemies.length; e++) {
+            this.enemies[e].flipYSpeed();
         }
     }
 
     advanceEnemies() {
-        for (let row = 0; row < this.enemies.length; row++) {
-            for (let col = 0; col < this.enemies[row].length; col++) {
-                this.enemies[row][col].advance();
-            }
-            
+        for (let e = 0; e < this.enemies.length; e++) {
+            this.enemies[e].advance();
         }
     }
 
@@ -324,8 +313,6 @@ class Game {
         }
     }
 }
-
-
 
 class Ship {
     constructor(xPos, yPos, width, height) {
@@ -470,6 +457,55 @@ class Enemy {
 }
 
 
+class UFO {
+    constructor() {
+        this.x = screenSize.width;
+        this.y = 50;
+        this.width = 40;
+        this.height = 30;
+        this.dead = false;
+        this.name = "UFO"
+        this.image = sprites[`$ufo-sprite`]
+        this.deathImage = sprites['burning-wreckage']
+        this.speed = {"x": 50, "y":0};
+        this.fireThreshold = .01;
+    }
+
+    draw() {
+        fill(255);
+        image(this.image, this.x, this.y, this.width, this.height)
+    }
+
+    move() {
+        this.x += this.speed.x;
+    }
+
+    die() {
+        this.image = this.deathImage;
+        setTimeout(() => {
+            this.dead = true;
+        }, 1000);
+    }
+
+    isDead() {
+        return this.dead;
+    }
+
+    shoot() {
+        return (Math.random() < this.fireThreshold) 
+    }
+
+    detectCollision(shot) {
+        if (
+            shot !== null && !this.dead
+            && shot.x >= this.x && shot.x <= this.x + this.width
+            && shot.y >= this.y && shot.y <= this.y + this.height
+        ) {return true}
+        return false
+    }
+
+}
+
 class Cover {
     constructor(x1, y1, x2, y2) {
         this.x1 = x1;
@@ -506,8 +542,7 @@ class Cover {
 // Add special enemies
 // Increase explosion radius for enemy bombs
 // Add levels
-// Add score
 // Enemies speed up over time
-// Add lives & game over
 // Add screen border
 // Add start screen - insert coin
+// Add Game over
