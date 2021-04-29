@@ -488,28 +488,15 @@ class Enemy {
 }
 
 
-class UFO{
+class UFO extends Enemy{
     constructor() {
-        this.x = screenSize.width;
-        this.y = 50;
-        this.width = 40;
-        this.height = 30;
-        this.name = "UFO";
-        this.dying = false;
-        this.dead = false;
+        super(screenSize.width, 50, "UFO")
         this.image = sprites[`ufo-sprite`]
         this.deathImage = sprites['burning-wreckage']
         this.speed = {"x": 10, "y":0};
-        this.fireThreshold = .01;
         this.count = 1;
         this.countThreshold = 50;
         this.score = 50;
-    }
-
-
-    draw() {
-        fill(255);
-        image(this.image, this.x, this.y, this.width, this.height)
     }
 
     move() {
@@ -518,42 +505,8 @@ class UFO{
         }
     }
 
-    die() {
-        this.dying = true;
-        this.image = this.deathImage;
-        setTimeout(() => {
-            this.dying = false;
-            this.dead = true;
-        }, 1000);
-    }
-
-    isDead() {
-        return this.dead;
-    }
-
-    isDying() {
-        return this.dying;
-    }
-
-    getScore() {
-        return this.score;
-    }
-
     atEdge() {
         return this.x < 0;
-    }
-
-    canShoot() {
-        return (Math.random() < this.fireThreshold) 
-    }
-
-    detectCollision(shot) {
-        if (
-            shot !== null && !this.dying && !this.dead
-            && shot.x >= this.x && shot.x <= this.x + this.width
-            && shot.y >= this.y && shot.y <= this.y + this.height
-        ) {return true}
-        return false
     }
 
     iterateCount() {
@@ -601,7 +554,9 @@ class Cover {
 
 // Add special enemies
 // Increase explosion radius for enemy bombs
-// Bug - enemies can be hit more than once because of the way death works
+// Bug - shots blow right through the cover without stopping
+// Bug - More aesthetic really, but figure out the logic for stopping movement/move it all into the enemy models
+// Bug - Make UFO an extension of enemy to fix DRY
 // Add levels
 // Enemies speed up over time
 // Add screen border
