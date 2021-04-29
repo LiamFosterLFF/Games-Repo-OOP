@@ -130,14 +130,13 @@ class Game {
                 for (let i=0; i<game.bullets.length; i++) {
                     const shot = game.bullets[i];
                     if (!(shot instanceof LightningBolt)) {
-                        for (let row = 0; row < game.enemies.length; row++) {
-                            for (let col = 0; col < game.enemies[row].length; col++) {
-                                const enemy = game.enemies[row][col];
-                                if (enemy.detectCollision(shot)) {
-                                    enemy.die();
-                                    game.score += 10
-                                    game.destroyBullet(i)
-                                }
+                        const enemies = game.enemies.concat(game.UFO)
+                        for (let e = 0; e < enemies.length; e++) {
+                            const enemy =  enemies[e];
+                            if (enemy.detectCollision(shot)) {
+                                enemy.die();
+                                game.score += 10
+                                game.destroyBullet(i)
                             }
                         }
                     } else {
@@ -249,15 +248,15 @@ class Game {
             function drawUFO(game) {
                 const ufo = game.UFO;
                 if (ufo.atCountThreshold()) {
-                    console.log(ufo)
-
-                    ufo.draw();
-                    ufo.move();
                     if (ufo.canShoot()) {
                         game.bullets.push(new LightningBolt(ufo.x + ufo.x/2, ufo.y));
                     }
-                    if (ufo.atEdge()) {
+                    if (ufo.atEdge() || ufo.isDead()) {
                         game.resetUFO()
+                    } else {
+                        console.log("A");
+                        ufo.draw();
+                        ufo.move();
                     }
                 } else {
                     ufo.iterateCount();
@@ -427,7 +426,7 @@ class Enemy {
         this.image = sprites[`${this.name}-enemy-sprite-1`]
         this.deathImage = sprites['pop-explosion']
         this.speed = {"x": 10, "y":50};
-        this.fireThreshold = .01;
+        this.fireThreshold = .001;
     }
 
     draw() {
@@ -483,7 +482,8 @@ class UFO{
         this.y = 50;
         this.width = 40;
         this.height = 30;
-        this.name = "UFO"
+        this.name = "UFO";
+        this.dead = false;
         this.image = sprites[`ufo-sprite`]
         this.deathImage = sprites['burning-wreckage']
         this.speed = {"x": 10, "y":0};
@@ -499,7 +499,7 @@ class UFO{
     }
 
     move() {
-        this.x -= 50;
+        this.x -= this.speed.x;
     }
 
     die() {
@@ -507,6 +507,10 @@ class UFO{
         setTimeout(() => {
             this.dead = true;
         }, 1000);
+    }
+
+    isDead() {
+        return this.dead;
     }
 
     atEdge() {
