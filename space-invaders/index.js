@@ -135,7 +135,7 @@ class Game {
                             const enemy =  enemies[e];
                             if (enemy.detectCollision(shot)) {
                                 enemy.die();
-                                game.score += 10
+                                game.score += enemy.getScore();
                                 game.destroyBullet(i)
                             }
                         }
@@ -223,7 +223,22 @@ class Game {
                     return false;
                 }
 
-                
+                function drawUFO(game) {
+                    const ufo = game.UFO;
+                    if (ufo.atCountThreshold()) {
+                        if (ufo.canShoot()) {
+                            game.bullets.push(new LightningBolt(ufo.x + ufo.x/2, ufo.y));
+                        }
+                        if (ufo.atEdge() || ufo.isDead()) {
+                            game.resetUFO()
+                        } else {
+                            ufo.draw();
+                            ufo.move();
+                        }
+                    } else {
+                        ufo.iterateCount();
+                    }
+                }
 
                 for (let e = 0; e < game.enemies.length; e++) {
                     const enemy = game.enemies[e];
@@ -242,26 +257,12 @@ class Game {
                     }
                     game.advanceEnemies()
                 }
+
+                drawUFO(game);
                 
             }
 
-            function drawUFO(game) {
-                const ufo = game.UFO;
-                if (ufo.atCountThreshold()) {
-                    if (ufo.canShoot()) {
-                        game.bullets.push(new LightningBolt(ufo.x + ufo.x/2, ufo.y));
-                    }
-                    if (ufo.atEdge() || ufo.isDead()) {
-                        game.resetUFO()
-                    } else {
-                        console.log("A");
-                        ufo.draw();
-                        ufo.move();
-                    }
-                } else {
-                    ufo.iterateCount();
-                }
-            }
+
     
             drawBoard();
             drawScore(game);
@@ -269,7 +270,6 @@ class Game {
             drawCover(game);
             drawShip(game);
             drawEnemies(game);
-            drawUFO(game);
             drawBullets(game);
         }
         detectCollisions(game);
@@ -421,12 +421,14 @@ class Enemy {
         this.y = y;
         this.width = 40;
         this.height = 30;
+        this.dying = false;
         this.dead = false;
         this.name = name
         this.image = sprites[`${this.name}-enemy-sprite-1`]
         this.deathImage = sprites['pop-explosion']
         this.speed = {"x": 10, "y":50};
         this.fireThreshold = .001;
+        this.score = 10;
     }
 
     draw() {
@@ -451,8 +453,10 @@ class Enemy {
     }
 
     die() {
+        this.dying = true;
         this.image = this.deathImage;
         setTimeout(() => {
+            this.dying = false;
             this.dead = true;
         }, 1000);
     }
@@ -461,13 +465,21 @@ class Enemy {
         return this.dead;
     }
 
+    isDying() {
+        return this.dying;
+    }
+
+    getScore() {
+        return this.score;
+    }
+
     canShoot() {
         return (Math.random() < this.fireThreshold) 
     }
 
     detectCollision(shot) {
         if (
-            shot !== null && !this.dead
+            shot !== null && !this.dying && ! this.dead
             && shot.x >= this.x && shot.x <= this.x + this.width
             && shot.y >= this.y && shot.y <= this.y + this.height
         ) {return true}
@@ -483,6 +495,7 @@ class UFO{
         this.width = 40;
         this.height = 30;
         this.name = "UFO";
+        this.dying = false;
         this.dead = false;
         this.image = sprites[`ufo-sprite`]
         this.deathImage = sprites['burning-wreckage']
@@ -490,6 +503,7 @@ class UFO{
         this.fireThreshold = .01;
         this.count = 1;
         this.countThreshold = 50;
+        this.score = 50;
     }
 
 
@@ -499,18 +513,30 @@ class UFO{
     }
 
     move() {
-        this.x -= this.speed.x;
+        if (!this.dying) {
+            this.x -= this.speed.x;
+        }
     }
 
     die() {
+        this.dying = true;
         this.image = this.deathImage;
         setTimeout(() => {
+            this.dying = false;
             this.dead = true;
         }, 1000);
     }
 
     isDead() {
         return this.dead;
+    }
+
+    isDying() {
+        return this.dying;
+    }
+
+    getScore() {
+        return this.score;
     }
 
     atEdge() {
@@ -523,7 +549,7 @@ class UFO{
 
     detectCollision(shot) {
         if (
-            shot !== null && !this.dead
+            shot !== null && !this.dying && !this.dead
             && shot.x >= this.x && shot.x <= this.x + this.width
             && shot.y >= this.y && shot.y <= this.y + this.height
         ) {return true}
@@ -575,6 +601,7 @@ class Cover {
 
 // Add special enemies
 // Increase explosion radius for enemy bombs
+// Bug - enemies can be hit more than once because of the way death works
 // Add levels
 // Enemies speed up over time
 // Add screen border
