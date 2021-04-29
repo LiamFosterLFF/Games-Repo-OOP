@@ -54,7 +54,9 @@ class Game {
         this.shotCooldown = false;
         this.shipDeathCooldown = false;
         this.lives = 3;
-        this.count = 0;
+        this.count = 1;
+        this.UFOThreshold = 50;
+        this.UFO = new UFO();
     }
 
     initializeShip() {
@@ -100,13 +102,11 @@ class Game {
         return enemies
     }
 
-    playGame() {
+    resetUFO() {
+        this.UFO = new UFO();
+    }
 
-        function launchUFO(game) {
-            if (count % 50 === 0) {
-                enemies.push()
-            }
-        }
+    playGame() {
 
         function detectCollisions(game){
             function detectCollisionsCover(game) {
@@ -217,19 +217,21 @@ class Game {
                 function enemiesAtEdgeY(game) {
                     for (let e = 0; e < game.enemies.length; e++) {
                         const enemy = game.enemies[e]
-                        if (enemy.y > game.width-250 || enemy.y < 100) {
+                        if (enemy.y > game.width-250 || enemy.y < 150) {
                             return true;
                         }
                     }
                     return false;
                 }
-    
+
+                
+
                 for (let e = 0; e < game.enemies.length; e++) {
                     const enemy = game.enemies[e];
                     if (!enemy.isDead()) {
                         enemy.draw();
                         enemy.move();
-                        if (enemy.shoot()) {
+                        if (enemy.canShoot()) {
                             game.bullets.push(new LightningBolt(enemy.x + enemy.x/2, enemy.y));
                         }
                     }                        
@@ -243,6 +245,24 @@ class Game {
                 }
                 
             }
+
+            function drawUFO(game) {
+                const ufo = game.UFO;
+                if (ufo.atCountThreshold()) {
+                    console.log(ufo)
+
+                    ufo.draw();
+                    ufo.move();
+                    if (ufo.canShoot()) {
+                        game.bullets.push(new LightningBolt(ufo.x + ufo.x/2, ufo.y));
+                    }
+                    if (ufo.atEdge()) {
+                        game.resetUFO()
+                    }
+                } else {
+                    ufo.iterateCount();
+                }
+            }
     
             drawBoard();
             drawScore(game);
@@ -250,9 +270,9 @@ class Game {
             drawCover(game);
             drawShip(game);
             drawEnemies(game);
+            drawUFO(game);
             drawBullets(game);
         }
-        // launchUfO(game);
         detectCollisions(game);
         drawGame(game);
 
@@ -442,7 +462,7 @@ class Enemy {
         return this.dead;
     }
 
-    shoot() {
+    canShoot() {
         return (Math.random() < this.fireThreshold) 
     }
 
@@ -457,19 +477,21 @@ class Enemy {
 }
 
 
-class UFO {
+class UFO{
     constructor() {
         this.x = screenSize.width;
         this.y = 50;
         this.width = 40;
         this.height = 30;
-        this.dead = false;
         this.name = "UFO"
-        this.image = sprites[`$ufo-sprite`]
+        this.image = sprites[`ufo-sprite`]
         this.deathImage = sprites['burning-wreckage']
-        this.speed = {"x": 50, "y":0};
+        this.speed = {"x": 10, "y":0};
         this.fireThreshold = .01;
+        this.count = 1;
+        this.countThreshold = 50;
     }
+
 
     draw() {
         fill(255);
@@ -477,7 +499,7 @@ class UFO {
     }
 
     move() {
-        this.x += this.speed.x;
+        this.x -= 50;
     }
 
     die() {
@@ -487,11 +509,11 @@ class UFO {
         }, 1000);
     }
 
-    isDead() {
-        return this.dead;
+    atEdge() {
+        return this.x < 0;
     }
 
-    shoot() {
+    canShoot() {
         return (Math.random() < this.fireThreshold) 
     }
 
@@ -502,6 +524,14 @@ class UFO {
             && shot.y >= this.y && shot.y <= this.y + this.height
         ) {return true}
         return false
+    }
+
+    iterateCount() {
+        this.count += 1;
+    }
+
+    atCountThreshold() {
+        return this.count > this.countThreshold;
     }
 
 }
