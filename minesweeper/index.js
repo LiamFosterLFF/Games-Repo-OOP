@@ -105,6 +105,11 @@ class PauseButton extends Button {
     handleClick() {
         board.pauseTimer();
     }
+
+    setText(text) {
+        this.text = text;
+        this.btn.html(text);
+    }
 }
 
 
@@ -216,6 +221,11 @@ class Board {
     }
 
     pauseTimer() {
+        if (this.timerIsPaused) {
+            this.buttons["pause"].setText("Pause");
+        } else {
+            this.buttons["pause"].setText("Unpause");
+        }
         this.timerIsPaused = !this.timerIsPaused;
     }
 
