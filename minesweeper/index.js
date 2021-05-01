@@ -76,7 +76,6 @@ class StartOverButton extends Button {
 
     handleClick() {
         board.reset();
-        board.startTimer();
     }
 }
 
@@ -120,7 +119,8 @@ class Board {
         this.gameState = "playing";
         this.buttons = this.initializeButtons();
         this.time = 0;
-        this.timer = createDiv(this.formatTime(this.time)).parent("canvas-parent");
+        this.timer = this.initializeTimer();
+        this.timerInterval = null;
     }
 
     initializeBoard() {
@@ -141,6 +141,15 @@ class Board {
         buttonsDict["startOver"] = new StartOverButton();
         buttonsDict["changeDifficulty"] = new ChangeDifficultyButton();
         buttonsDict["pause"] = new PauseButton();
+
+        return buttonsDict;
+    }
+
+    initializeTimer() {
+        const timer = createDiv(this.formatTime(this.time));
+        timer.parent("canvas-parent");
+        this.startTimer();
+        return timer
     }
 
     setCounts() {
@@ -191,12 +200,13 @@ class Board {
     }
 
     resetTimer() {
+        clearInterval(this.timerInterval)
         this.time = 0;
         this.setTimer()
     }
 
     startTimer() {
-        setInterval(() => {
+        this.timerInterval = setInterval(() => {
             this.time += 1
             this.setTimer()
         }, 1000);
@@ -276,6 +286,8 @@ class Board {
         this.setBombs();
         this.setCounts();
         this.gameState = "playing";
+        this.resetTimer();
+
     }
 }
 
