@@ -20,7 +20,7 @@ function setup() {
 }
 
 function draw() {
-    // drawHover();
+    handleHover();
     board.drawBoard();
 }
 
@@ -30,14 +30,9 @@ function preload() {
     images["question-mark"] = loadImage("minesweeper/images/question-mark.png");
 }
 
-// function drawHover() {
-//     var [cellCol, cellRow] = [floor(mouseX/w), floor(mouseY/h)];
-//     console.log(cellRow, cellCol); 
-//     // if (cellArr[cellRow][cellCol].clicked !== true) {
-//     //     fill(200)
-//     //     rect(cellRow*h + 1, cellCol*w + 1, w -1, h - 1, 4)
-//     // }
-// }   
+function handleHover() {
+    board.handleHoverCell(mouseX, mouseY);
+}   
 
 
 function setupGame() {
@@ -84,6 +79,7 @@ class Board {
         this.timer = this.initializeTimer();
         this.timerInterval = null;
         this.timerIsPaused = false;
+        this.hoverCell = null;
     }
 
     initializeBoard() {
@@ -214,6 +210,37 @@ class Board {
         }
     }
 
+    handleHoverCell(x, y) {
+        const row = floor(y / this.squareSize);
+        const col = floor(x / this.squareSize);
+        if (row >= 0 && row < 20 && col >= 0 && col < 20) {
+            if (this.hoverCell !== null) {
+                if (row !== this.hoverCell[0] || col !== this.hoverCell[1]) {
+                    this.resetHoverCell();
+                    this.setHoverCell([row, col]);
+                }
+            } else {
+                this.setHoverCell([row, col]);
+            }
+        } else {
+            this.resetHoverCell();
+        }
+    }
+
+    setHoverCell(location) {
+        const [row, col] = location
+        this.cells[row][col].hoverCell(true)
+        this.hoverCell = location;
+    }
+
+    resetHoverCell() {
+        if (this.hoverCell !== null) {
+            const [row, col] = this.hoverCell;
+            this.cells[row][col].hoverCell(false)
+            this.hoverCell = null;
+        }
+    }
+
     minesweep(cell) {
         if (!cell.isFlagged()) {
             cell.clickCell();
@@ -279,6 +306,7 @@ class Cell {
         this.row = row;
         this.col = col;
         this.clicked = false;
+        this.hovered = false;
         this.flagged = false;
         this.questionFlagged = false;
         this.bomb = false;
@@ -316,6 +344,10 @@ class Cell {
 
     }
 
+    hoverCell(bool) {
+        this.hovered = bool;
+    }
+
     rightClickCell() {
         if (!this.flagged && !this.questionFlagged) {
             this.flagged = true;
@@ -341,6 +373,11 @@ class Cell {
         fill(200);
         stroke(255);
         rect(col*squareSize, row*squareSize, squareSize, squareSize, 3);
+
+        if (this.hovered) {
+            fill(150);
+            rect(col*squareSize + 5, row*squareSize + 4, squareSize - 7, squareSize - 7, 3)
+        }
 
         if (this.flagged) {
             image(this.flagImage, col*squareSize + 3, row*squareSize + 3, squareSize- 6, squareSize - 6)
@@ -419,5 +456,4 @@ class PauseButton extends Button {
 // Bug: Fix colors so they look less bad
 // Bug: Fix stroke color on numbers
 // Bug: Minesweep sweeps corners as well for empty squares, should just be numbered cells
-// Add flag count/minecount
 // Responsivity : Can adjust game size??
