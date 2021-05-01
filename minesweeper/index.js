@@ -2,19 +2,26 @@ let board;
 let boardSize = 800;
 var cnv;
 const images = {}
+let rightPressed = false;
 
 function setup() {
     cnv = createCanvas(boardSize, boardSize);
     cnv.parent("canvas-parent");
     setupGame();
+    for (let element of document.getElementsByClassName("p5Canvas")) {
+        element.addEventListener(
+            "contextmenu", 
+            (e) => {
+                e.preventDefault();
+                handleRightClick();
+            }
+        );
+    }
 }
 
 function draw() {
     // drawHover();
     board.drawBoard();
-    cnv.mouseClicked(handleClick);
-    handleRightClick();
-
 }
 
 function preload() {
@@ -36,10 +43,9 @@ function setupGame() {
     board = new Board(20, boardSize)
     board.setBombs();
     board.setCounts();
-    // console.log(board);
 }
 
-function handleClick() {
+function mouseClicked() {
     if (board.isPlaying()) {
         const cell = board.getCellClicked(mouseX, mouseY);
         const hitBomb = cell.clickCell();
@@ -54,14 +60,9 @@ function handleClick() {
 }
 
 function handleRightClick() {
-    if (mouseIsPressed) {
-        if (mouseButton === RIGHT) {
-            console.log("RIGHT");
-        }
-    }
+    const cell = board.getCellClicked(mouseX, mouseY);
+    cell.rightClickCell();
 }
-
-
 
 
 
@@ -292,6 +293,10 @@ class Cell {
     clickCell() {
         this.clicked = true;
         return this.hasBomb();
+    }
+
+    rightClickCell() {
+        this.flagged = !this.flagged;
     }
 
     isClicked() {
