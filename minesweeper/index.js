@@ -74,6 +74,9 @@ class Board {
         this.squareSize = boardSize / cells;
         this.size = [this.rows, this.cols];
         this.mineCount = 50;
+        this.mineCounter = this.initializeMineCounter();
+        this.flagCount = 0;
+        this.flagCounter = this.initializeFlagCounter();
         this.cells = this.initializeBoard();
         this.gameState = "playing";
         this.buttons = this.initializeButtons();
@@ -112,6 +115,14 @@ class Board {
         return timer
     }
 
+    initializeFlagCounter() {
+        return createDiv(this.flagCount).parent("canvas-parent");
+    }
+
+    initializeMineCounter() {
+        return createDiv(this.mineCount).parent("canvas-parent");
+    }
+
     setCounts() {
         for (let row = 0; row < this.rows; row++) {;
             for (let col = 0; col < this.cols; col++) {
@@ -144,8 +155,10 @@ class Board {
         }
     }
 
-    changeMineCount(mineCount) {
-        this.mineCount = mineCount;
+    changeFlagCount(flag) {
+        this.flagCount += flag;
+        console.log(this.flagCount);
+        this.flagCounter.html(this.flagCount);
     }
 
     formatTime(time) {
@@ -306,8 +319,10 @@ class Cell {
     rightClickCell() {
         if (!this.flagged && !this.questionFlagged) {
             this.flagged = true;
+            board.changeFlagCount(1);
         } else if (this.flagged && !this.questionFlagged) {
             this.flagged = false;
+            board.changeFlagCount(-1);
             this.questionFlagged = true;
         } else if (!this.flagged && this.questionFlagged) {
             this.questionFlagged = false;
@@ -331,7 +346,6 @@ class Cell {
             image(this.flagImage, col*squareSize + 3, row*squareSize + 3, squareSize- 6, squareSize - 6)
         } else if (this.questionFlagged) {
             image(this.questionMarkImage, col*squareSize + 3, row*squareSize + 3, squareSize- 6, squareSize - 6)
-
         } else if (this.clicked) {
             if (this.bomb) {
                 fill(100);
@@ -405,7 +419,5 @@ class PauseButton extends Button {
 // Bug: Fix colors so they look less bad
 // Bug: Fix stroke color on numbers
 // Bug: Minesweep sweeps corners as well for empty squares, should just be numbered cells
-// Add flagging - disables clicks
-// Add questionable flag
 // Add flag count/minecount
 // Responsivity : Can adjust game size??
