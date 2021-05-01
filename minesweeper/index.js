@@ -201,34 +201,37 @@ class Board {
     }
 
     minesweep(cell) {
-        cell.clickCell();
-        const [row, col] = cell.getLocation();
-        // Checks rows and cols above and below unless those are off grid
-        let minRow = (row > 0) ? (row - 1) : row;
-        let maxRow = (row < 19) ? (row + 1) : row;
-        let minCol = (col > 0) ? (col - 1) : col;
-        let maxCol = (col < 19) ? (col + 1) : col;
-
-        // Only minesweep for empty cells
-        if (cell.getCount() === 0) {
-            for (let r = minRow; r <= maxRow; r++) {;
-                for (let c = minCol; c <= maxCol; c++) {
-                    const nextCell = this.cells[r][c];
-                    const [nr, nc] = nextCell.getLocation();
-                    if (nr === row && nc === col) {
-                        // pass if is same cell (else infinite loop)
-                    } else if (nextCell.isClicked()) {
-                        // pass if next cell is clicked (else infinite loop)
-                    } else if (nextCell.hasBomb()){
-                        //pass if cell is bomb
-                    } else if (nextCell.getCount() === 0) {
-                        this.minesweep(nextCell)
-                    } else {
-                        nextCell.clickCell();
+        if (!cell.isFlagged()) {
+            cell.clickCell();
+            const [row, col] = cell.getLocation();
+            // Checks rows and cols above and below unless those are off grid
+            let minRow = (row > 0) ? (row - 1) : row;
+            let maxRow = (row < 19) ? (row + 1) : row;
+            let minCol = (col > 0) ? (col - 1) : col;
+            let maxCol = (col < 19) ? (col + 1) : col;
+    
+            // Only minesweep for empty cells
+            if (cell.getCount() === 0) {
+                for (let r = minRow; r <= maxRow; r++) {;
+                    for (let c = minCol; c <= maxCol; c++) {
+                        const nextCell = this.cells[r][c];
+                        const [nr, nc] = nextCell.getLocation();
+                        if (nr === row && nc === col) {
+                            // pass if is same cell (else infinite loop)
+                        } else if (nextCell.isClicked()) {
+                            // pass if next cell is clicked (else infinite loop)
+                        } else if (nextCell.hasBomb()){
+                            //pass if cell is bomb
+                        } else if (nextCell.getCount() === 0) {
+                            this.minesweep(nextCell)
+                        } else {
+                            nextCell.clickCell();
+                        }
                     }
                 }
             }
         }
+        
     }
 
     gameOver() {
@@ -291,8 +294,11 @@ class Cell {
     }
 
     clickCell() {
-        this.clicked = true;
-        return this.hasBomb();
+        if (!this.flagged) {
+            this.clicked = true;
+            return this.hasBomb();
+        }
+
     }
 
     rightClickCell() {
@@ -303,6 +309,10 @@ class Cell {
         return this.clicked;
     }
 
+    isFlagged() {
+        return this.flagged;
+    }
+
     drawCell(row, col, squareSize) {
         fill(200);
         stroke(255);
@@ -310,9 +320,7 @@ class Cell {
 
         if (this.flagged) {
             image(this.flagImage, col*squareSize + 3, row*squareSize + 3, squareSize- 6, squareSize - 6)
-        }
-
-        if (this.clicked) {
+        } else if (this.clicked) {
             if (this.bomb) {
                 fill(100);
                 image(this.bombImage, col*squareSize + 3, row*squareSize + 3, squareSize- 6, squareSize - 6)
