@@ -121,6 +121,7 @@ class Board {
         this.time = 0;
         this.timer = this.initializeTimer();
         this.timerInterval = null;
+        this.timerIsPaused = false;
     }
 
     initializeBoard() {
@@ -207,13 +208,15 @@ class Board {
 
     startTimer() {
         this.timerInterval = setInterval(() => {
-            this.time += 1
-            this.setTimer()
+            if (!this.timerIsPaused) {
+                this.time += 1
+                this.setTimer()
+            }
         }, 1000);
     }
 
     pauseTimer() {
-
+        this.timerIsPaused = !this.timerIsPaused;
     }
 
     drawBoard() {
