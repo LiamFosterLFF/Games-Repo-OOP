@@ -117,6 +117,7 @@ class Game {
                             for (let i = 0; i < game.cover[block][ln].length; i++) {
                                 const coverSegment = game.cover[block][ln][i];
                                 if (coverSegment.detectCollision(shot)) {
+                                    console.log(coverSegment);
                                     coverSegment.blowUp();
                                     game.destroyBullet(i)
                                 }
@@ -261,8 +262,6 @@ class Game {
                 drawUFO(game);
                 
             }
-
-
     
             drawBoard();
             drawScore(game);
@@ -555,8 +554,6 @@ class Cover {
 // Add special enemies
 // Increase explosion radius for enemy bombs
 // Bug - shots blow right through the cover without stopping
-// Bug - More aesthetic really, but figure out the logic for stopping movement/move it all into the enemy models
-// Bug - Make UFO an extension of enemy to fix DRY
 // Add levels
 // Enemies speed up over time
 // Add screen border

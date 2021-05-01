@@ -35,7 +35,7 @@ function setupGame() {
     board = new Board(20, boardSize)
     board.setBombs();
     board.setCounts();
-    console.log(board);
+    // console.log(board);
 }
 
 function handleClick() {
@@ -76,6 +76,7 @@ class StartOverButton extends Button {
 
     handleClick() {
         board.reset();
+        board.startTimer();
     }
 }
 
@@ -103,7 +104,7 @@ class PauseButton extends Button {
     }
 
     handleClick() {
-
+        board.pauseTimer();
     }
 }
 
@@ -119,6 +120,7 @@ class Board {
         this.gameState = "playing";
         this.buttons = this.initializeButtons();
         this.time = 0;
+        this.timer = createDiv(this.formatTime(this.time)).parent("canvas-parent");
     }
 
     initializeBoard() {
@@ -175,6 +177,33 @@ class Board {
 
     changeMineCount(mineCount) {
         this.mineCount = mineCount;
+    }
+
+    formatTime(time) {
+        const seconds = (time % 60).toString();
+        const fseconds = (seconds < 10) ?  "0" + seconds : seconds;
+        const minutes = Math.floor(time/60);
+        return `${minutes}:${fseconds}`
+    }
+
+    setTimer() {
+        this.timer.html(this.formatTime(this.time));
+    }
+
+    resetTimer() {
+        this.time = 0;
+        this.setTimer()
+    }
+
+    startTimer() {
+        setInterval(() => {
+            this.time += 1
+            this.setTimer()
+        }, 1000);
+    }
+
+    pauseTimer() {
+
     }
 
     drawBoard() {
