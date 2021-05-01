@@ -374,29 +374,35 @@ class Cell {
         stroke(255);
         rect(col*squareSize, row*squareSize, squareSize, squareSize, 3);
 
-        if (this.hovered) {
+        // Draw Hover
+        if (!this.flagged && !this.clicked & !this.questionFlagged && this.hovered) {
             fill(150);
             rect(col*squareSize + 5, row*squareSize + 4, squareSize - 7, squareSize - 7, 3)
         }
 
-        if (this.flagged) {
-            image(this.flagImage, col*squareSize + 3, row*squareSize + 3, squareSize- 6, squareSize - 6)
-        } else if (this.questionFlagged) {
-            image(this.questionMarkImage, col*squareSize + 3, row*squareSize + 3, squareSize- 6, squareSize - 6)
-        } else if (this.clicked) {
+        if (this.clicked) {
             if (this.bomb) {
+                // Draw Bomb
                 fill(100);
                 image(this.bombImage, col*squareSize + 3, row*squareSize + 3, squareSize- 6, squareSize - 6)
             } else if (this.count > 0) {
+                // Draw Count
                 fill(0);
                 stroke(255);
                 textSize(25)
                 text(this.count, col*squareSize + 13, row*squareSize + 8, (row+1)*squareSize - 6, (col+1)*squareSize - 6)
             } else {
+                // Draw Clicked Box
                 fill(150);
                 rect(col*squareSize + 5, row*squareSize + 4, squareSize - 7, squareSize - 7, 3)
             }
-        } 
+        } else if (this.flagged) {
+            // Draw Flag
+            image(this.flagImage, col*squareSize + 3, row*squareSize + 3, squareSize- 6, squareSize - 6)
+        } else if (this.questionFlagged) {
+            // Draw Question Mark
+            image(this.questionMarkImage, col*squareSize + 3, row*squareSize + 3, squareSize- 6, squareSize - 6)
+        }
     }
 }
 
