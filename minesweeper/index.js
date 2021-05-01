@@ -19,6 +19,7 @@ function draw() {
 
 function preload() {
     images["mine"] = loadImage("minesweeper/images/mine.png")
+    images["flag"] = loadImage("minesweeper/images/flag.png")
 }
 
 // function drawHover() {
@@ -61,56 +62,7 @@ function handleRightClick() {
 }
 
 
-class Button {
-    constructor(text) {
-        this.text = text;
-        this.btn = createButton(this.text);
-    }
-}
 
-class StartOverButton extends Button {
-    constructor() {
-        super("Start Over");
-        this.btn.mousePressed(this.handleClick)
-    }
-
-    handleClick() {
-        board.reset();
-    }
-}
-
-
-class ChangeDifficultyButton extends Button {
-    constructor() {
-        super("Change Difficulty");
-        this.btn.mousePressed(this.handleClick)
-    }
-
-    handleClick() {
-        let mineCount;
-        mineCount = parseInt(window.prompt("Number of Bombs (1-100): "))
-        if (mineCount >= 1 && mineCount <= 100){
-            board.changeMineCount(mineCount);
-            board.reset();
-        }
-    }
-}
-
-class PauseButton extends Button {
-    constructor() {
-        super("Pause");
-        this.btn.mousePressed(this.handleClick)
-    }
-
-    handleClick() {
-        board.pauseTimer();
-    }
-
-    setText(text) {
-        this.text = text;
-        this.btn.html(text);
-    }
-}
 
 
 class Board {
@@ -309,8 +261,11 @@ class Cell {
         this.row = row;
         this.col = col;
         this.clicked = false;
+        this.flagged = false;
+        this.questionFlagged = false;
         this.bomb = false;
         this.bombImage = images["mine"];
+        this.flagImage = images["flag"];
         this.count = 0;
     }
 
@@ -348,8 +303,12 @@ class Cell {
         stroke(255);
         rect(col*squareSize, row*squareSize, squareSize, squareSize, 3);
 
-        if (this.clicked === true) {
-            if (this.bomb === true) {
+        if (this.flagged) {
+            image(this.flagImage, col*squareSize + 3, row*squareSize + 3, squareSize- 6, squareSize - 6)
+        }
+
+        if (this.clicked) {
+            if (this.bomb) {
                 fill(100);
                 image(this.bombImage, col*squareSize + 3, row*squareSize + 3, squareSize- 6, squareSize - 6)
             } else if (this.count > 0) {
@@ -365,6 +324,57 @@ class Cell {
     }
 }
 
+class Button {
+    constructor(text) {
+        this.text = text;
+        this.btn = createButton(this.text);
+    }
+}
+
+class StartOverButton extends Button {
+    constructor() {
+        super("Start Over");
+        this.btn.mousePressed(this.handleClick)
+    }
+
+    handleClick() {
+        board.reset();
+    }
+}
+
+
+class ChangeDifficultyButton extends Button {
+    constructor() {
+        super("Change Difficulty");
+        this.btn.mousePressed(this.handleClick)
+    }
+
+    handleClick() {
+        let mineCount;
+        mineCount = parseInt(window.prompt("Number of Bombs (1-100): "))
+        if (mineCount >= 1 && mineCount <= 100){
+            board.changeMineCount(mineCount);
+            board.reset();
+        }
+    }
+}
+
+class PauseButton extends Button {
+    constructor() {
+        super("Pause");
+        this.btn.mousePressed(this.handleClick)
+    }
+
+    handleClick() {
+        board.pauseTimer();
+    }
+
+    setText(text) {
+        this.text = text;
+        this.btn.html(text);
+    }
+}
+
 
 // Aesthetics: Add color-shift on hover
 // Bug: Fix colors so they look less bad
@@ -373,5 +383,4 @@ class Cell {
 // Add flagging - disables clicks
 // Add questionable flag
 // Add flag count/minecount
-// Add pause button function and timer
 // Responsivity : Can adjust game size??
