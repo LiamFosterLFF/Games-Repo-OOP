@@ -25,8 +25,9 @@ function draw() {
 }
 
 function preload() {
-    images["mine"] = loadImage("minesweeper/images/mine.png")
-    images["flag"] = loadImage("minesweeper/images/flag.png")
+    images["mine"] = loadImage("minesweeper/images/mine.png");
+    images["flag"] = loadImage("minesweeper/images/flag.png");
+    images["question-mark"] = loadImage("minesweeper/images/question-mark.png");
 }
 
 // function drawHover() {
@@ -270,6 +271,7 @@ class Cell {
         this.bomb = false;
         this.bombImage = images["mine"];
         this.flagImage = images["flag"];
+        this.questionMarkImage = images["question-mark"];
         this.count = 0;
     }
 
@@ -302,7 +304,14 @@ class Cell {
     }
 
     rightClickCell() {
-        this.flagged = !this.flagged;
+        if (!this.flagged && !this.questionFlagged) {
+            this.flagged = true;
+        } else if (this.flagged && !this.questionFlagged) {
+            this.flagged = false;
+            this.questionFlagged = true;
+        } else if (!this.flagged && this.questionFlagged) {
+            this.questionFlagged = false;
+        }
     }
 
     isClicked() {
@@ -320,6 +329,9 @@ class Cell {
 
         if (this.flagged) {
             image(this.flagImage, col*squareSize + 3, row*squareSize + 3, squareSize- 6, squareSize - 6)
+        } else if (this.questionFlagged) {
+            image(this.questionMarkImage, col*squareSize + 3, row*squareSize + 3, squareSize- 6, squareSize - 6)
+
         } else if (this.clicked) {
             if (this.bomb) {
                 fill(100);
