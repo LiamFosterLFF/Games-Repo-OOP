@@ -58,13 +58,18 @@ function startCountdown() {
     countdown = String(i)
     var countdownInterval = setInterval(() => {
         countdown = String(i--)
+        if (countdown === "0") {
+            gameStart = true;
+            countingDown = false;
+            countdown = ""
+            clearInterval(countdownInterval);
+        }
+        
+        drawGame();
     }, 1000);
         
     setTimeout(() => {
-        gameStart = true;
-        countingDown = false;
-        countdown = ""
-        clearInterval(countdownInterval);
+
     }, 1000*seconds);
 }
 

@@ -374,12 +374,14 @@ class Cell {
         stroke(255);
         rect(col*squareSize, row*squareSize, squareSize, squareSize, 3);
 
-        // Draw Hover
-        if (!this.flagged && !this.clicked & !this.questionFlagged && this.hovered) {
+        // Only handle hover if not otherwise state and game isPlaying
+        if (board.isPlaying() && !this.flagged && !this.clicked & !this.questionFlagged && this.hovered) {
+             // Draw Hover
             fill(150);
             rect(col*squareSize + 5, row*squareSize + 4, squareSize - 7, squareSize - 7, 3)
         }
 
+        // Handle Clicking functions
         if (this.clicked) {
             if (this.bomb) {
                 // Draw Bomb
@@ -458,7 +460,6 @@ class PauseButton extends Button {
 }
 
 
-// Aesthetics: Add color-shift on hover
 // Bug: Fix colors so they look less bad
 // Bug: Fix stroke color on numbers
 // Bug: Minesweep sweeps corners as well for empty squares, should just be numbered cells
