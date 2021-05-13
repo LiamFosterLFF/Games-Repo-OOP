@@ -191,11 +191,5 @@ function resetGame() {
     gameStart = false;
 }
 
-// Paddle movement too fast but also too slow, speed up over time
 // Add sounds - bounce, start, point, win
-// Show score between points
 // Win condition? 
-// Countdown to start
-// Center frame
-// Back button
-// AI : 
