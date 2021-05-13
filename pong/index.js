@@ -22,7 +22,7 @@ function setup() {
 function draw() {
     frameRate(25);
     drawGame();
-    movePaddles();
+    handleKeyPress();
 }
 
 
@@ -96,28 +96,34 @@ function drawPaddles() {
 
 }
 
-function movePaddles() {
+function handleKeyPress() {
     if (keyIsDown(UP_ARROW)) {
-        paddlePositions[0] -= paddleSpeed[0];
-        paddleSpeed[0] += 1;
+        movePaddle(0, "up");
     } else if (keyIsDown(DOWN_ARROW)) {
-        paddlePositions[0] += paddleSpeed[0];
-        paddleSpeed[0] += 1;
+        movePaddle(0, "down");
     } else {
         paddleSpeed[0] = 20;
     }
 
     if (keyIsDown(87)) {
-        paddlePositions[1] -= paddleSpeed[1];
-        paddleSpeed[1] += 1;
+        movePaddle(1, "up");
     } else if (keyIsDown(83)) {
-        paddlePositions[1] += paddleSpeed[1];
-        paddleSpeed[1] += 1;
+        movePaddle(1, "down");
     } else {
         paddleSpeed[1] = 20;
     }
 
     drawGame();
+}
+
+function movePaddle(paddle, dir) {
+    if (dir === "up" && paddlePositions[paddle] > 10) {
+        paddlePositions[paddle] -= paddleSpeed[paddle];
+        paddleSpeed[paddle] += 1;
+    } else if (dir === "down" && paddlePositions[paddle] < (h - paddleSize)) {
+        paddlePositions[paddle] += paddleSpeed[paddle];
+        paddleSpeed[paddle] += 1;
+    }
 }
 
 
