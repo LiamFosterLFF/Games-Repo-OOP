@@ -4,7 +4,8 @@ var gameStart = false;
 var countingDown = false;
 var countdown = ""
 var [w, h] = [800, 800];
-var [paddleSize, paddleSpeed] = [80, 20];
+var paddleSize = 80
+var paddleSpeed = [20, 20];
 var paddlePositions = [h/2 - 80, h/2 - 40];
 var ballPosition = [w/2 - 50, h/2];;
 var ballDirection = -1;
@@ -97,15 +98,23 @@ function drawPaddles() {
 
 function movePaddles() {
     if (keyIsDown(UP_ARROW)) {
-        paddlePositions[0] -= paddleSpeed;
+        paddlePositions[0] -= paddleSpeed[0];
+        paddleSpeed[0] += 1;
     } else if (keyIsDown(DOWN_ARROW)) {
-        paddlePositions[0] += paddleSpeed;
-    } 
+        paddlePositions[0] += paddleSpeed[0];
+        paddleSpeed[0] += 1;
+    } else {
+        paddleSpeed[0] = 20;
+    }
 
     if (keyIsDown(87)) {
-        paddlePositions[1] -= paddleSpeed;
+        paddlePositions[1] -= paddleSpeed[1];
+        paddleSpeed[1] += 1;
     } else if (keyIsDown(83)) {
-        paddlePositions[1] += paddleSpeed;
+        paddlePositions[1] += paddleSpeed[1];
+        paddleSpeed[1] += 1;
+    } else {
+        paddleSpeed[1] = 20;
     }
 
     drawGame();
