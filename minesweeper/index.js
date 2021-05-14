@@ -329,15 +329,15 @@ class Cell {
         this.flagImage = images["flag"];
         this.questionMarkImage = images["question-mark"];
         this.design = {
-            hover: 150,
+            hover: 220,
             count: {
                 fill: 0,
                 stroke: 255,
                 size: 25
             },
-            background: 200,
+            background: 190,
             edges: 255,
-            clicked: 150,
+            clicked: 230,
         }
         this.count = 0;
     }
@@ -395,16 +395,11 @@ class Cell {
     }
 
     drawCell(row, col, squareSize) {
-        fill(this.design.background);
+        const fillColor = (this.hovered) ? this.design.hover : this.design.background;
+        fill(fillColor);
         stroke(this.design.edges);
         rect(col*squareSize, row*squareSize, squareSize, squareSize, 3);
 
-        // Only handle hover if not otherwise state and game isPlaying
-        if (board.isPlaying() && !this.flagged && !this.clicked & !this.questionFlagged && this.hovered) {
-             // Draw Hover
-            fill(this.design.hover);
-            rect(col*squareSize + 5, row*squareSize + 4, squareSize - 7, squareSize - 7, 3)
-        }
 
         // Handle Clicking functions
         if (this.clicked) {
