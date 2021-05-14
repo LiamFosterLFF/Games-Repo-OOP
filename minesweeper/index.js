@@ -97,6 +97,7 @@ class Board {
         const row = createDiv().parent("canvas-parent").size(this.boardSize);
         row.class("row");
         row.style("text-align", "center");
+        row.style("display", "inline");
         return row;
     }
 
