@@ -67,9 +67,9 @@ class Board {
         this.squareSize = this.boardSize / cells;
         this.size = [this.rows, this.cols];
         this.mineCount = 50;
-        this.mineCounter = this.initializeMineCounter();
+        this.counters = this.initializeCounters();
         this.flagCount = 0;
-        this.flagCounter = this.initializeFlagCounter();
+        // this.flagCounter = this.initializeFlagCounter();
         this.cells = this.initializeBoard();
         this.gameState = "playing";
         this.buttons = this.initializeButtons();
@@ -92,16 +92,33 @@ class Board {
         return cellArr;
     }
 
+    createRow() {
+        const row = createDiv().parent("canvas-parent").size(this.boardSize);
+        row.class("row");
+        row.style("text-align", "center");
+        return row;
+    }
+
     initializeButtons() {
-        const buttonBar = new ButtonBar();
+        const row = this.createRow();
+        const buttonBar = new ButtonBar(row);
         return buttonBar;
     }
 
     initializeTimer() {
+        const row = this.createRow();
         const timer = createDiv(this.formatTime(this.time));
-        timer.parent("canvas-parent");
+        timer.parent(row);
         this.startTimer();
         return timer
+    }
+
+    initializeCounters() {
+        const row = this.createRow();
+        const counters = {};
+        counters["mine"] = this.initializeMineCounter().parent(row);
+        counters["flag"] = this.initializeFlagCounter().parent(row);
+        return counters
     }
 
     initializeFlagCounter() {
@@ -427,19 +444,22 @@ class Cell {
     }
 }
 
+class Timer {
+
+}
+
 class ButtonBar {
-    constructor() {
+    constructor(row) {
         this.buttons = {};
-        this.bar = this.initializeBar();
+        this.bar = this.initializeBar(row);
     }
 
-    initializeBar() {
-
-
-        const buttonBar = createDiv();
-        buttonBar.parent("canvas-parent")
+    initializeBar(row) {
+        const buttonBar = createDiv().parent(row);
         buttonBar.style("display", "table");
         buttonBar.style("table-layout", "fixed");
+        buttonBar.style("text-align", "center");
+        buttonBar.style("width", "100%");
 
         this.createChild(new StartOverButton(buttonBar), buttonBar);
         this.createChild(new ChangeDifficultyButton(buttonBar), buttonBar);
