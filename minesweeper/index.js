@@ -59,8 +59,6 @@ function handleRightClick() {
     cell.rightClickCell();
 }
 
-
-
 class Board {
     constructor(cells, boardSize) {
         this.rows = cells;
@@ -205,8 +203,6 @@ class Board {
         this.gameState = "playing";
     }
 
-
-
     drawBoard() {
         for (let row = 0; row < this.rows; row++) {;
             for (let col = 0; col < this.cols; col++) {
@@ -332,6 +328,17 @@ class Cell {
         this.bombImage = images["mine"];
         this.flagImage = images["flag"];
         this.questionMarkImage = images["question-mark"];
+        this.design = {
+            hover: 150,
+            count: {
+                fill: 0,
+                stroke: 255,
+                size: 25
+            },
+            background: 200,
+            edges: 255,
+            clicked: 150,
+        }
         this.count = 0;
     }
 
@@ -388,14 +395,14 @@ class Cell {
     }
 
     drawCell(row, col, squareSize) {
-        fill(200);
-        stroke(255);
+        fill(this.design.background);
+        stroke(this.design.edges);
         rect(col*squareSize, row*squareSize, squareSize, squareSize, 3);
 
         // Only handle hover if not otherwise state and game isPlaying
         if (board.isPlaying() && !this.flagged && !this.clicked & !this.questionFlagged && this.hovered) {
              // Draw Hover
-            fill(150);
+            fill(this.design.hover);
             rect(col*squareSize + 5, row*squareSize + 4, squareSize - 7, squareSize - 7, 3)
         }
 
@@ -405,16 +412,19 @@ class Cell {
                 // Draw Bomb
                 fill(100);
                 image(this.bombImage, col*squareSize + 3, row*squareSize + 3, squareSize- 6, squareSize - 6)
-            } else if (this.count > 0) {
-                // Draw Count
-                fill(0);
-                stroke(255);
-                textSize(25)
-                text(this.count, col*squareSize + 13, row*squareSize + 8, (row+1)*squareSize - 6, (col+1)*squareSize - 6)
             } else {
                 // Draw Clicked Box
-                fill(150);
+                fill(this.design.clicked);
                 rect(col*squareSize + 5, row*squareSize + 4, squareSize - 7, squareSize - 7, 3)
+
+                if (this.count > 0) {
+                    // Draw Count
+                    fill(this.design.count.fill);
+                    stroke(this.design.count.stroke);
+                    textSize(this.design.count.size)
+                    text(this.count, col*squareSize + 13, row*squareSize + 8, (row+1)*squareSize - 6, (col+1)*squareSize - 6)
+                }
+
             }
         } else if (this.flagged) {
             // Draw Flag
