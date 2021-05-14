@@ -43,7 +43,7 @@ function setupGame() {
 
 function mouseClicked() {
     const [x, y] = [mouseX, mouseY];
-    if (board.isPlaying && board.inBounds(x, y)) {
+    if (board.isPlaying() && board.inBounds(x, y)) {
         const cell = board.getCellClicked(x, y);
         const hitBomb = cell.hasBomb();
         if (hitBomb) {
