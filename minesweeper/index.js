@@ -50,8 +50,6 @@ function mouseClicked() {
         } else {
             board.minesweep(cell);
         }
-    } else {
-        board.reset();
     }
 }
 
@@ -78,7 +76,7 @@ class Board {
         this.time = 0;
         this.timer = this.initializeTimer();
         this.timerInterval = null;
-        this.timerIsPaused = false;
+        this.timerState = "running";
         this.hoverCell = null;
     }
 
@@ -171,12 +169,13 @@ class Board {
     resetTimer() {
         clearInterval(this.timerInterval)
         this.time = 0;
+        this.timerState = "running";
         this.setTimer()
     }
 
     startTimer() {
         this.timerInterval = setInterval(() => {
-            if (!this.timerIsPaused) {
+            if (this.timerState === "running") {
                 this.time += 1
                 this.setTimer()
             }
@@ -184,12 +183,19 @@ class Board {
     }
 
     pauseTimer() {
-        if (this.timerIsPaused) {
-            this.buttons["pause"].setText("Pause");
-        } else {
+        this.buttons["pause"].setText("Pause");
+        this.timerState = "paused";
+    }
+
+    unpauseTimer() {
+        if (this.timerState !== "stopped") {
             this.buttons["pause"].setText("Unpause");
+            this.timerState = "running";
         }
-        this.timerIsPaused = !this.timerIsPaused;
+    }
+
+    stopTimer() {
+        this.timerState = "stopped";
     }
 
     drawBoard() {
@@ -276,6 +282,7 @@ class Board {
     }
 
     gameOver() {
+        this.pauseTimer();
         for (let row = 0; row < this.rows; row++) {;
             for (let col = 0; col < this.cols; col++) {
                 const cell = this.cells[row][col];
@@ -297,7 +304,6 @@ class Board {
         this.setCounts();
         this.gameState = "playing";
         this.resetTimer();
-
     }
 }
 
@@ -461,6 +467,5 @@ class PauseButton extends Button {
 
 
 // Bug: Fix colors so they look less bad
-// Bug: Fix stroke color on numbers
-// Bug: Minesweep sweeps corners as well for empty squares, should just be numbered cells
+
 // Responsivity : Can adjust game size??
