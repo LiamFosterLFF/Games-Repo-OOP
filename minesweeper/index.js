@@ -42,9 +42,10 @@ function setupGame() {
 }
 
 function mouseClicked() {
-    if (board.isPlaying()) {
-        const cell = board.getCellClicked(mouseX, mouseY);
-        const hitBomb = cell.clickCell();
+    const [x, y] = [mouseX, mouseY];
+    if (board.isPlaying && board.inBounds(x, y)) {
+        const cell = board.getCellClicked(x, y);
+        const hitBomb = cell.hasBomb();
         if (hitBomb) {
             board.gameOver();
         } else {
@@ -64,7 +65,8 @@ class Board {
     constructor(cells, boardSize) {
         this.rows = cells;
         this.cols = cells;
-        this.squareSize = boardSize / cells;
+        this.boardSize = boardSize;
+        this.squareSize = this.boardSize / cells;
         this.size = [this.rows, this.cols];
         this.mineCount = 50;
         this.mineCounter = this.initializeMineCounter();
@@ -76,7 +78,6 @@ class Board {
         this.time = 0;
         this.timer = this.initializeTimer();
         this.timerInterval = null;
-        this.timerState = "running";
         this.hoverCell = null;
     }
 
@@ -169,34 +170,42 @@ class Board {
     resetTimer() {
         clearInterval(this.timerInterval)
         this.time = 0;
-        this.timerState = "running";
+        this.unpauseTimer();
         this.setTimer()
     }
 
     startTimer() {
         this.timerInterval = setInterval(() => {
-            if (this.timerState === "running") {
+            if (this.gameState === "playing") {
                 this.time += 1
                 this.setTimer()
             }
         }, 1000);
     }
 
-    pauseTimer() {
-        this.buttons["pause"].setText("Pause");
-        this.timerState = "paused";
+    stopTimer() {
+        clearInterval(this.timerInterval);
     }
 
-    unpauseTimer() {
-        if (this.timerState !== "stopped") {
-            this.buttons["pause"].setText("Unpause");
-            this.timerState = "running";
+    handlePause() {
+        if (this.gameState === "playing") {
+            this.pauseTimer();
+        } else if (this.gameState === "paused") {
+            this.unpauseTimer();
         }
     }
 
-    stopTimer() {
-        this.timerState = "stopped";
+    pauseTimer() {
+        this.buttons["pause"].setText("Unpause");
+        this.gameState = "paused";
     }
+
+    unpauseTimer() {
+        this.buttons["pause"].setText("Pause");
+        this.gameState = "playing";
+    }
+
+
 
     drawBoard() {
         for (let row = 0; row < this.rows; row++) {;
@@ -282,13 +291,13 @@ class Board {
     }
 
     gameOver() {
-        this.pauseTimer();
         for (let row = 0; row < this.rows; row++) {;
             for (let col = 0; col < this.cols; col++) {
                 const cell = this.cells[row][col];
                 if (cell.hasBomb()) {
                     cell.clickCell();
-                    this.gameState = "gameOver"
+                    this.gameState = "gameOver";
+                    this.stopTimer();
                 }
             }
         }
@@ -304,6 +313,10 @@ class Board {
         this.setCounts();
         this.gameState = "playing";
         this.resetTimer();
+    }
+
+    inBounds(x, y) {
+        return (x > 0 && x < this.boardSize && y > 0 && y < this.boardSize)
     }
 }
 
@@ -345,7 +358,6 @@ class Cell {
     clickCell() {
         if (!this.flagged) {
             this.clicked = true;
-            return this.hasBomb();
         }
 
     }
@@ -456,7 +468,7 @@ class PauseButton extends Button {
     }
 
     handleClick() {
-        board.pauseTimer();
+        board.handlePause();
     }
 
     setText(text) {
