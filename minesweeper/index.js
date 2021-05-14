@@ -66,15 +66,16 @@ class Board {
         this.boardSize = boardSize;
         this.squareSize = this.boardSize / cells;
         this.size = [this.rows, this.cols];
+        this.time = 0;
+        this.timer = this.initializeTimer();
         this.mineCount = 50;
-        this.counters = this.initializeCounters();
         this.flagCount = 0;
+        this.counters = this.initializeCounters();
         // this.flagCounter = this.initializeFlagCounter();
         this.cells = this.initializeBoard();
         this.gameState = "playing";
         this.buttons = this.initializeButtons();
-        this.time = 0;
-        this.timer = this.initializeTimer();
+
         this.timerInterval = null;
         this.hoverCell = null;
     }
@@ -108,6 +109,7 @@ class Board {
     initializeTimer() {
         const row = this.createRow();
         const timer = createDiv(this.formatTime(this.time));
+        timer.style("margin", "0px 10px");
         timer.parent(row);
         this.startTimer();
         return timer
@@ -122,11 +124,19 @@ class Board {
     }
 
     initializeFlagCounter() {
-        return createDiv(this.flagCount).parent("canvas-parent");
+        const div = createDiv(this.flagCount);
+        div.style("margin", "0px 10px");
+        const img = createImg("minesweeper/images/flag.png", "flag").parent(div);
+        img.style("width", "20px");
+        return div;
     }
 
-    initializeMineCounter() {
-        return createDiv(this.mineCount).parent("canvas-parent");
+    initializeMineCounter(row) {
+        const div = createDiv(this.mineCount);
+        div.style("margin", "0px 10px");
+        const img = createImg("minesweeper/images/mine.png", "flag").parent(div);
+        img.style("width", "20px");
+        return div;
     }
 
     setCounts() {

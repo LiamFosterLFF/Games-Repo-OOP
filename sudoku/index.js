@@ -582,7 +582,7 @@ class ButtonBar {
         // Top-level Div
         noFill();
         const fullBox = createDiv()
-        fullBox.size(this.width, this.height)
+        fullBox.size(this.width, this.height);
         fullBox.parent("canvas-parent")
 
         const leftBox = createDiv();
