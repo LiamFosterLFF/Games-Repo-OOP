@@ -93,12 +93,8 @@ class Board {
     }
 
     initializeButtons() {
-        const buttonsDict = {}
-        buttonsDict["startOver"] = new StartOverButton();
-        buttonsDict["changeDifficulty"] = new ChangeDifficultyButton();
-        buttonsDict["pause"] = new PauseButton();
-
-        return buttonsDict;
+        const buttonBar = new ButtonBar();
+        return buttonBar;
     }
 
     initializeTimer() {
@@ -194,12 +190,12 @@ class Board {
     }
 
     pauseTimer() {
-        this.buttons["pause"].setText("Unpause");
+        this.buttons.changeText("Pause", "Unpause");
         this.gameState = "paused";
     }
 
     unpauseTimer() {
-        this.buttons["pause"].setText("Pause");
+        this.buttons["Pause"].setText("Pause");
         this.gameState = "playing";
     }
 
@@ -431,16 +427,52 @@ class Cell {
     }
 }
 
+class ButtonBar {
+    constructor() {
+        this.buttons = {};
+        this.bar = this.initializeBar();
+    }
+
+    initializeBar() {
+
+
+        const buttonBar = createDiv();
+        buttonBar.parent("canvas-parent")
+        buttonBar.style("display", "table");
+        buttonBar.style("table-layout", "fixed");
+
+        this.createChild(new StartOverButton(buttonBar), buttonBar);
+        this.createChild(new ChangeDifficultyButton(buttonBar), buttonBar);
+        this.createChild(new PauseButton(buttonBar), buttonBar);
+    }
+
+    createChild(button, bar) {
+        this.buttons[button.text] = button;
+        bar.child(button);
+    }
+
+    changeText(button, text) {
+        this.buttons[button].setText("Pause");
+
+    }
+}
+
 class Button {
-    constructor(text) {
+    constructor(text, parent) {
         this.text = text;
-        this.btn = createButton(this.text);
+        this.btn = this.makeButton(this.text, parent);
+    }
+
+    makeButton(text, parent) {
+        const button = createButton(text);
+        parent.child(button);
+        return button;
     }
 }
 
 class StartOverButton extends Button {
-    constructor() {
-        super("Start Over");
+    constructor(parent) {
+        super("Start Over", parent);
         this.btn.mousePressed(this.handleClick)
     }
 
@@ -451,8 +483,8 @@ class StartOverButton extends Button {
 
 
 class ChangeDifficultyButton extends Button {
-    constructor() {
-        super("Change Difficulty");
+    constructor(parent) {
+        super("Change Difficulty", parent);
         this.btn.mousePressed(this.handleClick)
     }
 
@@ -467,8 +499,8 @@ class ChangeDifficultyButton extends Button {
 }
 
 class PauseButton extends Button {
-    constructor() {
-        super("Pause");
+    constructor(parent) {
+        super("Pause", parent);
         this.btn.mousePressed(this.handleClick)
     }
 

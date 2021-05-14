@@ -622,7 +622,7 @@ class ButtonBar {
         function createAsChildrenOfDiv(div, buttonArr) {
             for (let i = 0; i < buttonArr.length; i++) {
                 const button = buttonArr[i];
-                div.child(button)
+                div.child(button);
             }
         }
 
