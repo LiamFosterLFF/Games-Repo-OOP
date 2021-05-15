@@ -45,10 +45,12 @@ function mouseClicked() {
     if (board.isPlaying() && board.inBounds(x, y)) {
         const cell = board.getCellClicked(x, y);
         const hitBomb = cell.hasBomb();
-        if (hitBomb) {
-            board.gameOver();
-        } else {
-            board.minesweep(cell);
+        if (!cell.isFlagged()) {
+            if (hitBomb) {
+                board.gameOver();
+            } else {
+                board.minesweep(cell);
+            }
         }
     }
 }
@@ -157,7 +159,6 @@ class Board {
         this.infoBar.unpauseGame();
         this.gameState = "playing";
     }
-
 
     drawBoard() {
         for (let row = 0; row < this.rows; row++) {;
@@ -287,13 +288,23 @@ class Cell {
         this.design = {
             hover: 220,
             count: {
+                background: {
+                    0: 230,
+                    1: "#ccf6c8",
+                    2: "#fafcc2",
+                    3: "#f9c0c0",
+                    4: "#f6d6ad",
+                    5: "#efbbcf",
+                    6: "#c3aed6",
+                    7: "#a8d3da",
+                    8: "#8675a9"
+                },
                 fill: 0,
                 stroke: 255,
                 size: 25
             },
             background: 190,
-            edges: 255,
-            clicked: 230,
+            edges: 255
         }
         this.count = 0;
     }
@@ -351,7 +362,11 @@ class Cell {
     }
 
     drawCell(row, col, squareSize) {
-        const fillColor = (this.hovered) ? this.design.hover : this.design.background;
+        // Chooses background color - hover/not hover if unclicked, no color if bomb (since reveal is by clicking), from a dictionary of backgrounds based on count if clicked
+        const unclicked = (this.hovered) ? this.design.hover : this.design.background;
+        const clicked = (this.bomb) ? this.design.background : this.design.count.background[this.count];
+        const fillColor = (this.clicked) ? clicked : unclicked;
+        
         fill(fillColor);
         stroke(this.design.edges);
         rect(col*squareSize, row*squareSize, squareSize, squareSize, 3);
@@ -364,9 +379,7 @@ class Cell {
                 fill(100);
                 image(this.bombImage, col*squareSize + 3, row*squareSize + 3, squareSize- 6, squareSize - 6)
             } else {
-                // Draw Clicked Box
-                fill(this.design.clicked);
-                rect(col*squareSize + 5, row*squareSize + 4, squareSize - 7, squareSize - 7, 3)
+
 
                 if (this.count > 0) {
                     // Draw Count
@@ -420,8 +433,7 @@ class InfoBar {
 
     resetGame() {
         this.bar["timer"].resetTimer();
-        this.bar["mine"].setHTML(this.mineCount);
-        this.bar["flag"].setHTML(this.flagCount);
+        this.bar["flag"].resetFlagCount(this.flagCount, this.mineCount);
     }
 
     pauseGame() {
@@ -509,8 +521,13 @@ class FlagCounter{
         this.flagCount += flag;
         this.setHTML(`${this.flagCount}/${this.mineCount}`);
     }
-}
 
+    resetFlagCount(flags, mines) {
+        this.flagCount = flags;
+        this.mineCount = mines;
+        this.setHTML(`${flags}/${mines}`);
+    }
+}
 
 class ButtonBar {
     constructor(row) {
@@ -599,5 +616,4 @@ class PauseButton extends Button {
     }
 }
 
-// Bug: Numbers don't check adjacent squares if they are also empty
 // Responsivity : Can adjust game size??
