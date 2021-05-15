@@ -66,16 +66,15 @@ class Board {
         this.boardSize = boardSize;
         this.squareSize = this.boardSize / cells;
         this.size = [this.rows, this.cols];
-        this.time = 0;
-        this.timer = this.initializeTimer();
-        this.mineCount = 50;
-        this.flagCount = 0;
-        this.counters = this.initializeCounters();
-        // this.flagCounter = this.initializeFlagCounter();
+        this.gameData = {
+            time: 0,
+            mineCount: 50,
+            flagCount: 10
+        }
+        this.infoBar = this.initializeInfoBar();
+        this.buttons = this.initializeButtons();
         this.cells = this.initializeBoard();
         this.gameState = "playing";
-        this.buttons = this.initializeButtons();
-
         this.timerInterval = null;
         this.hoverCell = null;
     }
@@ -107,37 +106,10 @@ class Board {
         return buttonBar;
     }
 
-    initializeTimer() {
+    initializeInfoBar() {
         const row = this.createRow();
-        const timer = createDiv(this.formatTime(this.time));
-        timer.style("margin", "0px 10px");
-        timer.parent(row);
-        this.startTimer();
-        return timer
-    }
-
-    initializeCounters() {
-        const row = this.createRow();
-        const counters = {};
-        counters["mine"] = this.initializeMineCounter().parent(row);
-        counters["flag"] = this.initializeFlagCounter().parent(row);
-        return counters
-    }
-
-    initializeFlagCounter() {
-        const div = createDiv(this.flagCount);
-        div.style("margin", "0px 10px");
-        const img = createImg("minesweeper/images/flag.png", "flag").parent(div);
-        img.style("width", "20px");
-        return div;
-    }
-
-    initializeMineCounter(row) {
-        const div = createDiv(this.mineCount);
-        div.style("margin", "0px 10px");
-        const img = createImg("minesweeper/images/mine.png", "flag").parent(div);
-        img.style("width", "20px");
-        return div;
+        const bar = new InfoBar(this.gameData, row)
+        return bar
     }
 
     setCounts() {
@@ -176,13 +148,6 @@ class Board {
         this.flagCount += flag;
         console.log(this.flagCount);
         this.flagCounter.html(this.flagCount);
-    }
-
-    formatTime(time) {
-        const seconds = (time % 60).toString();
-        const fseconds = (seconds < 10) ?  "0" + seconds : seconds;
-        const minutes = Math.floor(time/60);
-        return `${minutes}:${fseconds}`
     }
 
     setTimer() {
@@ -455,8 +420,80 @@ class Cell {
     }
 }
 
-class Timer {
+class InfoBar {
+    constructor(gameData, parent) {
+        this.mineCount = gameData["mineCount"];
+        this.flagCount = gameData["flagCount"];
+        this.time = gameData["time"];
+        this.parent = parent;
+        this.bar = this.initializeBar();
+    }
 
+    initializeBar() {
+        const bar = {};
+        const div = createDiv().parent(this.parent);
+        div.style("display", "table");
+        div.style("width", "100%");
+        bar["mine"] = new MineCounter(this.mineCount, div);
+        bar["timer"] = new Timer(this.time, div);
+        bar["flag"] = new FlagCounter(this.flagCount, div);
+        return bar;
+    }
+}
+
+class Timer {
+    constructor(time, parent) {
+          this.time = time;
+          this.parent = parent;  
+          this.timer = this.initializeTimer();
+    }
+
+    initializeTimer() {
+        const timer = createDiv(this.formatTime(this.time));
+        timer.style("margin", "0px 10px");
+        timer.style("display", "table-cell");
+        timer.parent(this.parent);
+        // this.startTimer();
+        return timer
+    }
+
+    formatTime(time) {
+        const seconds = (time % 60).toString();
+        const fseconds = (seconds < 10) ?  "0" + seconds : seconds;
+        const minutes = Math.floor(time/60);
+        return `${minutes}:${fseconds}`
+    }
+}
+
+class Counter {
+    constructor(image, name, count, parent) {
+        this.count = count;
+        this.image = image;
+        this.name = name;
+        this.parent = parent;
+        this.box = this.initializeBox();
+    }
+
+    initializeBox() {
+        const div = createDiv(this.count).parent(this.parent);
+        div.style("margin", "0px 10px");
+        div.style("display", "table-cell");
+        const img = createImg(this.image, this.name).parent(div);
+        img.style("width", "20px");
+        return div;
+    }
+}
+
+class FlagCounter extends Counter{
+    constructor(flagCount, parent) {
+        super("minesweeper/images/flag.png", "flag", flagCount, parent);
+    }
+}
+
+class MineCounter extends Counter{
+    constructor(mineCount, parent) {
+        super("minesweeper/images/mine.png", "mine", mineCount, parent);
+    }
 }
 
 class ButtonBar {
