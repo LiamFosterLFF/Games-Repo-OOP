@@ -34,7 +34,6 @@ function handleHover() {
     board.handleHoverCell(mouseX, mouseY);
 }   
 
-
 function setupGame() {
     board = new Board(20, boardSize)
     board.setBombs();
@@ -66,11 +65,6 @@ class Board {
         this.boardSize = boardSize;
         this.squareSize = this.boardSize / cells;
         this.size = [this.rows, this.cols];
-        this.gameData = {
-            time: 0,
-            mineCount: 50,
-            flagCount: 10
-        }
         this.infoBar = this.initializeInfoBar();
         this.buttons = this.initializeButtons();
         this.cells = this.initializeBoard();
@@ -108,7 +102,7 @@ class Board {
 
     initializeInfoBar() {
         const row = this.createRow();
-        const bar = new InfoBar(this.gameData, row)
+        const bar = new InfoBar(row)
         return bar
     }
 
@@ -135,7 +129,7 @@ class Board {
 
     setBombs() {
         let bombCount = 0;
-        while (bombCount < this.mineCount) {
+        while (bombCount < this.infoBar.mineCount) {
             let [row, col] = [floor(random(this.rows)), floor(random(this.cols))]
             if (this.cells[row][col].bomb === false) {
                 this.cells[row][col].setBomb();
@@ -144,53 +138,26 @@ class Board {
         }
     }
 
-    changeFlagCount(flag) {
-        this.flagCount += flag;
-        console.log(this.flagCount);
-        this.flagCounter.html(this.flagCount);
-    }
-
-    setTimer() {
-        this.timer.html(this.formatTime(this.time));
-    }
-
-    resetTimer() {
-        clearInterval(this.timerInterval)
-        this.time = 0;
-        this.unpauseTimer();
-        this.setTimer()
-    }
-
-    startTimer() {
-        this.timerInterval = setInterval(() => {
-            if (this.gameState === "playing") {
-                this.time += 1
-                this.setTimer()
-            }
-        }, 1000);
-    }
-
-    stopTimer() {
-        clearInterval(this.timerInterval);
-    }
-
     handlePause() {
         if (this.gameState === "playing") {
-            this.pauseTimer();
+            this.pauseGame();
         } else if (this.gameState === "paused") {
-            this.unpauseTimer();
+            this.unpauseGame();
         }
     }
 
-    pauseTimer() {
+    pauseGame() {
         this.buttons.changeText("Pause", "Unpause");
+        this.infoBar.pauseGame();
         this.gameState = "paused";
     }
 
-    unpauseTimer() {
-        this.buttons["Pause"].setText("Pause");
+    unpauseGame() {
+        this.buttons.changeText("Pause", "Pause");
+        this.infoBar.unpauseGame();
         this.gameState = "playing";
     }
+
 
     drawBoard() {
         for (let row = 0; row < this.rows; row++) {;
@@ -282,7 +249,7 @@ class Board {
                 if (cell.hasBomb()) {
                     cell.clickCell();
                     this.gameState = "gameOver";
-                    this.stopTimer();
+                    this.infoBar.endGame();
                 }
             }
         }
@@ -297,7 +264,7 @@ class Board {
         this.setBombs();
         this.setCounts();
         this.gameState = "playing";
-        this.resetTimer();
+        this.infoBar.resetGame();
     }
 
     inBounds(x, y) {
@@ -365,10 +332,10 @@ class Cell {
     rightClickCell() {
         if (!this.flagged && !this.questionFlagged) {
             this.flagged = true;
-            board.changeFlagCount(1);
+            board.infoBar.changeFlagCount(1);
         } else if (this.flagged && !this.questionFlagged) {
             this.flagged = false;
-            board.changeFlagCount(-1);
+            board.infoBar.changeFlagCount(-1);
             this.questionFlagged = true;
         } else if (!this.flagged && this.questionFlagged) {
             this.questionFlagged = false;
@@ -421,10 +388,10 @@ class Cell {
 }
 
 class InfoBar {
-    constructor(gameData, parent) {
-        this.mineCount = gameData["mineCount"];
-        this.flagCount = gameData["flagCount"];
-        this.time = gameData["time"];
+    constructor(parent) {
+        this.mineCount = 50;
+        this.flagCount = 0;
+        this.time = 0;
         this.parent = parent;
         this.bar = this.initializeBar();
     }
@@ -434,10 +401,35 @@ class InfoBar {
         const div = createDiv().parent(this.parent);
         div.style("display", "table");
         div.style("width", "100%");
-        bar["mine"] = new MineCounter(this.mineCount, div);
         bar["timer"] = new Timer(this.time, div);
-        bar["flag"] = new FlagCounter(this.flagCount, div);
+        bar["flag"] = new FlagCounter(this.flagCount, this.mineCount, div);
         return bar;
+    }
+
+    changeFlagCount(flag) {
+        this.bar["flag"].changeFlagCount(flag);
+    }
+
+    changeMineCount(mines) {
+        this.mineCount = mines;
+    }
+
+    endGame() {
+        this.pauseGame();
+    }
+
+    resetGame() {
+        this.bar["timer"].resetTimer();
+        this.bar["mine"].setHTML(this.mineCount);
+        this.bar["flag"].setHTML(this.flagCount);
+    }
+
+    pauseGame() {
+        this.bar["timer"].stopTimer();
+    }
+
+    unpauseGame() {
+        this.bar["timer"].startTimer();
     }
 }
 
@@ -453,7 +445,7 @@ class Timer {
         timer.style("margin", "0px 10px");
         timer.style("display", "table-cell");
         timer.parent(this.parent);
-        // this.startTimer();
+        this.startTimer();
         return timer
     }
 
@@ -463,38 +455,62 @@ class Timer {
         const minutes = Math.floor(time/60);
         return `${minutes}:${fseconds}`
     }
+
+    setTimer() {
+        this.timer.html(this.formatTime(this.time));
+    }
+
+    resetTimer() {
+        clearInterval(this.timerInterval)
+        this.time = 0;
+        this.startTimer();
+        this.setTimer()
+    }
+
+    startTimer() {
+        this.timerInterval = setInterval(() => {
+            this.time += 1
+            this.setTimer()
+        }, 1000);
+    }
+
+    stopTimer() {
+        clearInterval(this.timerInterval);
+    }
+
 }
 
-class Counter {
-    constructor(image, name, count, parent) {
-        this.count = count;
-        this.image = image;
-        this.name = name;
+class FlagCounter{
+    constructor(flagCount, mineCount, parent) {
+        this.flagCount = flagCount;
+        this.mineCount = mineCount;
         this.parent = parent;
-        this.box = this.initializeBox();
+        this.image = "minesweeper/images/flag.png";
+        this.name = "flag";
+        this.div = this.initializeBox();
     }
 
     initializeBox() {
-        const div = createDiv(this.count).parent(this.parent);
+        const div = createDiv(`${this.flagCount}/${this.mineCount}`).parent(this.parent);
         div.style("margin", "0px 10px");
         div.style("display", "table-cell");
         const img = createImg(this.image, this.name).parent(div);
         img.style("width", "20px");
         return div;
     }
-}
 
-class FlagCounter extends Counter{
-    constructor(flagCount, parent) {
-        super("minesweeper/images/flag.png", "flag", flagCount, parent);
+    setHTML(text) {
+        this.div.html(text);
+        const img = createImg(this.image, this.name).parent(this.div);
+        img.style("width", "20px");
+    }
+
+    changeFlagCount(flag) {
+        this.flagCount += flag;
+        this.setHTML(`${this.flagCount}/${this.mineCount}`);
     }
 }
 
-class MineCounter extends Counter{
-    constructor(mineCount, parent) {
-        super("minesweeper/images/mine.png", "mine", mineCount, parent);
-    }
-}
 
 class ButtonBar {
     constructor(row) {
@@ -520,8 +536,7 @@ class ButtonBar {
     }
 
     changeText(button, text) {
-        this.buttons[button].setText("Pause");
-
+        this.buttons[button].setText(text);
     }
 }
 
@@ -549,7 +564,6 @@ class StartOverButton extends Button {
     }
 }
 
-
 class ChangeDifficultyButton extends Button {
     constructor(parent) {
         super("Change Difficulty", parent);
@@ -558,10 +572,13 @@ class ChangeDifficultyButton extends Button {
 
     handleClick() {
         let mineCount;
-        mineCount = parseInt(window.prompt("Number of Bombs (1-100): "))
-        if (mineCount >= 1 && mineCount <= 100){
-            board.changeMineCount(mineCount);
-            board.reset();
+        while (true) {
+            mineCount = parseInt(window.prompt("Number of Bombs (1-100): "))
+            if (mineCount >= 1 && mineCount <= 100){
+                board.infoBar.changeMineCount(mineCount);
+                board.reset();
+                break;
+            }
         }
     }
 }
@@ -582,7 +599,5 @@ class PauseButton extends Button {
     }
 }
 
-
-// Bug: Fix colors so they look less bad
-
+// Bug: Numbers don't check adjacent squares if they are also empty
 // Responsivity : Can adjust game size??
