@@ -2,23 +2,27 @@ var s;
 var scl = 20;
 var food;
 let button;
+let auto = false;
 
 function setup() {
     cnv = createCanvas(400, 400);
+
     cnv.parent("canvas-parent");
     f = new Food();
     s = new Snake();
     frameRate(10);
-    button = createButton('switch to auto');
-    button.parent("button-parent");
-    button.position(width/2-65/2, 450, 65);
-    button.mousePressed(s.runAuto);
+    button = new Button();
 }
 
 function draw() {
     background(50)
     s.show();
-    s.runAuto();
+    console.log(auto);
+    if (auto) {
+        s.runAuto();
+    } else {
+        s.update();
+    }
     f.show();
     if (s.die()) {
         s.restart()
@@ -28,7 +32,26 @@ function draw() {
         s.grow()
         f.update()
     };
+}
 
+function handleButtonPressed() {
+    if (auto) {
+        switchToManual();
+    } else {
+        switchToAuto();
+    }
+}
+
+function switchToAuto() {
+    s.restart();
+    auto = true;
+    button.changeText('Switch to Manual');
+}
+
+function switchToManual() {
+    s.restart();
+    auto = false;
+    button.changeText('Switch to Auto');
 }
 
 function keyPressed() {
@@ -329,6 +352,7 @@ function Snake() {
     this.grow = function() {
         this.tail.push(createVector(this.x, this.y));
         this.length += 1;
+        this.speed += 1;
     }
 
     this.die = function() {
@@ -350,6 +374,8 @@ function Snake() {
         this.xspeed = 1;
         this.yspeed = 0;
         this.tail = [createVector(this.x, this.y)];
+        this.hamiltonianCycle = createHamiltonianPath(width/scl/2, height/scl/2);
+        this.counter = 0;
     }
 
 
@@ -369,6 +395,23 @@ function Food() {
     this.show = function() {
         fill(255, 0, 100);
         rect(this.x, this.y, scl, scl);
+    }
+}
+
+class Button {
+    constructor() {
+        this.button = this.initializeButton();
+    }
+
+    initializeButton() {
+        button = createButton('switch to auto');
+        button.parent("canvas-parent");
+        button.mousePressed(handleButtonPressed);
+        return button;
+    }
+
+    changeText(text) {
+        this.button.html(text);
     }
 }
 

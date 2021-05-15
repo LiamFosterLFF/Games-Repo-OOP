@@ -24,7 +24,6 @@ function draw() {
 }
 
 
-
 function initializeBoard() {
     board = new Board();
     console.log(board);
@@ -109,8 +108,6 @@ function handleMousePressed() {
     console.log("BANG");
     cursor('grabbing')
 }
-
-
 
 function handleClick() {
     const square = getMouseSquare(mouseY, mouseX);
