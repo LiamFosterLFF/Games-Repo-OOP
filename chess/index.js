@@ -344,10 +344,11 @@ function drawGame() {
             const letters = "ABCDEFGH";
             for (let i = 0; i < 8; i++) {
                 const letter = letters[i];    
+                const number = (8-i);
                 fill(255);
                 stroke(0);
                 textSize(30);
-                text(i, offset.x - 25, offset.y + sqSize * i + 40);
+                text(number, offset.x - 25, offset.y + sqSize * i + 40);
                 text(letter, offset.x + sqSize * i + 20, offset.y + sqSize * 8 + 30);
             }
         }
