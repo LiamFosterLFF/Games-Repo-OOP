@@ -8,16 +8,25 @@ let boardArray = [];
 let boardPieces= {};
 let whoseTurn = "white";
 let turnNo = 0;
+let gameUI;
 const pieceImages = {};
 
 function setup() {
     cnv = createCanvas(dim.width, dim.height);
+    cnv.parent("canvas-parent");
     initializeBoard();
+    gameUI = new GameUI(createRow());
+    gameUI.startGame();
+}
+
+function createRow() {
+    const row = createDiv().parent("canvas-parent").size(dim.width);
+    row.class("row");
+    return row;
 }
 
 function draw() {
     cnv.mouseClicked(handleClick);
-    cnv.parent("canvas-parent");
     drawGame();
 }
 
@@ -56,8 +65,10 @@ function mousePressed() {
 function mouseReleased() {
     function changeTurns() {
         if (whoseTurn === "white") {
+            gameUI.switchClocks(whoseTurn);
             whoseTurn = "black";
         } else {
+            gameUI.switchClocks(whoseTurn);
             whoseTurn = "white";
         }
         if (isCheckMate()) {
@@ -251,13 +262,6 @@ function mouseReleased() {
     selectedPiece = null;
 }
 
-class Game {
-    constructor() {}
-}
-
-class Board {
-    
-}
 
 function initializeBoard() {
     function initializePiecesArray() {
@@ -356,7 +360,7 @@ function drawGame() {
         drawBackdrop();
         drawSquares();
         drawLetters();
-    }   
+    }
 
     function drawSelectedSquare() {
         fill("#edcf72");
@@ -865,11 +869,102 @@ class King extends Piece {
 }
 
 class GameUI {
+    constructor(parent) {
+        this.parent = parent;
+        this.display = this.initializeUI();
+        this.whiteTimer = new Timer(this.display, "White");
+        this.blackTimer = new Timer(this.display, "Black");
+    }
+     
+    initializeUI() {
+        const box = createDiv().parent(this.parent);
+        box.style("display", "table");
+        box.style("text-align", "center");
+        box.style("width", "100%");
+        this.MoveRecord = new MoveRecord(box);
+        return box;
+    }
 
+    startGame() {
+        this.whiteTimer.startTimer();
+    }
+
+    switchClocks(whoseTurn) {
+        if (whoseTurn === "white") {
+            this.whiteTimer.stopTimer();
+            this.blackTimer.startTimer();
+        } else if (whoseTurn === "black") {
+            this.blackTimer.stopTimer();
+            this.whiteTimer.startTimer();
+        }
+    }
+
+    addMove() {
+
+    }
 }
 
 class Timer {
+    constructor(parent, color) {
+        this.time = 0;
+        this.color = color;
+        this.parent = parent;
+        this.display = this.initializeTimer();
+        this.timerInterval = null;
+    }
 
+    initializeTimer() {
+        const box = createDiv().parent(this.parent);
+        box.style("display", "table-cell");
+        createDiv(this.color).parent(box);
+        const timer = createDiv(this.formatTime(this.time)).parent(box);
+        // if (this.color === "White") {
+        //     this.startTimer();
+        // }
+        return timer;
+    }
+
+    formatTime(time) {
+        const seconds = (time % 60).toString();
+        const fseconds = (seconds < 10) ?  "0" + seconds : seconds;
+        const minutes = Math.floor(time/60);
+        return `${minutes}:${fseconds}`
+    }
+
+    setTimer() {
+        this.display.html(this.formatTime(this.time));
+    }
+
+    resetTimer() {
+        clearInterval(this.timerInterval)
+        this.time = 0;
+        this.startTimer();
+        this.setTimer()
+    }
+
+    startTimer() {
+        this.timerInterval = setInterval(() => {
+            this.time += 1
+            this.setTimer()
+        }, 1000);
+    }
+
+    stopTimer() {
+        clearInterval(this.timerInterval);
+    }
+}
+
+class MoveRecord {
+    constructor(parent) {
+        this.parent = parent;
+        this.display = this.initializeRecord()
+    }
+
+    initializeRecord() {
+        const record = createDiv("A").parent(this.parent);
+        record.style("display", "table-cell");
+        return record;
+    }
 }
     
 // Still ToDo 
