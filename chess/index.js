@@ -251,6 +251,14 @@ function mouseReleased() {
     selectedPiece = null;
 }
 
+class Game {
+    constructor() {}
+}
+
+class Board {
+    
+}
+
 function initializeBoard() {
     function initializePiecesArray() {
         const initialPiecesArray = {"black": {}, "white": {}};
@@ -331,9 +339,22 @@ function drawGame() {
                 }
             }
         }
-    
+        
+        function drawLetters() {
+            const letters = "ABCDEFGH";
+            for (let i = 0; i < 8; i++) {
+                const letter = letters[i];    
+                fill(255);
+                stroke(0);
+                textSize(30);
+                text(i, offset.x - 25, offset.y + sqSize * i + 40);
+                text(letter, offset.x + sqSize * i + 20, offset.y + sqSize * 8 + 30);
+            }
+        }
+
         drawBackdrop();
         drawSquares();
+        drawLetters();
     }   
 
     function drawSelectedSquare() {
@@ -842,12 +863,18 @@ class King extends Piece {
     }
 }
 
+class GameUI {
+
+}
+
+class Timer {
+
+}
     
 // Still ToDo 
 //Drag n drop?
 // Dead pieces?
 // Keep a record of moves?
 // Letters on the board?
-// Can detect checkmate
 // Add timer?
 // Probably, many of the above could be solved by adding a second "functionality" canvas

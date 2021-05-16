@@ -6,7 +6,6 @@ let auto = false;
 
 function setup() {
     cnv = createCanvas(400, 400);
-
     cnv.parent("canvas-parent");
     f = new Food();
     s = new Snake();
@@ -17,7 +16,6 @@ function setup() {
 function draw() {
     background(50)
     s.show();
-    console.log(auto);
     if (auto) {
         s.runAuto();
     } else {
@@ -352,7 +350,6 @@ function Snake() {
     this.grow = function() {
         this.tail.push(createVector(this.x, this.y));
         this.length += 1;
-        this.speed += 1;
     }
 
     this.die = function() {
@@ -415,12 +412,8 @@ class Button {
     }
 }
 
-// Add a win condition
-// Increase speed as keep winning?
-// Keep a length counter
-// Fix colors
+// AI: Fix pruning
+// Center Auto button
+// Clean up OOP Snake and Food and Add a game Class
+// Fix colors?
 // Adjustable size?
-// Center frame
-// Back button
-
-// AI : Hamiltonian and other
