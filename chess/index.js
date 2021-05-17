@@ -890,6 +890,9 @@ class GameUI {
         box.style("display", "table");
         box.style("text-align", "center");
         box.style("width", "100%");
+        // box.style("height", "100px");
+        // box.style("overflow-y", "hidden");
+
         return box;
     }
 
@@ -1007,6 +1010,7 @@ class MoveRecord {
         const row = createDiv().parent(parent);
         row.style("display", "table");
         row.style("width", "100%");
+        // row.style("height", "100px")
 
         const leftCol = createCol(row).id(id + "white");
         const rightCol = createCol(row).id(id + "black");
@@ -1017,10 +1021,13 @@ class MoveRecord {
         const recordDisplay = createDiv().parent(this.parent);
         recordDisplay.style("display", "table-cell");
         recordDisplay.style("width", "250px");
+        // recordDisplay.style("height", "100px")
+        // recordDisplay.style("overflow-y", "hidden");
 
         const table = createDiv().parent(recordDisplay);
         table.style("display", "table");
         table.style("border", "1px solid black");
+        // table.style("overflow-y", "hidden");
         table.style("width", "100%");
         const row = this.createRow(table, "row1");
         return recordDisplay;
@@ -1032,8 +1039,7 @@ class MoveRecord {
         const rowStr = "#" + "row" + String(numRows) + color;
         console.log(rowStr);
         if (color === "white" && numRows > 1) {
-            console.log("A");
-            this.createRow(this.display, rowStr);
+            this.createRow(this.display, "row" + String(numRows));
         }
         select(rowStr).html(move);
     }
@@ -1043,6 +1049,3 @@ class MoveRecord {
 //Drag n drop?
 // Dead pieces?
 // Keep a record of moves?
-// Letters on the board?
-// Add timer?
-// Probably, many of the above could be solved by adding a second "functionality" canvas

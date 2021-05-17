@@ -40,7 +40,7 @@ function resetGame() {
 
 function drawGame() {
     function displayText() {
-        textSize(50);
+        textSize(40);
         let winner = (turn === "X") ? "O": "X"
         let gameEndBanner = (gameState === "gameOver") ? "Game Over! Click board to play again" : `${winner} Wins! Click to board to play again`;
         let banner =`${turn}'s Turn to Play`
