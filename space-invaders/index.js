@@ -112,16 +112,8 @@ class Game {
             function detectCollisionsCover(game) {
                 for (let i=0; i<game.bullets.length; i++) {
                     const shot = game.bullets[i];
-                    for (let block = 0; block < game.cover.length; block++) {
-                        for (let ln = 0; ln < game.cover[block].length; ln++) {
-                            for (let i = 0; i < game.cover[block][ln].length; i++) {
-                                const coverSegment = game.cover[block][ln][i];
-                                if (coverSegment.detectCollision(shot)) {
-                                    coverSegment.blowUp();
-                                    game.destroyBullet(i)
-                                }
-                            }
-                        }
+                    for (let cover = 0; cover < game.covers.length; cover++) {
+                        game.covers[cover].detectCollision(shot);
                     }
                 }
             }
@@ -149,7 +141,7 @@ class Game {
                 }
             }   
 
-            // detectCollisionsCover(game);
+            detectCollisionsCover(game);
             detectCollisionsShips(game);
         }
         
@@ -185,7 +177,6 @@ class Game {
                 }
             }
             
-    
             function drawBullets(game) {
                 for (let i=0; i<game.bullets.length; i++) {
                     const bullet = game.bullets[i];
@@ -428,6 +419,16 @@ class Bullet {
     move() {
         this.y += this.speed;
     }
+
+    getDimensions(){
+        const dimensionsObject = {
+            "x1": [this.x + this.bulletWidth*1/4, this.y],
+            "x2": [this.x + this.bulletWidth*3/4, this.y],
+            "y1": [this.x + this.bulletWidth*1/4, this.y+this.bulletHeight],
+            "y2": [this.x + this.bulletWidth*3/4, this.y+this.bulletHeight],
+        }
+        return dimensionsObject;
+    }
 }
 
 class LightningBolt extends Bullet {
@@ -442,7 +443,6 @@ class LightningBolt extends Bullet {
     draw() {
         image(this.image, this.x, this.y, this.bulletWidth, this.bulletHeight)
     }
-
 
 }
 
@@ -568,12 +568,12 @@ class Cover {
             cover.push(row);
         }
         // Leave a little pocket - set as blown at start
-        console.log(cover);
         cover[3][2] = true;
         return cover;
     }
 
     detectCollision(shot) {
+        console.log(shot);
         // if (
         //     shot !== null && !this.blown
         //     && shot.x >= this.x1 && shot.x <= this.x2
@@ -612,18 +612,6 @@ class Cover {
                 }
             }
         }
-        // for (let i = 0; i < 3; i++) {
-        //     cover.push();
-        // }
-        // cover.push();
-
-        // // Middle 3 rows: 5 blocks
-        // for (let i = 0; i < 3; i++) {
-        //     for (let j = 0; j < 5; j++) {
-        //         cover.push();
-        //     }
-        // }
-        // // Last row: Block, Inverse right triangle, empty, inverse left triangle, block
     }
 
 }
