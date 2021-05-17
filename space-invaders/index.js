@@ -376,7 +376,7 @@ class Ship {
     }
 
     shoot() {
-        return new Bullet(this.x + this.width/2, this.y);
+        return new Bullet(this.x + this.width/2-10, this.y);
     }
 
     die() {
