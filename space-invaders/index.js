@@ -1,6 +1,7 @@
 
 const screenSize = {"width": 800, "height": 800};
-sprites = {}
+sprites = {};
+let font;
 let game = null;
 
 function preload() {
@@ -19,6 +20,8 @@ function preload() {
     for (let i = 0; i < miscSprites.length; i++) {
         sprites[miscSprites[i]] = loadImage(`space-invaders/images/${miscSprites[i]}.png`);
     }
+
+    font = loadFont('space-invaders/fonts/slkscr.ttf');
 
 }
 
@@ -269,10 +272,11 @@ class Game {
                 image(sprites[`ignignokt-enemy-sprite-1`], offset[0] + 200*1, offset[1], 150, 150);
                 image(sprites[`shroom-enemy-sprite-1`], offset[0] + 200*2, offset[1], 150, 150);
 
-                textSize(120);
+                textSize(100);
+                textFont(font);
                 text("Game  Over", 60, 550);
                 textSize(50);
-                text("Click To Restart", 240, 650);
+                text("Click To Restart", 140, 650);
             }
     
             drawBoard();
@@ -282,9 +286,9 @@ class Game {
             drawShip(game);
             if (game.gameMode === "playing") {
                 drawEnemies(game);
-                drawGameOver();
                 drawBullets(game);
             } else {
+                drawGameOver();
             }
         }
 
