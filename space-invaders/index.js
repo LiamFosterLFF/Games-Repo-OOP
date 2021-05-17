@@ -55,7 +55,7 @@ class Game {
         this.offset = {"x": 70, "y": 150};
         this.score = 0;
         this.ship = this.initializeShip();
-        this.cover = this.initializeCover();
+        this.covers = this.initializeCover();
         this.enemies = this.initializeEnemies();
         this.bullets = [];
         this.shotCooldown = false;
@@ -149,7 +149,7 @@ class Game {
                 }
             }   
 
-            detectCollisionsCover(game);
+            // detectCollisionsCover(game);
             detectCollisionsShips(game);
         }
         
@@ -173,15 +173,8 @@ class Game {
             }
         
             function drawCover(game) {
-                for (let block = 0; block < game.cover.length; block++) {
-                    for (let ln = 0; ln < game.cover[block].length; ln++) {
-                        for (let row = 0; row < game.cover[block][ln].length; row++) {
-                            const coverSegment = game.cover[block][ln][row];
-                            if (!(coverSegment.isBlown())) {
-                                coverSegment.draw();
-                            }    
-                        }
-                    }
+                for (let cover = 0; cover < game.covers.length; cover++) {
+                    game.covers[cover].draw();
                 }
                 noStroke();
             }
@@ -278,7 +271,7 @@ class Game {
             drawBoard();
             drawScore(game);
             drawLives(game);
-            // drawCover(game);
+            drawCover(game);
             drawShip(game);
             if (game.gameMode === "playing") {
                 drawEnemies(game);
@@ -560,7 +553,24 @@ class Cover {
     constructor(x1, y1) {
         this.x1 = x1;
         this.y1 = y1;
+        this.cover = this.initializeCover();
         this.blown = false;
+    }
+
+    initializeCover() {
+        const cover = [];
+        // Array of blocks, 5 by 4
+        for (let row = 0; row < 4; row++) {
+            const row = [];
+            for (let col = 0; col < 5; col++) {
+                row.push(false);
+            }
+            cover.push(row);
+        }
+        // Leave a little pocket - set as blown at start
+        console.log(cover);
+        cover[3][2] = true;
+        return cover;
     }
 
     detectCollision(shot) {
@@ -581,8 +591,38 @@ class Cover {
     }
 
     draw() {
-        stroke(86, 252, 3);
-        line(this.x1, this.y1, this.x2, this.y2)
+        // All blocks 10 wide * 5 blocks, 5 high * 4 blocks: Total 50 wide, 20 high
+        // All blocks rectangular except [0, 0], [0, 4], [3, 1] & [3, 3]
+        for (let row = 0; row < 4; row++) {
+            for (let col = 0; col < 5; col++) {
+                if (this.cover[row][col] !== true) {
+                    if (row === 0 && col === 0) {
+                        triangle(this.x1, this.y1+5, this.x1+10, this.y1, this.x1+10, this.y1+5);
+                        
+                    } else if (row === 0 && col === 4) {
+                        
+                    } else if (row === 3 && col === 1) {
+                        
+                    } else if (row === 3 && col === 3) {
+                        
+                    } else {
+
+                    }
+                }
+            }
+        }
+        // for (let i = 0; i < 3; i++) {
+        //     cover.push();
+        // }
+        // cover.push();
+
+        // // Middle 3 rows: 5 blocks
+        // for (let i = 0; i < 3; i++) {
+        //     for (let j = 0; j < 5; j++) {
+        //         cover.push();
+        //     }
+        // }
+        // // Last row: Block, Inverse right triangle, empty, inverse left triangle, block
     }
 
 }
