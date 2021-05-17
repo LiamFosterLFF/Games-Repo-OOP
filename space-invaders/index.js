@@ -61,8 +61,6 @@ class Game {
         this.shotCooldown = false;
         this.shipDeathCooldown = false;
         this.lives = 3;
-        this.count = 1;
-        this.UFOThreshold = 50;
         this.UFO = new UFO();
         this.gameMode = "playing";
     }
@@ -351,7 +349,6 @@ class Game {
             this.shotCooldown = false;
             this.shipDeathCooldown = false;
             this.lives = 3;
-            this.count = 1;
             this.UFO = new UFO();
             this.gameMode = "playing";
         }
@@ -457,8 +454,8 @@ class Enemy {
         this.name = name
         this.image = sprites[`${this.name}-enemy-sprite-1`]
         this.deathImage = sprites['pop-explosion']
-        this.speed = {"x": 10, "y":50};
-        this.fireThreshold = .001;
+        this.speed = {"x": 2, "y":50, "max": 10};
+        this.fireThreshold = .0005;
         this.score = 10;
     }
 
@@ -481,6 +478,11 @@ class Enemy {
 
     flipYSpeed() {
         this.speed.y *= -1;
+        // Speed up movment and fireRate every time they switch direction, until maxSpeed
+        if (this.speed.x < this.speed.max) {
+            this.speed.x += .5;
+            this.fireThreshold *= 1.5;
+        }
     }
 
     die() {
