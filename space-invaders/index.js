@@ -72,19 +72,11 @@ class Game {
     }
     
     initializeCover() {
-        const cover = [];
+        const covers = [];
         for (let i = 0; i < 4; i++) {
-            const block = [];
-            for (let j = 0; j < 100; j++) {
-                const line = [];
-                for (let k = 0; k < 3; k++) {
-                    line.push(new Cover(50 + i*(width/4)+j, height-(100+k*20), 50 + i*(width/4)+j, height-(80+k*20)));
-                }
-                block.push(line)
-            }
-            cover.push(block)
+            covers.push(new Cover(50+i*(width/4), height-100));
         }
-        return cover;
+        return covers;
     }
     
     initializeEnemies() {
@@ -286,7 +278,7 @@ class Game {
             drawBoard();
             drawScore(game);
             drawLives(game);
-            drawCover(game);
+            // drawCover(game);
             drawShip(game);
             if (game.gameMode === "playing") {
                 drawEnemies(game);
@@ -565,11 +557,9 @@ class UFO extends Enemy{
 }
 
 class Cover {
-    constructor(x1, y1, x2, y2) {
+    constructor(x1, y1) {
         this.x1 = x1;
         this.y1 = y1;
-        this.x2 = x2;
-        this.y2 = y2;
         this.blown = false;
     }
 
