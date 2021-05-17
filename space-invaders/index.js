@@ -117,7 +117,6 @@ class Game {
                             for (let i = 0; i < game.cover[block][ln].length; i++) {
                                 const coverSegment = game.cover[block][ln][i];
                                 if (coverSegment.detectCollision(shot)) {
-                                    console.log(coverSegment);
                                     coverSegment.blowUp();
                                     game.destroyBullet(i)
                                 }
@@ -298,6 +297,8 @@ class Game {
                     this.shipDeathCooldown = false;
                     this.ship = this.initializeShip();
                 }, 1000);
+            } else {
+                this.gameOver();
             }
         }
 
@@ -329,6 +330,10 @@ class Game {
                 this.shotCooldown = false;
             }, 1000);
         }
+    }
+
+    gameOver() {
+        console.log("Game Over");
     }
 }
 
@@ -413,7 +418,6 @@ class LightningBolt extends Bullet {
 
 }
 
-
 class Enemy {
     constructor(x, y, name) {
         this.x = x;
@@ -485,7 +489,6 @@ class Enemy {
         return false
     }
 }
-
 
 class UFO extends Enemy{
     constructor() {
