@@ -603,18 +603,10 @@ class Cover {
         return false;
     }
 
-    blowUp() {
-        // this.blown = true;
-    }
-
-    isBlown() {
-        // return this.blown;
-    }
-
     draw() {
         // All blocks 5 blocks wide, 4 blocks high
         // All blocks rectangular except [0, 0], [0, 4], [3, 1] & [3, 3]
-
+        fill("#50fa32");
         for (let row = 0; row < this.blockRows; row++) {
             for (let col = 0; col < this.blockCols; col++) {
                 if (this.cover[row][col] !== true) {
@@ -637,10 +629,7 @@ class Cover {
 }
 
 // Add special enemies
-// Increase explosion radius for enemy bombs
-// Bug - shots blow right through the cover without stopping
 // Add levels
 // Enemies speed up over time
 // Add screen border
 // Add start screen - insert coin
-// Add Game over
