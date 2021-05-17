@@ -53,7 +53,7 @@ class Game {
         this.bullets = [];
         this.shotCooldown = false;
         this.shipDeathCooldown = false;
-        this.lives = 3;
+        this.lives = 1;
         this.count = 1;
         this.UFOThreshold = 50;
         this.UFO = new UFO();
@@ -264,17 +264,20 @@ class Game {
             }
 
             function drawGameOver() {
-            
+                textSize(250);
+                text("Game \n Over", 60, 250);
             }
     
             drawBoard();
+            drawScore(game);
+            drawLives(game);
+            drawCover(game);
+            drawShip(game);
             if (game.gameMode === "playing") {
-                drawScore(game);
-                drawLives(game);
-                drawCover(game);
-                drawShip(game);
                 drawEnemies(game);
                 drawBullets(game);
+            } else {
+                drawGameOver();
             }
         }
 
