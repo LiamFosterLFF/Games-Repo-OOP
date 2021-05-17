@@ -113,7 +113,9 @@ class Game {
                 for (let i=0; i<game.bullets.length; i++) {
                     const shot = game.bullets[i];
                     for (let cover = 0; cover < game.covers.length; cover++) {
-                        game.covers[cover].detectCollision(shot);
+                        if (game.covers[cover].detectCollision(shot)) {
+                            game.destroyBullet(i);
+                        }
                     }
                 }
             }
@@ -128,13 +130,13 @@ class Game {
                             if (enemy.detectCollision(shot)) {
                                 enemy.die();
                                 game.score += enemy.getScore();
-                                game.destroyBullet(i)
+                                game.destroyBullet(i);
                             }
                         }
                     } else {
                         if (game.ship.detectCollision(shot)) {
                             game.blowUpShip();
-                            game.destroyBullet(i)
+                            game.destroyBullet(i);
                         }
                     }
 
@@ -422,10 +424,10 @@ class Bullet {
 
     getDimensions(){
         const dimensionsObject = {
-            "x1": [this.x + this.bulletWidth*1/4, this.y],
-            "x2": [this.x + this.bulletWidth*3/4, this.y],
-            "y1": [this.x + this.bulletWidth*1/4, this.y+this.bulletHeight],
-            "y2": [this.x + this.bulletWidth*3/4, this.y+this.bulletHeight],
+            "x1": this.x + this.bulletWidth*1/4,
+            "x2": this.x + this.bulletWidth*3/4,
+            "y1": this.y,
+            "y2": this.y + this.bulletHeight
         }
         return dimensionsObject;
     }
@@ -553,6 +555,14 @@ class Cover {
     constructor(x1, y1) {
         this.x1 = x1;
         this.y1 = y1;
+        this.blockWidth = 20;
+        this.blockHeight = 10;
+        this.blockRows = 4;
+        this.blockCols = 5;
+        this.width = this.blockWidth*this.blockCols;
+        this.height = this.blockHeight*this.blockRows;
+        this.x2 = this.x1 + this.width;
+        this.y2 = this.y1 + this.height;
         this.cover = this.initializeCover();
         this.blown = false;
     }
@@ -573,13 +583,31 @@ class Cover {
     }
 
     detectCollision(shot) {
-        console.log(shot);
-        // if (
-        //     shot !== null && !this.blown
-        //     && shot.x >= this.x1 && shot.x <= this.x2
-        //     && shot.y >= this.y1 && shot.y <= this.y2
-        // ) {return true}
-        // return false
+        const shotDims = shot.getDimensions();
+        // if ((shotDims.x1 >= this.x1 && shotDims.x1 <= this.x2) || (shotDims.x2 >= this.x1 && shotDims.x2 <= this.x2)) {
+        //     console.log(shotDims.x1, shotDims.x2, this.x1, this.x2);
+        // }
+        // Checks if in covers' range
+        if (
+            shot !== null 
+            && ((shotDims.x1 >= this.x1 && shotDims.x1 < this.x2) || (shotDims.x2 >= this.x1 && shotDims.x2 < this.x2))
+            && shotDims.y2 >= this.y1 && shotDims.y2 < this.y2
+        ) {
+            // Checks if that cover hasn't been shot out already
+            const shotDimsx = (shotDims.x1 + shotDims.x2)/2 // Average of left and right for x
+            const shotDimsy = shotDims.y2 // Just the front
+            const shotxBlock = Math.floor((shotDimsx - this.x1)/this.blockWidth);
+            const shotyBlock = Math.floor((shotDimsy - this.y1)/this.blockHeight);
+            console.log(shotDimsy, this.y1, this.y2, shotDimsx, this.x1, this.x2);
+            console.log(shotyBlock, shotxBlock);
+            console.log(this.cover);
+            if (this.cover[shotyBlock][shotxBlock] === false) {
+                // If so, shoot it out and return true
+                this.cover[shotyBlock][shotxBlock] = true;
+                return true;
+            }
+        }
+        return false;
     }
 
     blowUp() {
@@ -591,23 +619,22 @@ class Cover {
     }
 
     draw() {
-        // All blocks 10 wide * 5 blocks, 5 high * 4 blocks: Total 50 wide, 20 high
+        // All blocks 5 blocks wide, 4 blocks high
         // All blocks rectangular except [0, 0], [0, 4], [3, 1] & [3, 3]
-        const width = 20;
-        const height = 10;
-        for (let row = 0; row < 4; row++) {
-            for (let col = 0; col < 5; col++) {
+
+        for (let row = 0; row < this.blockRows; row++) {
+            for (let col = 0; col < this.blockCols; col++) {
                 if (this.cover[row][col] !== true) {
                     if (row === 0 && col === 0) {
-                        triangle(this.x1, this.y1+height, this.x1+width, this.y1, this.x1+width, this.y1+height);
+                        triangle(this.x1, this.y1+this.blockHeight, this.x1+this.blockWidth, this.y1, this.x1+this.blockWidth, this.y1+this.blockHeight);
                     } else if (row === 0 && col === 4) {
-                        triangle(this.x1+width*col, this.y1, this.x1+width*col+width, this.y1+height, this.x1+width*col, this.y1+height);
+                        triangle(this.x1+this.blockWidth*col, this.y1, this.x1+this.blockWidth*col+this.blockWidth, this.y1+this.blockHeight, this.x1+this.blockWidth*col, this.y1+this.blockHeight);
                     } else if (row === 3 && col === 1) {
-                        triangle(this.x1+width*col, this.y1+row*height, this.x1+width*col+width, this.y1+row*height, this.x1+width*col, this.y1+row*height+height);
+                        triangle(this.x1+this.blockWidth*col, this.y1+row*this.blockHeight, this.x1+this.blockWidth*col+this.blockWidth, this.y1+row*this.blockHeight, this.x1+this.blockWidth*col, this.y1+row*this.blockHeight+this.blockHeight);
                     } else if (row === 3 && col === 3) {
-                        triangle(this.x1+width*col, this.y1+row*height, this.x1+width*col+width, this.y1+row*height, this.x1+width*col+width, this.y1+row*height+height);
+                        triangle(this.x1+this.blockWidth*col, this.y1+row*this.blockHeight, this.x1+this.blockWidth*col+this.blockWidth, this.y1+row*this.blockHeight, this.x1+this.blockWidth*col+this.blockWidth, this.y1+row*this.blockHeight+this.blockHeight);
                     } else {
-                        rect(this.x1+width*col, this.y1+row*height, width, height)
+                        rect(this.x1+this.blockWidth*col, this.y1+row*this.blockHeight, this.blockWidth, this.blockHeight)
                     }
                 }
             }
