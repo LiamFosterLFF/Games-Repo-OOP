@@ -44,6 +44,10 @@ function draw() {
     }
 }
 
+function mousePressed() {
+    game.restart();
+}
+
 class Game {
     constructor(width, height) {
         this.width = width;
@@ -56,7 +60,7 @@ class Game {
         this.bullets = [];
         this.shotCooldown = false;
         this.shipDeathCooldown = false;
-        this.lives = 1;
+        this.lives = 3;
         this.count = 1;
         this.UFOThreshold = 50;
         this.UFO = new UFO();
@@ -267,10 +271,10 @@ class Game {
             }
 
             function drawGameOver() {
-                const offset = [120, 300];
-                image(sprites[`jelly-enemy-sprite-1`], offset[0] + 200*0, offset[1],  150, 150);
-                image(sprites[`ignignokt-enemy-sprite-1`], offset[0] + 200*1, offset[1], 150, 150);
-                image(sprites[`shroom-enemy-sprite-1`], offset[0] + 200*2, offset[1], 150, 150);
+                const offset = [130, 300];
+                image(sprites[`jelly-enemy-sprite-1`], offset[0] + 210*0, offset[1],  150, 150);
+                image(sprites[`ignignokt-enemy-sprite-1`], offset[0] + 210*1, offset[1], 150, 150);
+                image(sprites[`shroom-enemy-sprite-1`], offset[0] + 210*2, offset[1], 150, 150);
 
                 textSize(100);
                 textFont(font);
@@ -356,8 +360,23 @@ class Game {
     }
 
     gameOver() {
-        console.log("Game Over");
         this.gameMode = "gameOver";
+    }
+
+    restart() {
+        if (this.gameMode === "gameOver") {
+            this.score = 0;
+            this.ship = this.initializeShip();
+            this.cover = this.initializeCover();
+            this.enemies = this.initializeEnemies();
+            this.bullets = [];
+            this.shotCooldown = false;
+            this.shipDeathCooldown = false;
+            this.lives = 3;
+            this.count = 1;
+            this.UFO = new UFO();
+            this.gameMode = "playing";
+        }
     }
 }
 
