@@ -537,7 +537,7 @@ class UFO extends Enemy{
         this.count = 1;
         this.countThreshold = 50;
         this.score = 50;
-        this.fireThreshold = .001;
+        this.fireThreshold = .02;
     }
 
     move() {
