@@ -881,7 +881,7 @@ class GameUI {
         this.parent = parent;
         this.display = this.initializeUI();
         this.whiteTimer = new Timer(this.display, "White");
-        this.MoveRecord = new MoveRecord(this.display);
+        this.moveRecord = new MoveRecord(this.display);
         this.blackTimer = new Timer(this.display, "Black");
     }
      
@@ -910,7 +910,7 @@ class GameUI {
     updateMoveRecord(piece, moveType, origin) {
         const letters = "abcdefgh"
         //Special syntax for pawn, as its name is the origin letter (only for capture)
-        const pawnOrigin = (piece.getName === "pawn" && moveType === "capture") ? letters[origin[0]] : "";
+        const pawnOrigin = (piece.getName() === "pawn" && moveType === "capture") ? letters[origin[0]] : "";
         
         const pieceDict = {
             "pawn": pawnOrigin,
@@ -929,7 +929,7 @@ class GameUI {
         const capture = (moveType === "capture") ? "x": "";
         const enPassant = (moveType === "passant") ? "e.p": "";
         const move = pieceName + capture + letter + number + enPassant;
-        console.log(move, origin);
+        this.moveRecord.addRecord(move, piece.getColor());
     }
 }
 
@@ -989,13 +989,53 @@ class Timer {
 class MoveRecord {
     constructor(parent) {
         this.parent = parent;
-        this.display = this.initializeRecord()
+        this.display = this.initializeRecord();
+        this.record = {"black": [], "white": []};
+    }
+
+    createRow(parent, id) {
+        console.log("BANG");
+        function createCol(parent) {
+            const col = createDiv("").parent(parent).id(id);
+            col.style("display", "table-cell");
+            col.style("border", "1px solid black");
+            col.style("width", "50%");
+            col.style("height", "25px");
+            return col;
+        }
+
+        const row = createDiv().parent(parent);
+        row.style("display", "table");
+        row.style("width", "100%");
+
+        const leftCol = createCol(row).id(id + "white");
+        const rightCol = createCol(row).id(id + "black");
+        return row;
     }
 
     initializeRecord() {
-        const record = createDiv("A").parent(this.parent);
-        record.style("display", "table-cell");
-        return record;
+        const recordDisplay = createDiv().parent(this.parent);
+        recordDisplay.style("display", "table-cell");
+        recordDisplay.style("width", "250px");
+
+        const table = createDiv().parent(recordDisplay);
+        table.style("display", "table");
+        table.style("border", "1px solid black");
+        table.style("width", "100%");
+        const row = this.createRow(table, "row1");
+        return recordDisplay;
+    }
+
+    addRecord(move, color) {
+        this.record[color].push(move);
+        const numRows = this.record["white"].length
+        const rowStr = "#" + "row" + String(numRows) + color;
+        console.log(rowStr);
+        if (color === "white" && numRows > 1) {
+            console.log("A");
+            this.createRow(this.display, rowStr);
+        }
+        select(rowStr).html(move);
     }
 }
     
