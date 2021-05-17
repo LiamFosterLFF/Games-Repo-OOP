@@ -326,7 +326,7 @@ class Game {
     }
 
     fireShipLaser() {
-        if (!this.ship.isDead() && !this.cooldown) {
+        if (!this.ship.isDead() && !this.shotCooldown) {
             this.bullets.push(this.ship.shoot());
             this.shotCooldown = true;
             setTimeout(() => {
@@ -376,7 +376,7 @@ class Ship {
     }
 
     shoot() {
-            return new Bullet(this.x + this.width/2, this.y);
+        return new Bullet(this.x + this.width/2, this.y);
     }
 
     die() {
@@ -529,6 +529,7 @@ class UFO extends Enemy{
         this.count = 1;
         this.countThreshold = 50;
         this.score = 50;
+        this.fireThreshold = .001;
     }
 
     move() {
