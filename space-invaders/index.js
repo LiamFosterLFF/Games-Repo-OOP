@@ -57,6 +57,7 @@ class Game {
         this.count = 1;
         this.UFOThreshold = 50;
         this.UFO = new UFO();
+        this.gameMode = "playing";
     }
 
     initializeShip() {
@@ -261,15 +262,23 @@ class Game {
                 drawUFO(game);
                 
             }
+
+            function drawGameOver() {
+            
+            }
     
             drawBoard();
-            drawScore(game);
-            drawLives(game);
-            drawCover(game);
-            drawShip(game);
-            drawEnemies(game);
-            drawBullets(game);
+            if (game.gameMode === "playing") {
+                drawScore(game);
+                drawLives(game);
+                drawCover(game);
+                drawShip(game);
+                drawEnemies(game);
+                drawBullets(game);
+            }
         }
+
+
         detectCollisions(game);
         drawGame(game);
 
@@ -334,6 +343,7 @@ class Game {
 
     gameOver() {
         console.log("Game Over");
+        this.gameMode = "gameOver";
     }
 }
 
