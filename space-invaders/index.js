@@ -451,11 +451,14 @@ class Enemy {
         this.height = 30;
         this.dying = false;
         this.dead = false;
-        this.name = name
-        this.image = sprites[`${this.name}-enemy-sprite-1`]
+        this.name = name;
+        this.images = [sprites[`${this.name}-enemy-sprite-1`], sprites[`${this.name}-enemy-sprite-2`]];
+        this.imageNo = 0;
+        this.image = this.images[this.imageNo];
         this.deathImage = sprites['pop-explosion']
         this.speed = {"x": 2, "y":50, "max": 10};
         this.fireThreshold = .0005;
+        this.movementParams = {"count": 0, "threshold": 20}
         this.score = 10;
     }
 
@@ -466,6 +469,11 @@ class Enemy {
 
     move() {
         this.x += this.speed.x;
+        this.movementParams.count += 1;
+        if (this.movementParams.count % this.movementParams.threshold === 0) {
+            this.imageNo = (this.imageNo + 1) %2;
+            this.image = this.images[this.imageNo];
+        }
     }
 
     advance() {
@@ -633,6 +641,5 @@ class Cover {
 
 // Add special enemies
 // Add levels
-// Enemies speed up over time
 // Add screen border
 // Add start screen - insert coin
