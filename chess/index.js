@@ -79,6 +79,12 @@ function mouseReleased() {
         turnNo++;
     }
 
+    function commitMove(piece, moveType, origin) {
+        changeTurns();
+        gameUI.updateMoveRecord(piece, moveType, origin);
+        updateBoard();
+    }
+
     function isCheck(kingLoc, kingColor) {
         function arraysEqual(arr1, arr2) {
             if (arr1 === arr2) return true;
@@ -197,8 +203,10 @@ function mouseReleased() {
             const [pieceRow, pieceCol] = selectedPiece.getPosition();
             if (row !== pieceRow || col !== pieceCol) {
                 if (selectedPiece.isLegalMove(row, col)) {
+                    let moveType = "move";
                     if (boardArray[row][col].piece !== null) {
                         boardArray[row][col].piece.beTaken();
+                        moveType = "capture";
                     }
                     if (isPawnPromotion(selectedPiece, row)) {
                         function promptForPieceName() {
@@ -212,7 +220,8 @@ function mouseReleased() {
                         }
                         promptForPieceName();
                     }
-                    const [savePosRow, savePosCol] = selectedPiece.getPosition();
+                    const origin = selectedPiece.getPosition();
+                    const [savePosRow, savePosCol] = origin;
                     selectedPiece.setPosition(row, col);
                     updateBoard();
 
@@ -222,11 +231,11 @@ function mouseReleased() {
                         updateBoard();
                     } else {
                         selectedPiece.setHasMoved();
-                        changeTurns();
-                        updateBoard();
+                        commitMove(selectedPiece, moveType, origin);
                     }
                 } else if (selectedPiece.getName() === "king" && selectedPiece.isLegalCastle()) {
                     const color = selectedPiece.getColor();
+                    const origin = selectedPiece.getPosition();
                     selectedPiece.setPosition(row, col)
                     selectedPiece.setHasMoved();
                     if (col === 6) {
@@ -236,17 +245,16 @@ function mouseReleased() {
                         boardPieces[color]["leftRook"].setPosition(col, 3);
                         boardPieces[color]["leftRook"].setHasMoved();
                     }
-                    changeTurns();
-                    updateBoard();
+                    commitMove(selectedPiece, "castle", origin);
                 } else if (isEnPassant(selectedPiece, row, col)) {
+                    const origin = selectedPiece.getPosition();
                     selectedPiece.setPosition(row, col);
                     selectedPiece.setHasMoved();
                     const passantRow = (whoseTurn === "white") ? 2 : 5;
                     const rowSign = (whoseTurn === "white") ? 1 : -1;
                     const passPiece = boardArray[passantRow + rowSign][col].piece;
                     passPiece.beTaken();
-                    changeTurns();
-                    updateBoard();
+                    commitMove(selectedPiece, "passant", origin);
                 }
             } 
         } else {
@@ -899,8 +907,29 @@ class GameUI {
         }
     }
 
-    addMove() {
+    updateMoveRecord(piece, moveType, origin) {
+        const letters = "abcdefgh"
+        //Special syntax for pawn, as its name is the origin letter (only for capture)
+        const pawnOrigin = (piece.getName === "pawn" && moveType === "capture") ? letters[origin[0]] : "";
+        
+        const pieceDict = {
+            "pawn": pawnOrigin,
+            "bishop": "B",
+            "knight": "N",
+            "rook": "R",
+            "queen": "Q",
+            "king": "K"
+        }
+        const pieceName = pieceDict[piece.getName()]
 
+        const [row, col] = piece.getPosition();
+        const number = 8 - row;
+        const letter = letters[col];
+
+        const capture = (moveType === "capture") ? "x": "";
+        const enPassant = (moveType === "passant") ? "e.p": "";
+        const move = pieceName + capture + letter + number + enPassant;
+        console.log(move, origin);
     }
 }
 
