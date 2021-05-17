@@ -574,39 +574,40 @@ class Cover {
     }
 
     detectCollision(shot) {
-        if (
-            shot !== null && !this.blown
-            && shot.x >= this.x1 && shot.x <= this.x2
-            && shot.y >= this.y1 && shot.y <= this.y2
-        ) {return true}
-        return false
+        // if (
+        //     shot !== null && !this.blown
+        //     && shot.x >= this.x1 && shot.x <= this.x2
+        //     && shot.y >= this.y1 && shot.y <= this.y2
+        // ) {return true}
+        // return false
     }
 
     blowUp() {
-        this.blown = true;
+        // this.blown = true;
     }
 
     isBlown() {
-        return this.blown;
+        // return this.blown;
     }
 
     draw() {
         // All blocks 10 wide * 5 blocks, 5 high * 4 blocks: Total 50 wide, 20 high
         // All blocks rectangular except [0, 0], [0, 4], [3, 1] & [3, 3]
+        const width = 20;
+        const height = 10;
         for (let row = 0; row < 4; row++) {
             for (let col = 0; col < 5; col++) {
                 if (this.cover[row][col] !== true) {
                     if (row === 0 && col === 0) {
-                        triangle(this.x1, this.y1+5, this.x1+10, this.y1, this.x1+10, this.y1+5);
-                        
+                        triangle(this.x1, this.y1+height, this.x1+width, this.y1, this.x1+width, this.y1+height);
                     } else if (row === 0 && col === 4) {
-                        
+                        triangle(this.x1+width*col, this.y1, this.x1+width*col+width, this.y1+height, this.x1+width*col, this.y1+height);
                     } else if (row === 3 && col === 1) {
-                        
+                        triangle(this.x1+width*col, this.y1+row*height, this.x1+width*col+width, this.y1+row*height, this.x1+width*col, this.y1+row*height+height);
                     } else if (row === 3 && col === 3) {
-                        
+                        triangle(this.x1+width*col, this.y1+row*height, this.x1+width*col+width, this.y1+row*height, this.x1+width*col+width, this.y1+row*height+height);
                     } else {
-
+                        rect(this.x1+width*col, this.y1+row*height, width, height)
                     }
                 }
             }
