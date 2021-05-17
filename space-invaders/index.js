@@ -264,8 +264,15 @@ class Game {
             }
 
             function drawGameOver() {
-                textSize(250);
-                text("Game \n Over", 60, 250);
+                const offset = [120, 300];
+                image(sprites[`jelly-enemy-sprite-1`], offset[0] + 200*0, offset[1],  150, 150);
+                image(sprites[`ignignokt-enemy-sprite-1`], offset[0] + 200*1, offset[1], 150, 150);
+                image(sprites[`shroom-enemy-sprite-1`], offset[0] + 200*2, offset[1], 150, 150);
+
+                textSize(120);
+                text("Game  Over", 60, 550);
+                textSize(50);
+                text("Click To Restart", 240, 650);
             }
     
             drawBoard();
@@ -275,9 +282,9 @@ class Game {
             drawShip(game);
             if (game.gameMode === "playing") {
                 drawEnemies(game);
+                drawGameOver();
                 drawBullets(game);
             } else {
-                drawGameOver();
             }
         }
 
