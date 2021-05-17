@@ -873,6 +873,7 @@ class GameUI {
         this.parent = parent;
         this.display = this.initializeUI();
         this.whiteTimer = new Timer(this.display, "White");
+        this.MoveRecord = new MoveRecord(this.display);
         this.blackTimer = new Timer(this.display, "Black");
     }
      
@@ -881,7 +882,6 @@ class GameUI {
         box.style("display", "table");
         box.style("text-align", "center");
         box.style("width", "100%");
-        this.MoveRecord = new MoveRecord(box);
         return box;
     }
 
@@ -916,11 +916,14 @@ class Timer {
     initializeTimer() {
         const box = createDiv().parent(this.parent);
         box.style("display", "table-cell");
-        createDiv(this.color).parent(box);
+        box.style("border", "3px solid green");
+        box.style("font-size", "22px");
+
+
+        const title = createDiv(this.color).parent(box);
+
         const timer = createDiv(this.formatTime(this.time)).parent(box);
-        // if (this.color === "White") {
-        //     this.startTimer();
-        // }
+
         return timer;
     }
 
