@@ -424,10 +424,8 @@ class Bullet {
 
     getDimensions(){
         const dimensionsObject = {
-            "x1": this.x + this.bulletWidth*1/4,
-            "x2": this.x + this.bulletWidth*3/4,
-            "y1": this.y,
-            "y2": this.y + this.bulletHeight
+            "x": this.x + this.bulletWidth*1/2,
+            "y": this.y
         }
         return dimensionsObject;
     }
@@ -590,17 +588,12 @@ class Cover {
         // Checks if in covers' range
         if (
             shot !== null 
-            && ((shotDims.x1 >= this.x1 && shotDims.x1 < this.x2) || (shotDims.x2 >= this.x1 && shotDims.x2 < this.x2))
-            && shotDims.y2 >= this.y1 && shotDims.y2 < this.y2
+            && shotDims.x >= this.x1 && shotDims.x < this.x2
+            && shotDims.y >= this.y1 && shotDims.y < this.y2
         ) {
             // Checks if that cover hasn't been shot out already
-            const shotDimsx = (shotDims.x1 + shotDims.x2)/2 // Average of left and right for x
-            const shotDimsy = shotDims.y2 // Just the front
-            const shotxBlock = Math.floor((shotDimsx - this.x1)/this.blockWidth);
-            const shotyBlock = Math.floor((shotDimsy - this.y1)/this.blockHeight);
-            console.log(shotDimsy, this.y1, this.y2, shotDimsx, this.x1, this.x2);
-            console.log(shotyBlock, shotxBlock);
-            console.log(this.cover);
+            const shotxBlock = Math.floor((shotDims.x - this.x1)/this.blockWidth);
+            const shotyBlock = Math.floor((shotDims.y - this.y1)/this.blockHeight);
             if (this.cover[shotyBlock][shotxBlock] === false) {
                 // If so, shoot it out and return true
                 this.cover[shotyBlock][shotxBlock] = true;
