@@ -49,7 +49,7 @@ function keyReleased() {
 
 function initializeGame() {
     game = new Game(boardSize, presetString=presetStr);
-    game.resetGame();
+    game.startGame();
 }
 
 class Game {
@@ -87,7 +87,7 @@ class Game {
         this.board = this.initializeBoard();
         this.loadPresets(this.presetStr);
         this.setAutoCandidates();
-        this.drawGame();
+        this.drawBoard();
     }
 
     initializePresetArr() {
@@ -143,9 +143,12 @@ class Game {
         }
     }
 
-    drawGame() {
+    startGame() {
         this.buttons.drawButtons();
+        this.loadPresets(this.presetStr);
+        this.setAutoCandidates();
         this.drawBoard();
+
     }
 
     selectCell(row, col) {
@@ -243,6 +246,9 @@ class Game {
             this.handleNumberKeyPressed("0")
         } else if (command === "solve") {
             this.solvePuzzle();
+            this.buttons.restyleCheckButton(false);
+            this.buttons.restyleSolveButton();
+
         }
     }
 
@@ -409,7 +415,7 @@ class Game {
                 this.board[row][col].solveCell();
             }
         }
-        this.drawGame();
+        this.drawBoard();
     }
 
     solvePuzzleRecursive() {
@@ -604,6 +610,13 @@ class ButtonBar {
         }
     }
 
+    restyleSolveButton() {
+        let button = this.buttonArray["solve"];
+        // console.log(button);
+        button.style("background-color", "#6a309a");
+        button.style("color", "#fff");
+    }
+
     drawButtons() {
         // Top-level Div
         noFill();
@@ -642,8 +655,9 @@ class ButtonBar {
         const redo = createButton("redo");
         const restart = createButton("restart");
         const check = createButton("check");
-        const solve = createButton("solve");
         this.buttonArray["check"] = check;
+        const solve = createButton("solve");
+        this.buttonArray["solve"] = solve;
 
 
         function createAsChildrenOfDiv(div, buttonArr) {
@@ -662,8 +676,8 @@ class ButtonBar {
         this.columnDecorator([leftBox, centerBox, rightBox])
         this.numberButtonDecorator([one, two, three, four, five, six, seven, eight, nine]);
         this.sideButtonDecorator([normal, corner, center, undo, redo, restart, check, solve])
-        this.leftSideButtonDecorator([normal, corner, center]);
-        this.rightSideButtonDecorator([undo, redo, restart]);
+        this.inputModeButtonDecorator([normal, corner, center]);
+        this.controlButtonDecorator([undo, redo, restart, check, solve]);
         this.deleteButtonDecorator(del);
     }
 
@@ -715,7 +729,7 @@ class ButtonBar {
         }
     }
 
-    leftSideButtonDecorator(buttonArr) {
+    inputModeButtonDecorator(buttonArr) {
 
         for (let i = 0; i < buttonArr.length; i++) {
             const button = buttonArr[i];
@@ -725,7 +739,7 @@ class ButtonBar {
         }
     }
 
-    rightSideButtonDecorator(buttonArr) {
+    controlButtonDecorator(buttonArr) {
         for (let i = 0; i < buttonArr.length; i++) {
             const button = buttonArr[i];
             button.mouseClicked(() => {
