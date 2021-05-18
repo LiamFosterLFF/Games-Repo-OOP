@@ -643,7 +643,13 @@ class Cell {
 
     enterCenterValue(value) {
         if (!this.centerValues.includes(value)) {
-            this.centerValues.push(value)
+            const cv = this.centerValues;
+            cv.push(value);
+            const sortedcv = cv.sort();
+            this.centerValues = sortedcv;
+        } else {
+            const i = this.centerValues.indexOf(value)
+            this.centerValues.splice(i, 1);
         }
     }
 
