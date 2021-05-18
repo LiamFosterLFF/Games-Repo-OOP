@@ -80,16 +80,6 @@ class Game {
         return board;
     }
 
-    resetGame() {
-        this.inputMode = "normal";
-        this.duplicates = []
-        this.selectedCell = []
-        this.board = this.initializeBoard();
-        this.loadPresets(this.presetStr);
-        this.setAutoCandidates();
-        this.drawBoard();
-    }
-
     initializePresetArr() {
         function loadStringFromCSV() {
             return presets.getRow(Math.floor(Math.random() * presets.getRowCount()));
@@ -149,6 +139,18 @@ class Game {
         this.setAutoCandidates();
         this.drawBoard();
 
+    }
+
+
+    restartGame() {
+        this.inputMode = "normal";
+        this.duplicates = []
+        this.selectedCell = []
+        this.buttons.restoreDefaults();
+        this.board = this.initializeBoard();
+        this.loadPresets(this.presetStr);
+        this.setAutoCandidates();
+        this.drawBoard();
     }
 
     selectCell(row, col) {
@@ -221,7 +223,6 @@ class Game {
 
 
     handleInputModeKeyPressed(inputMode) {
-        console.log("A");
         this.buttons.restyleNumberButtons(inputMode)
         this.buttons.restyleInputModeButtons(inputMode)
         this.setInputMode(inputMode)
@@ -229,7 +230,7 @@ class Game {
 
     handleControlButtonPressed(command) {
         if (command === "restart") {
-            this.resetGame()
+            this.restartGame()
         } else if (command === "undo") {
             this.undoLastMove();
         } else if (command === "redo") {
@@ -247,7 +248,7 @@ class Game {
         } else if (command === "solve") {
             this.solvePuzzle();
             this.buttons.restyleCheckButton(false);
-            this.buttons.restyleSolveButton();
+            this.buttons.restyleSolveButton(true);
 
         }
     }
@@ -610,11 +611,23 @@ class ButtonBar {
         }
     }
 
-    restyleSolveButton() {
+    restyleSolveButton(solved) {
         let button = this.buttonArray["solve"];
         // console.log(button);
-        button.style("background-color", "#6a309a");
-        button.style("color", "#fff");
+        if (solved) {
+            button.style("background-color", "#6a309a");
+            button.style("color", "#fff");
+        } else {
+            button.style("background-color", "#fff");
+            button.style("color", "#6a309a");
+        }
+    }
+
+    restoreDefaults() {
+        this.restyleCheckButton(false);
+        this.restyleSolveButton(false);
+        this.restyleNumberButtons("normal");
+        this.restyleInputModeButtons("normal");
     }
 
     drawButtons() {
@@ -762,6 +775,7 @@ class ButtonBar {
         button.style("border-radius", "5px")
         button.style("margin", "2px");
     }
+
 }
     
 class Cell {
