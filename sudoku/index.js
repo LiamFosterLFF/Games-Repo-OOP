@@ -52,7 +52,6 @@ function keyReleased() {
 function initializeGame() {
     game = new Game(boardSize, presetString=presetStr);
     game.resetGame();
-    // console.log(game.solvePuzzleRecursive());
 }
 
 class Game {
@@ -243,7 +242,9 @@ class Game {
             }
         } else if (command === "delete") {
             this.handleNumberKeyPressed("0")
-        } 
+        } else if (command === "solve") {
+            this.solvePuzzle();
+        }
     }
 
     setInputMode(mode) {
@@ -404,14 +405,12 @@ class Game {
     }
 
     solvePuzzle() {
-        let i = 0 // Iterating through array same way as we did with loading puzzle
         for (let row = 0; row < this.board.length; row++) {
             for (let col = 0; col < this.board[row].length; col++) {
-                this.board[row][col].checkSolution(this.data.solution[i]);
-                i++
+                this.board[row][col].solveCell();
             }
-            
         }
+        this.drawGame();
     }
 
     solvePuzzleRecursive() {
@@ -623,8 +622,8 @@ class ButtonBar {
         const normal = createButton("normal").class("normal").id("normal");
         const corner = createButton("corner").class("corner").id("corner");
         const center = createButton("center").class("center").id("center");
-        const color = createButton("color").class("color").id("color");
-        this.buttonArray["inputMode"].push(normal, corner, center,color)
+        // const color = createButton("color").class("color").id("color");
+        this.buttonArray["inputMode"].push(normal, corner, center)
 
 
         const one = createButton(1).id("one");
@@ -644,6 +643,7 @@ class ButtonBar {
         const redo = createButton("redo");
         const restart = createButton("restart");
         const check = createButton("check");
+        const solve = createButton("solve");
         this.buttonArray["check"] = check;
 
 
@@ -654,16 +654,16 @@ class ButtonBar {
             }
         }
 
-        createAsChildrenOfDiv(leftBox, [normal, corner, center, color]);
+        createAsChildrenOfDiv(leftBox, [normal, corner, center, check]);
         createAsChildrenOfDiv(centerBox, [one, two, three, four, five, six, seven, eight, nine, del]);
-        createAsChildrenOfDiv(rightBox, [undo, redo, restart, check]);
+        createAsChildrenOfDiv(rightBox, [undo, redo, restart, solve]);
         createAsChildrenOfDiv(fullBox, [leftBox, centerBox, rightBox])
 
         this.rowDecorator(fullBox);
         this.columnDecorator([leftBox, centerBox, rightBox])
         this.numberButtonDecorator([one, two, three, four, five, six, seven, eight, nine]);
-        this.leftSideButtonDecorator([normal, corner, center, color]);
-        this.rightSideButtonDecorator([undo, redo, restart, check]);
+        this.leftSideButtonDecorator([normal, corner, center]);
+        this.rightSideButtonDecorator([undo, redo, restart, check, solve]);
         this.deleteButtonDecorator(del);
     }
 
@@ -794,8 +794,6 @@ class Cell {
     deselectCell() {
         this.selectedCell = false;
     }
-
-    
 
     drawCell(row, col) {
         
@@ -936,6 +934,10 @@ class Cell {
 
     uncheckCell() {
         this.check = false;
+    }
+
+    solveCell() {
+        this.solve = true;
     }
 
     checkCorrect() {
