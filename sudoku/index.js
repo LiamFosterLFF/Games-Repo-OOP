@@ -34,18 +34,19 @@ function handleClick() {
 function keyPressed() {
     if (!isNaN(key)) {
         game.handleNumberKeyPressed(key);
-    } else if (keyCode === CONTROL) {
-        game.handleInputModeKeyPressed("corner")
-    } else if (keyCode === SHIFT) {
-        game.handleInputModeKeyPressed("center")
-    }
+    } 
+    // else if (keyCode === CONTROL) {
+    //     game.handleInputModeKeyPressed("corner")
+    // } else if (keyCode === SHIFT) {
+    //     game.handleInputModeKeyPressed("center")
+    // }
 }
 
-function keyReleased() {
-    if (keyCode === SHIFT || keyCode === CONTROL) {
-        game.handleInputModeKeyPressed("normal")
-    }
-}
+// function keyReleased() {
+//     if (keyCode === SHIFT || keyCode === CONTROL) {
+//         game.handleInputModeKeyPressed("normal")
+//     }
+// }
 
 function initializeGame() {
     game = new Game(boardSize, presetString=presetStr);
@@ -60,7 +61,7 @@ class Game {
         this.selectedCell = [];
         this.board = this.initializeBoard();
         this.duplicates = [];
-        this.inputMode = "normal"
+        this.inputMode = "normal";
         this.cellsChecked = false;
         this.buttons = new ButtonBar(this.boardSize);
         this.data = this.initializePresetArr();
@@ -220,7 +221,6 @@ class Game {
         }
         this.drawBoard();
     }
-
 
     handleInputModeKeyPressed(inputMode) {
         this.buttons.restyleNumberButtons(inputMode)
@@ -540,243 +540,7 @@ class Game {
     //     return false
     // }
     
-class ButtonBar {
-    constructor(boardSize) {
-        this.boardSize = boardSize;
-        this.width = 400;
-        this.height = 300;
-        this.leftBarWidth = (this.width * 9/30);
-        this.centerBoxWidth = (this.width * 12/30);
-        this.rightBarWidth = (this.width * 9/30);
-        this.sideButtonWidth = 105;
-        this.sideButtonHeight = 40;
-        this.deleteButtonWidth = 150;
-        this.deleteButtonHeight = 40;
-        this.buttonArray = {"number": [], "inputMode": [], "check": null}
-    }
 
-    restyleNumberButtons(inputMode) {
-        for (let i=0; i<this.buttonArray["number"].length; i++) {
-            let button = this.buttonArray["number"][i]
-            if (inputMode === "normal") {
-                button.style("font-size", "30px");
-                button.style("font-weight", "900");
-
-            } else if (inputMode === "center") {
-                button.style("font-size", "20px");
-                button.style("font-weight", "0");
-
-            } else if (inputMode === "corner") {
-                button.style("font-size", "20px");
-                button.style("font-weight", "0");
-                if (button.id() === "one" || button.id() === "four" || button.id() === "seven") {
-                    button.style("text-align", "left");
-                } else if (button.id() === "two" || button.id() === "five" || button.id() === "eight"){
-                    button.style("text-align", "center");
-                } else if (button.id() === "three" || button.id() === "six" || button.id() === "nine") {
-                    button.style("text-align", "right");
-                }
-                if (button.id() === "one" || button.id() === "two" || button.id() === "three") {
-                    button.style("padding-top", "0px");
-                }
-                
-            } else if (inputMode === "color") {
-                
-            }
-        }
-    }
-
-    restyleInputModeButtons(inputMode) {
-        for (let i=0; i<this.buttonArray["inputMode"].length; i++) {
-            let button = this.buttonArray["inputMode"][i]
-            if (button.id() === inputMode) {
-                button.style("background-color", "#6a309a");
-                button.style("color", "#fff");
-            } else {
-                button.style("background-color", "#fff");
-                button.style("color", "#6a309a");
-            }
-        }
-        
-    }
-
-    restyleCheckButton(buttonChecked) {
-        let button = this.buttonArray["check"]
-        if (buttonChecked) {
-            button.style("background-color", "#6a309a");
-            button.style("color", "#fff");
-        } else {
-            button.style("background-color", "#fff");
-            button.style("color", "#6a309a");
-        }
-    }
-
-    restyleSolveButton(solved) {
-        let button = this.buttonArray["solve"];
-        // console.log(button);
-        if (solved) {
-            button.style("background-color", "#6a309a");
-            button.style("color", "#fff");
-        } else {
-            button.style("background-color", "#fff");
-            button.style("color", "#6a309a");
-        }
-    }
-
-    restoreDefaults() {
-        this.restyleCheckButton(false);
-        this.restyleSolveButton(false);
-        this.restyleNumberButtons("normal");
-        this.restyleInputModeButtons("normal");
-    }
-
-    drawButtons() {
-        // Top-level Div
-        noFill();
-        const fullBox = createDiv()
-        fullBox.size(this.width, this.height);
-        fullBox.parent("canvas-parent")
-
-        const leftBox = createDiv();
-        const centerBox = createDiv();
-        const rightBox = createDiv();
-        leftBox.size(this.leftBarWidth, this.height);
-        centerBox.size(this.centerBoxWidth, this.height);
-        rightBox.size(this.rightBarWidth, this.height);
-
-        const normal = createButton("normal").class("normal").id("normal");
-        const corner = createButton("corner").class("corner").id("corner");
-        const center = createButton("center").class("center").id("center");
-        // const color = createButton("color").class("color").id("color");
-        this.buttonArray["inputMode"].push(normal, corner, center)
-
-
-        const one = createButton(1).id("one");
-        const two = createButton(2).id("two");
-        const three = createButton(3).id("three");
-        const four = createButton(4).id("four");
-        const five = createButton(5).id("five");
-        const six = createButton(6).id("six");
-        const seven = createButton(7).id("seven");
-        const eight = createButton(8).id("eight");
-        const nine = createButton(9).id("nine");
-        this.buttonArray["number"].push(one, two, three, four, five, six, seven ,eight, nine)
-
-        const del = createButton("delete");
-
-        const undo = createButton("undo");
-        const redo = createButton("redo");
-        const restart = createButton("restart");
-        const check = createButton("check");
-        this.buttonArray["check"] = check;
-        const solve = createButton("solve");
-        this.buttonArray["solve"] = solve;
-
-
-        function createAsChildrenOfDiv(div, buttonArr) {
-            for (let i = 0; i < buttonArr.length; i++) {
-                const button = buttonArr[i];
-                div.child(button);
-            }
-        }
-
-        createAsChildrenOfDiv(leftBox, [normal, corner, center, check]);
-        createAsChildrenOfDiv(centerBox, [one, two, three, four, five, six, seven, eight, nine, del]);
-        createAsChildrenOfDiv(rightBox, [undo, redo, restart, solve]);
-        createAsChildrenOfDiv(fullBox, [leftBox, centerBox, rightBox])
-
-        this.rowDecorator(fullBox);
-        this.columnDecorator([leftBox, centerBox, rightBox])
-        this.numberButtonDecorator([one, two, three, four, five, six, seven, eight, nine]);
-        this.sideButtonDecorator([normal, corner, center, undo, redo, restart, check, solve])
-        this.inputModeButtonDecorator([normal, corner, center]);
-        this.controlButtonDecorator([undo, redo, restart, check, solve]);
-        this.deleteButtonDecorator(del);
-    }
-
-    rowDecorator(rowDiv) {
-        rowDiv.style("display", "table");
-        rowDiv.style("table-layout", "fixed");
-        // rowDiv.style("border-spacing", "10px");
-    }
-
-    columnDecorator(columnDivs) {
-        for (let i = 0; i < columnDivs.length; i++) {
-            const column = columnDivs[i];
-            column.style("display", "table-cell");
-        }
-    }
-
-    numberButtonDecorator(buttonArr) {
-
-        for (let i = 0; i < buttonArr.length; i++) {
-            const button = buttonArr[i];
-            button.mouseClicked(() => game.handleNumberKeyPressed(button.html()))
-            button.size(47, 47);
-            button.style("background-color", "#6a309a");
-            button.style("color", "#fff");
-            button.style("border", "none");
-            button.style("border", "2px solid #b5b3b8");
-            button.style("border-radius", "5px")
-            button.style("margin", "2px");
-        } 
-    }
-
-    sideButtonDecorator(buttonArr) {
-        for (let i = 0; i < buttonArr.length; i++) {
-            const button = buttonArr[i];
-            if (button.id() === "normal") {
-                button.style("background-color", "#6a309a");
-                button.style("color", "#fff");
-            } else {
-                button.style("background-color", "#fff");
-                button.style("color", "#6a309a");
-            }
-            button.size(this.sideButtonWidth, this.sideButtonHeight);
-            button.style("border", "none");
-            button.style("border", "2px solid #b5b3b8");
-            button.style("font-size", "20px");
-            button.style("font-weight", "900");
-            button.style("border-radius", "5px")
-            button.style("margin", "4px")
-        }
-    }
-
-    inputModeButtonDecorator(buttonArr) {
-
-        for (let i = 0; i < buttonArr.length; i++) {
-            const button = buttonArr[i];
-            button.mouseClicked(() => {
-            game.handleInputModeKeyPressed(button.html())
-            }) 
-        }
-    }
-
-    controlButtonDecorator(buttonArr) {
-        for (let i = 0; i < buttonArr.length; i++) {
-            const button = buttonArr[i];
-            button.mouseClicked(() => {
-                game.handleControlButtonPressed(button.html())
-            }) 
-        }
-    }
-
-    deleteButtonDecorator(button) {
-        button.mouseClicked(() => {
-            game.handleControlButtonPressed(button.html())
-        }) 
-        button.size(this.deleteButtonWidth, this.deleteButtonHeight);
-        button.style("background-color", "#fff");
-        button.style("color", "#6a309a");
-        button.style("font-size", "20px");
-        button.style("font-weight", "900");
-        button.style("border", "none");
-        button.style("border", "2px solid #b5b3b8");
-        button.style("border-radius", "5px")
-        button.style("margin", "2px");
-    }
-
-}
     
 class Cell {
     constructor(value, solution, row, col, cellSize) {
@@ -970,7 +734,245 @@ class Cell {
     checkCorrect() {
         return this.value === this.solution;
     }
+}
 
+class ButtonBar {
+    constructor(boardSize) {
+        this.boardSize = boardSize;
+        this.width = 400;
+        this.height = 300;
+        this.leftBarWidth = (this.width * 9/30);
+        this.centerBoxWidth = (this.width * 12/30);
+        this.rightBarWidth = (this.width * 9/30);
+        this.sideButtonWidth = 105;
+        this.sideButtonHeight = 40;
+        this.deleteButtonWidth = 150;
+        this.deleteButtonHeight = 40;
+        this.buttonArray = {"number": [], "inputMode": [], "check": null}
+    }
+
+    restyleNumberButtons(inputMode) {
+        for (let i=0; i<this.buttonArray["number"].length; i++) {
+            let button = this.buttonArray["number"][i]
+            if (inputMode === "normal") {
+                button.style("font-size", "30px");
+                button.style("font-weight", "900");
+
+            } else if (inputMode === "center") {
+                button.style("font-size", "20px");
+                button.style("font-weight", "0");
+
+            } else if (inputMode === "corner") {
+                button.style("font-size", "20px");
+                button.style("font-weight", "0");
+                if (button.id() === "one" || button.id() === "four" || button.id() === "seven") {
+                    button.style("text-align", "left");
+                } else if (button.id() === "two" || button.id() === "five" || button.id() === "eight"){
+                    button.style("text-align", "center");
+                } else if (button.id() === "three" || button.id() === "six" || button.id() === "nine") {
+                    button.style("text-align", "right");
+                }
+                if (button.id() === "one" || button.id() === "two" || button.id() === "three") {
+                    button.style("padding-top", "0px");
+                }
+                
+            } else if (inputMode === "color") {
+                
+            }
+        }
+    }
+
+    restyleInputModeButtons(inputMode) {
+        for (let i=0; i<this.buttonArray["inputMode"].length; i++) {
+            let button = this.buttonArray["inputMode"][i]
+            if (button.id() === inputMode) {
+                button.style("background-color", "#6a309a");
+                button.style("color", "#fff");
+            } else {
+                button.style("background-color", "#fff");
+                button.style("color", "#6a309a");
+            }
+        }
+        
+    }
+
+    restyleCheckButton(buttonChecked) {
+        let button = this.buttonArray["check"]
+        if (buttonChecked) {
+            button.style("background-color", "#6a309a");
+            button.style("color", "#fff");
+        } else {
+            button.style("background-color", "#fff");
+            button.style("color", "#6a309a");
+        }
+    }
+
+    restyleSolveButton(solved) {
+        let button = this.buttonArray["solve"];
+        // console.log(button);
+        if (solved) {
+            button.style("background-color", "#6a309a");
+            button.style("color", "#fff");
+        } else {
+            button.style("background-color", "#fff");
+            button.style("color", "#6a309a");
+        }
+    }
+
+    restoreDefaults() {
+        this.restyleCheckButton(false);
+        this.restyleSolveButton(false);
+        this.restyleNumberButtons("normal");
+        this.restyleInputModeButtons("normal");
+    }
+
+    drawButtons() {
+        // Top-level Div
+        noFill();
+        const fullBox = createDiv()
+        fullBox.size(this.width, this.height);
+        fullBox.parent("canvas-parent")
+
+        const leftBox = createDiv();
+        const centerBox = createDiv();
+        const rightBox = createDiv();
+        leftBox.size(this.leftBarWidth, this.height);
+        centerBox.size(this.centerBoxWidth, this.height);
+        rightBox.size(this.rightBarWidth, this.height);
+
+        const normal = createButton("normal").class("normal").id("normal");
+        const corner = createButton("corner").class("corner").id("corner");
+        const center = createButton("center").class("center").id("center");
+        // const color = createButton("color").class("color").id("color");
+        this.buttonArray["inputMode"].push(normal, corner, center)
+
+
+        const one = createButton(1).id("one");
+        const two = createButton(2).id("two");
+        const three = createButton(3).id("three");
+        const four = createButton(4).id("four");
+        const five = createButton(5).id("five");
+        const six = createButton(6).id("six");
+        const seven = createButton(7).id("seven");
+        const eight = createButton(8).id("eight");
+        const nine = createButton(9).id("nine");
+        this.buttonArray["number"].push(one, two, three, four, five, six, seven ,eight, nine)
+
+        const del = createButton("delete");
+
+        const undo = createButton("undo");
+        const redo = createButton("redo");
+        const restart = createButton("restart");
+        const check = createButton("check");
+        this.buttonArray["check"] = check;
+        const solve = createButton("solve");
+        this.buttonArray["solve"] = solve;
+
+
+        function createAsChildrenOfDiv(div, buttonArr) {
+            for (let i = 0; i < buttonArr.length; i++) {
+                const button = buttonArr[i];
+                div.child(button);
+            }
+        }
+
+        createAsChildrenOfDiv(leftBox, [normal, corner, center, check]);
+        createAsChildrenOfDiv(centerBox, [one, two, three, four, five, six, seven, eight, nine, del]);
+        createAsChildrenOfDiv(rightBox, [undo, redo, restart, solve]);
+        createAsChildrenOfDiv(fullBox, [leftBox, centerBox, rightBox])
+
+        this.rowDecorator(fullBox);
+        this.columnDecorator([leftBox, centerBox, rightBox])
+        this.numberButtonDecorator([one, two, three, four, five, six, seven, eight, nine]);
+        this.sideButtonDecorator([normal, corner, center, undo, redo, restart, check, solve])
+        this.inputModeButtonDecorator([normal, corner, center]);
+        this.controlButtonDecorator([undo, redo, restart, check, solve]);
+        this.deleteButtonDecorator(del);
+    }
+
+    rowDecorator(rowDiv) {
+        rowDiv.style("display", "table");
+        rowDiv.style("table-layout", "fixed");
+        // rowDiv.style("border-spacing", "10px");
+    }
+
+    columnDecorator(columnDivs) {
+        for (let i = 0; i < columnDivs.length; i++) {
+            const column = columnDivs[i];
+            column.style("display", "table-cell");
+        }
+    }
+
+    numberButtonDecorator(buttonArr) {
+
+        for (let i = 0; i < buttonArr.length; i++) {
+            const button = buttonArr[i];
+            button.mouseClicked(() => game.handleNumberKeyPressed(button.html()))
+            button.size(47, 47);
+            button.style("background-color", "#6a309a");
+            button.style("color", "#fff");
+            button.style("border", "none");
+            button.style("border", "2px solid #b5b3b8");
+            button.style("border-radius", "5px")
+            button.style("margin", "2px");
+            button.style("font-size", "30px");
+            button.style("font-weight", "900");
+        } 
+    }
+
+    sideButtonDecorator(buttonArr) {
+        for (let i = 0; i < buttonArr.length; i++) {
+            const button = buttonArr[i];
+            if (button.id() === "normal") {
+                button.style("background-color", "#6a309a");
+                button.style("color", "#fff");
+            } else {
+                button.style("background-color", "#fff");
+                button.style("color", "#6a309a");
+            }
+            button.size(this.sideButtonWidth, this.sideButtonHeight);
+            button.style("border", "none");
+            button.style("border", "2px solid #b5b3b8");
+            button.style("font-size", "20px");
+            button.style("font-weight", "900");
+            button.style("border-radius", "5px")
+            button.style("margin", "4px")
+        }
+    }
+
+    inputModeButtonDecorator(buttonArr) {
+
+        for (let i = 0; i < buttonArr.length; i++) {
+            const button = buttonArr[i];
+            button.mouseClicked(() => {
+            game.handleInputModeKeyPressed(button.html())
+            }) 
+        }
+    }
+
+    controlButtonDecorator(buttonArr) {
+        for (let i = 0; i < buttonArr.length; i++) {
+            const button = buttonArr[i];
+            button.mouseClicked(() => {
+                game.handleControlButtonPressed(button.html())
+            }) 
+        }
+    }
+
+    deleteButtonDecorator(button) {
+        button.mouseClicked(() => {
+            game.handleControlButtonPressed(button.html())
+        }) 
+        button.size(this.deleteButtonWidth, this.deleteButtonHeight);
+        button.style("background-color", "#fff");
+        button.style("color", "#6a309a");
+        button.style("font-size", "20px");
+        button.style("font-weight", "900");
+        button.style("border", "none");
+        button.style("border", "2px solid #b5b3b8");
+        button.style("border-radius", "5px")
+        button.style("margin", "2px");
+    }
 }
 // Still to do
     // Add validator?
