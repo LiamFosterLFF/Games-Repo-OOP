@@ -39,6 +39,8 @@ function keyPressed() {
     } else if (keyCode === SHIFT) {
         game.handleInputModeKeyPressed("center")
     }
+
+    game.solvePuzzle()
 }
 
 function keyReleased() {
@@ -74,7 +76,7 @@ class Game {
         for (let row = 0; row < 9; row++) {
             const bRow = []
             for (let col = 0; col < 9; col++) {
-                bRow.push(new Cell(0, row, col, this.cellSize));
+                bRow.push(new Cell(0, 0, row, col, this.cellSize));
             }
             board.push(bRow)
         }
@@ -108,15 +110,14 @@ class Game {
     }
 
     loadPresets() {
-        // const [presetBoard, solvedPresetBoard] = loadPresetArrFromCSV(presetStr);
-
         let i = 0;
         for (let row = 0; row < 9; row++) {
             for (let col = 0; col < 9; col++) {
                 if (this.data.preset[i] !== null) {
+                    // row, col is to choose the cell; just iterate a value i to get the according location on the string
                     const cell = this.board[row][col]
                     cell.enterSetValue(this.data.preset[i]);
-                    cell.enterAnswer(this.data.solution[i]);
+                    cell.enterSolution(this.data.solution[i]);
                     i++;
                 }
             }
@@ -364,7 +365,7 @@ class Game {
     checkCells() {
         for (let row=0; row<9; row++) {
             for (let col=0; col<9; col++) {
-                this.board[row][col].setCorrect();
+                this.board[row][col].checkCell();
             }
         }
         this.cellsChecked = true;
@@ -375,7 +376,7 @@ class Game {
     uncheckCells() {
         for (let row=0; row<9; row++) {
             for (let col=0; col<9; col++) {
-                this.board[row][col].resetCorrect();
+                this.board[row][col].uncheckCell();
             }
         }
         this.cellsChecked = false;
@@ -400,6 +401,17 @@ class Game {
         }
         this.drawBoard()
 
+    }
+
+    solvePuzzle() {
+        let i = 0 // Iterating through array same way as we did with loading puzzle
+        for (let row = 0; row < this.board.length; row++) {
+            for (let col = 0; col < this.board[row].length; col++) {
+                this.board[row][col].checkSolution(this.data.solution[i]);
+                i++
+            }
+            
+        }
     }
 
     solvePuzzleRecursive() {
@@ -741,11 +753,10 @@ class ButtonBar {
 }
     
 class Cell {
-    constructor(value, row, col, cellSize) {
+    constructor(value, solution, row, col, cellSize) {
         this.setValue = value;
         this.value = value;
-        this.answer = 0;
-        this.correct = null;
+        this.solution = solution;
         this.row = row;
         this.col = col;
         this.cellSize = cellSize;
@@ -756,6 +767,8 @@ class Cell {
         this.candidates = [];
         this.centerValues = [];
         this.duplicate = false;
+        this.check = false;
+        this.solve = false;
     }
 
     getLocation() {
@@ -782,7 +795,18 @@ class Cell {
         this.selectedCell = false;
     }
 
+    
+
     drawCell(row, col) {
+        
+        function drawNumber(cell, value, color, line, row, col) {
+            fill(color);
+            stroke(line);
+            strokeWeight(1);
+            textSize(50);
+            textAlign(CENTER, CENTER);
+            text(value, cell.cellSize*col, cell.cellSize*row, cell.cellSize, cell.cellSize)
+        }
         // Draw box
         // Color selected cell yellow
         if (this.selectedCell) {
@@ -794,29 +818,30 @@ class Cell {
         square(this.cellSize*col, this.cellSize*row, this.cellSize);
 
         // Draw text
-        if (this.value !== "0") {
-
-            fill(0);
-            stroke(0);
-            // Change color if correct, cross out if incorrect
-            if (this.correct !== null) {
-                if (this.correct) {
-                    // Blue
-                    fill(66, 114, 245);
-                    stroke(66, 114, 245);
+        // Solve takes precedence, then check
+        if (this.solve === true) {
+            if (this.value === "0" && !this.checkCorrect()) {
+                // Red only if solution not correct 
+                drawNumber(this, this.solution, "#ff0000", "#ff0000", row, col);
+            } else {
+                drawNumber(this, this.value, 0, 0, row, col);
+            }
+        } else if (this.check === true) {
+            if (this.value !== "0") {
+                if (this.checkCorrect()) {
+                    // Blue for checked
+                    drawNumber(this, this.value, "#4272f5", "#4272f5", row, col);
                 } else {
+                    drawNumber(this, this.value, 0, 0, row, col);
                     // Draw red crossout
                     stroke(235, 20, 50);
                     strokeWeight(4);
                     line(this.cellSize*col, this.cellSize*row, this.cellSize*col+this.cellSize, this.cellSize*row+this.cellSize);
                     // Line color back to normal
-                    stroke(0);
                 }
-            } 
-            strokeWeight(1);
-            textSize(50);
-            textAlign(CENTER, CENTER);
-            text(this.value, this.cellSize*col, this.cellSize*row, this.cellSize, this.cellSize)
+            }
+        } else if (this.value !== "0") {
+            drawNumber(this, this.value, 0, 0, row, col);
         }
 
         // Draw candidates
@@ -864,8 +889,6 @@ class Cell {
         }
     }
 
-
-
     getValue() {
         return this.value;
     }
@@ -903,16 +926,20 @@ class Cell {
         this.value = value;
     }
 
-    enterAnswer(value) {
-        this.answer = value;
+    enterSolution(value) {
+        this.solution = value;
     }
 
-    setCorrect() {
-        this.correct = this.value === this.answer;
+    checkCell() {
+        this.check = true;
     }
 
-    resetCorrect() {
-        this.correct = null;
+    uncheckCell() {
+        this.check = false;
+    }
+
+    checkCorrect() {
+        return this.value === this.solution;
     }
 
 }
