@@ -659,7 +659,13 @@ class Cell {
 
     enterCandidateValue(value) {
         if (!this.candidates.includes(value)) {
-            this.candidates.push(value)
+            const cv = this.candidates;
+            cv.push(value);
+            const sortedcv = cv.sort();
+            this.candidates = sortedcv;
+        } else {
+            const i = this.candidates.indexOf(value)
+            this.candidates.splice(i, 1);
         }
     }
 
