@@ -39,8 +39,6 @@ function keyPressed() {
     } else if (keyCode === SHIFT) {
         game.handleInputModeKeyPressed("center")
     }
-
-    game.solvePuzzle()
 }
 
 function keyReleased() {
@@ -220,6 +218,7 @@ class Game {
 
 
     handleInputModeKeyPressed(inputMode) {
+        console.log("A");
         this.buttons.restyleNumberButtons(inputMode)
         this.buttons.restyleInputModeButtons(inputMode)
         this.setInputMode(inputMode)
@@ -662,8 +661,9 @@ class ButtonBar {
         this.rowDecorator(fullBox);
         this.columnDecorator([leftBox, centerBox, rightBox])
         this.numberButtonDecorator([one, two, three, four, five, six, seven, eight, nine]);
+        this.sideButtonDecorator([normal, corner, center, undo, redo, restart, check, solve])
         this.leftSideButtonDecorator([normal, corner, center]);
-        this.rightSideButtonDecorator([undo, redo, restart, check, solve]);
+        this.rightSideButtonDecorator([undo, redo, restart]);
         this.deleteButtonDecorator(del);
     }
 
@@ -695,24 +695,24 @@ class ButtonBar {
         } 
     }
 
-    sideButtonDecorator(button) {
-        
-        // button.mouseClicked(() => game.handleInputModeKeyPressed(button.html()));
-
-        if (button.id() === "normal") {
-            button.style("background-color", "#6a309a");
-            button.style("color", "#fff");
-        } else {
-            button.style("background-color", "#fff");
-            button.style("color", "#6a309a");
+    sideButtonDecorator(buttonArr) {
+        for (let i = 0; i < buttonArr.length; i++) {
+            const button = buttonArr[i];
+            if (button.id() === "normal") {
+                button.style("background-color", "#6a309a");
+                button.style("color", "#fff");
+            } else {
+                button.style("background-color", "#fff");
+                button.style("color", "#6a309a");
+            }
+            button.size(this.sideButtonWidth, this.sideButtonHeight);
+            button.style("border", "none");
+            button.style("border", "2px solid #b5b3b8");
+            button.style("font-size", "20px");
+            button.style("font-weight", "900");
+            button.style("border-radius", "5px")
+            button.style("margin", "4px")
         }
-        button.size(this.sideButtonWidth, this.sideButtonHeight);
-        button.style("border", "none");
-        button.style("border", "2px solid #b5b3b8");
-        button.style("font-size", "20px");
-        button.style("font-weight", "900");
-        button.style("border-radius", "5px")
-        button.style("margin", "4px")
     }
 
     leftSideButtonDecorator(buttonArr) {
@@ -722,7 +722,6 @@ class ButtonBar {
             button.mouseClicked(() => {
             game.handleInputModeKeyPressed(button.html())
             }) 
-            this.sideButtonDecorator(button);
         }
     }
 
@@ -732,7 +731,6 @@ class ButtonBar {
             button.mouseClicked(() => {
                 game.handleControlButtonPressed(button.html())
             }) 
-            this.sideButtonDecorator(button);
         }
     }
 
@@ -937,6 +935,7 @@ class Cell {
     }
 
     solveCell() {
+        console.log("A");
         this.solve = true;
     }
 
