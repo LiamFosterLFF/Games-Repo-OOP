@@ -490,57 +490,6 @@ class Game {
     }
 
 }
-
-
-//DEAD CODE
-// if (selectedSquare !== null) {
-    //         var [row, col] = selectedSquare;
-    
-    //         if (keyIsDown(SHIFT)) {
-    //             inputMode = "corner"
-    //         } else if (keyIsDown(CONTROL)) {
-    //             inputMode = "center"
-    //         } else (
-    //             inputMode = "normal"
-    //         )
-    
-    //         if (inputMode === "normal" && !isNaN(key) && key > 0) {
-    //             if (presetBoard[row][col] === null) {
-    //                 board[row][col] = key;
-    //                 checkBoard(key);
-    //             }
-    //         }
-    
-    //         const shiftDict = {"!" : 1, "@" : 2, "#" : 3, "$" : 4, "%" : 5, "^" : 6, "&" : 7, "*" : 8, "(" : 9}
-    //         if (inputMode === "corner" && shiftDict[key] !== undefined) {
-    //             const value = Number(shiftDict[key])
-    //             const squareAlreadyContainsMarking = (markings[row][col].corner.includes(value))
-    //             if (!squareAlreadyContainsMarking) {
-    //                 markings[row][col].corner.push(value)
-    //             } else { // Remove number from array if double-typed
-    //                 const index = markings[row][col].corner.indexOf(value)
-    //                 markings[row][col].corner.splice(index, 1)
-    //             }
-    //         } 
-            
-    //         if (inputMode === "center" && key !== "Control") {
-    //             const value = Number(key)
-    //             const squareAlreadyContainsMarking = (markings[row][col].center.includes(value))
-    //             if (!squareAlreadyContainsMarking) {
-    //                 markings[row][col].center.push(value)
-    //             } else { // Remove number from array if double-typed
-    //                 const index = markings[row][col].center.indexOf(value)
-    //                 markings[row][col].center.splice(index, 1)
-    //             }
-    //         }
-        
-    //     }
-    
-    //     drawBoard();
-    //     return false
-    // }
-    
-
     
 class Cell {
     constructor(value, solution, row, col, cellSize) {
@@ -650,13 +599,20 @@ class Cell {
         stroke(0);
         textSize(20)
 
-        const candidates = this.candidates
         if (this.value === "0") {
-            for (let i=0; i<candidates.length; i++) {
-                const candidate = candidates[i];
-                const position = positionDict[candidate];
-                text(candidate, this.cellSize*col + position.x, this.cellSize*row + position.y)
+            if (this.candidates.length > 0) {
+                for (let i=0; i<this.candidates.length; i++) {
+                    const candidate = this.candidates[i];
+                    const position = positionDict[candidate];
+                    text(candidate, this.cellSize*col + position.x, this.cellSize*row + position.y)
+                }
+            } else if (this.centerValues.length > 0) {
+                for (let i=0; i<this.centerValues.length; i++) {
+                    const candidate = this.centerValues[i];
+                    text(candidate, this.cellSize*col +10+ i*10, this.cellSize*row + this.cellSize/2)
+                }
             }
+            
         }
 
         // Draw center candidates (secondary marking)
