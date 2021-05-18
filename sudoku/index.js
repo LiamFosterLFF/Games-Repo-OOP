@@ -4,6 +4,7 @@ let game;
 var cnv;
 const boardSize = 810;
 const presetStr = "004300209005009001070060043006002087190007400050083000600000105003508690042910300,864371259325849761971265843436192587198657432257483916689734125713528694542916378"
+let presets;
 
 function setup() {
     cnv = createCanvas(boardSize, boardSize);
@@ -14,6 +15,10 @@ function setup() {
 
 function draw() {
     cnv.mouseClicked(handleClick)
+}
+
+function preload() {
+    presets = loadTable('sudoku/assets/sudoku.csv', 'csv', 'header');
 }
 
 function handleClick() {
@@ -59,7 +64,7 @@ class Game {
         this.inputMode = "normal"
         this.cellsChecked = false;
         this.buttons = new ButtonBar(this.boardSize);
-        this.presetStr = presetStr
+        this.data = this.initializePresetArr();
         this.lastMove = {"previous": undefined, "new": undefined, "location": []};
 
     }
@@ -86,21 +91,32 @@ class Game {
         this.drawGame();
     }
 
-    loadPresets(presetStr) {
-        function loadPresetFromCSV(presetStr) {
-            // splits string into two sections and then into individual numbers
-            return presetStr.split(',').map((string) => string.split(''))
+    initializePresetArr() {
+        function loadStringFromCSV() {
+            return presets.getRow(Math.floor(Math.random() * presets.getRowCount()));
         }
+        function loadPresetFromString(presetStr) {
+            // splits string into two sections and then into individual numbers
+            return presetStr.split('');
+        }
+        const rawData = loadStringFromCSV();
+        const data = {
+            "preset": loadPresetFromString(rawData.getString(0)),
+            "solution": loadPresetFromString(rawData.getString(1))
+        }
+        return data;
+    }
 
-        const [presetBoard, solvedPresetBoard] = loadPresetFromCSV(presetStr);
+    loadPresets() {
+        // const [presetBoard, solvedPresetBoard] = loadPresetArrFromCSV(presetStr);
 
         let i = 0;
         for (let row = 0; row < 9; row++) {
             for (let col = 0; col < 9; col++) {
-                if (presetBoard[row][col] !== null) {
+                if (this.data.preset[i] !== null) {
                     const cell = this.board[row][col]
-                    cell.enterSetValue(presetBoard[i]);
-                    cell.enterAnswer(solvedPresetBoard[i]);
+                    cell.enterSetValue(this.data.preset[i]);
+                    cell.enterAnswer(this.data.solution[i]);
                     i++;
                 }
             }
