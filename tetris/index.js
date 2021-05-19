@@ -82,6 +82,8 @@ function mouseClicked() {
     if (gameOver) {
         board = new Board();
         blockMap = new Array(20).fill(null).map((row) => new Array(10).fill(null));
+        clearInterval(gravity);
+        clearInterval(speedupInterval)
         startGravity();
         initializeSpeedupInterval();
         gameOver = false;
