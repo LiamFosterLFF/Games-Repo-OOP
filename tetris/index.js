@@ -13,7 +13,7 @@ var speedupInterval;
 var gravityTimeout;
 
 
-const blockMap = new Array(20).fill(null).map((row) => new Array(10).fill(null))
+let blockMap = new Array(20).fill(null).map((row) => new Array(10).fill(null))
 let calledAlready = false;
 
 function setup() {
@@ -68,13 +68,23 @@ function arrowMovement() {
     }
 }
 
-
 function keyPressed() {
     if (keyIsDown(UP_ARROW)) {
         board.currentPiece.spin();
     }
     if (keyIsDown(16)) {
         board.toggleHeldPiece();
+    }
+}
+
+function mouseClicked() {
+    console.log(gameOver);
+    if (gameOver) {
+        board = new Board();
+        blockMap = new Array(20).fill(null).map((row) => new Array(10).fill(null));
+        startGravity();
+        initializeSpeedupInterval();
+        gameOver = false;
     }
 }
 
@@ -317,7 +327,6 @@ function Board() {
         }
     }
     
-
 }
 
 function Piece() {
