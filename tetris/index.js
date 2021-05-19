@@ -8,6 +8,7 @@ var previewPiece = null;
 let gameSpeed = 500;
 let gameOver = false;
 var gravity;
+var speedupInterval;
 var gravityTimeout;
 
 
@@ -19,6 +20,7 @@ function setup() {
     cnv.parent("canvas-parent");
     board = new Board();
     startGravity();
+    initializeSpeedupInterval();
 }
 
 function startGravity() {
@@ -29,6 +31,16 @@ function startGravity() {
             board.currentPiece.y += 1;
         }
     }, gameSpeed)
+}
+
+function initializeSpeedupInterval() {
+    speedupInterval = setInterval(() => {
+        clearInterval(gravity)
+        clearInterval(speedupInterval);
+        gameSpeed = (gameSpeed <= 100)? 100 : (gameSpeed - 25);
+        startGravity();
+        initializeSpeedupInterval();
+    }, 60000)
 }
 
 function draw() {
@@ -182,7 +194,16 @@ function Board() {
                             const square = piece.shape[row][col]
                             if (square === true) {
                                 fill(piece.color)
-                                rect(box.x + (col)*blockDims.w, box.y + (row)*blockDims.h, blockDims.w, blockDims.h)
+                                console.log(piece.type);
+                                if (piece.type === "I") {
+                                    rect(box.x +  (col)*blockDims.w, box.y -10 + (row)*blockDims.h, blockDims.w, blockDims.h);
+                                } else if (piece.type === "L" || piece.type === "J") {
+                                    rect(box.x + 15 +  (col)*blockDims.w, box.y + 10 + (row)*blockDims.h, blockDims.w, blockDims.h);
+                                } else if (piece.type === "S" || piece.type === "Z") {
+                                    rect(box.x + 15 +  (col)*blockDims.w, box.y + 30 + (row)*blockDims.h, blockDims.w, blockDims.h);
+                                } else if (piece.type === "O") {
+                                    rect(box.x + 30 +  (col)*blockDims.w, box.y + 30 + (row)*blockDims.h, blockDims.w, blockDims.h);
+                                }
                             }
                         }
                     }
@@ -369,7 +390,6 @@ function Piece() {
         // Iterate through edges, if off board or solid, return true
         for (let e = 0; e < lowestBottomEdges.length; e++) {
             const [row, col] = lowestBottomEdges[e];
-            console.log(y, row, y+row+1);
             if (y+row+1 >= blockMap.length || blockMap[y+row+1][x+col] !== null) {
                 return true;
             }
@@ -482,7 +502,6 @@ function Piece() {
 
 
 // Increase levels
-// Pieces speed up over time
 // Center frame
 // Back button 
 
