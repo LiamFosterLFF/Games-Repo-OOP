@@ -1,9 +1,6 @@
-// const csv = require('fast-csv');
-
 let game;
 var cnv;
 const boardSize = 810;
-const presetStr = "004300209005009001070060043006002087190007400050083000600000105003508690042910300,864371259325849761971265843436192587198657432257483916689734125713528694542916378"
 let presets;
 
 function setup() {
@@ -49,12 +46,12 @@ function keyPressed() {
 // }
 
 function initializeGame() {
-    game = new Game(boardSize, presetString=presetStr);
+    game = new Game(boardSize);
     game.startGame();
 }
 
 class Game {
-    constructor(boardSize, presetString = "") {
+    constructor(boardSize) {
         this.boardSize = boardSize;
         this.cellSize = floor(this.boardSize / 9);
         this.boxSize = floor(this.boardSize / 3);
@@ -948,6 +945,5 @@ class ButtonBar {
     // Add inputs get stored in local storage?
     // Aesthetics - change color for entered or non-entered?
     // Add selectors - colour
-    // Add a set of sudokus to play
     // Add auto filler/solution shower?
     // Can enter center cells and corner cells? By typing? On hover?
