@@ -103,7 +103,6 @@ function Board() {
             textSize: 32
         }
     }
-
  
     this.show = function() {
         const design = this.design;
@@ -214,6 +213,7 @@ function Board() {
             projectedPiece.color = projectionColors[projectedPiece.type];
             for (let i = 0; i < remainingYBlocks + 1; i++) {
                 if (projectedPiece.landed(piece.x, piece.y + i)) {
+                    console.log("HIT");
                     projectedPiece.show();
                     break;
                 } else {
@@ -234,8 +234,6 @@ function Board() {
             }
         }
     }
-
-
     
     this.addPieceToBlockMap = function(piece) {
         for (let row = 0; row < piece.shape.length; row++) {
@@ -303,6 +301,7 @@ function Piece() {
     this.color = this.colors[this.type];
     this.x = 4;
     this.y = 0;
+    this.speed = {"x": 1, "y": 1}
 
     this.projectedPiece = {x: 0, y: 0}
 
@@ -350,44 +349,38 @@ function Piece() {
                         gameOver = true;
                     };
                     fill(this.color);
-                    console.log(this.color);
                     rect(screen.x + (col+this.x)*blockDims.w, screen.y + (row+this.y)*blockDims.h, screen.w/10, screen.h/20)
                 }
             }
         }
     }
 
-
-
-
-
-
     this.landed = function(x = this.x, y = this.y) {
+        // Finds lowest bottom edge of piece for each column
+        const lowestBottomEdges = [];
         for (let row = 0; row < this.shape.length; row++) {
             for (let col = 0; col < this.shape[row].length; col++) {
-                const invertedRow = this.shape.length - row - 1;
-                const squareIsSolid = (this.shape[invertedRow][col] === true);
-                if (squareIsSolid) {
-                    const rowBelow = y + invertedRow + 1;
-                    if (rowBelow > 19) {
-                        return true;
-                    } else {
-                        const squareBelow = blockMap[rowBelow][x + col]
-                        const areaBelowSquareIsSolid = (squareBelow !== null)
-                        if (areaBelowSquareIsSolid) {
-                            return true;
-                        }
-
+                if (this.shape[row][col] === true) {
+                    if (row+1 >= this.shape.length || this.shape[row+1][col] === false) {
+                        lowestBottomEdges.push([row, col])
                     }
                 }
             }
         }
-        return false
+
+        // Iterate through edges, if off board or solid, return true
+        for (let e = 0; e < lowestBottomEdges.length; e++) {
+            const [row, col] = lowestBottomEdges[e];
+            if (y+row+1 >= blockMap.length || blockMap[y+row+1][x+col] === true) {
+                return true;
+            }
+        }
+        return false;
     }
 
     this.moveRight = function() {
         if (this.canMoveRight()) {
-            this.x += 1
+            this.x += this.speed.x
         }
     }
 
@@ -397,7 +390,6 @@ function Piece() {
                 const squareIsSolid = (this.shape[row][col] === true);
                 if (squareIsSolid) {
                     if (this.x + col + 1 > 10) {
-                        console.log("Right Wall");
                         return false;
                     }
                     if (blockMap[this.y+row][this.x+col+1] !== null) {
@@ -411,7 +403,7 @@ function Piece() {
 
     this.moveLeft = function() {
         if (this.canMoveLeft()) {
-            this.x -= 1
+            this.x -= this.speed.x
         }
     }
 
@@ -435,7 +427,7 @@ function Piece() {
     this.moveDown = function() {
         if (this.canMoveDown()) {
             clearInterval(gravity)
-            this.y += 1
+            this.y += this.speed.y
             startGravity();
         }
     }
@@ -496,7 +488,6 @@ function Piece() {
 // Back button 
 
 // Bugs: 
-//      -- Colors are off on predictive dropping (alpha)
 //      -- Left and right speeds are a little fast
 //      -- T-spins don't work so good (can't check row below)
 //      -- Piece should set after it is pushed downward to last row
