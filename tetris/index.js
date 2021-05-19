@@ -120,7 +120,7 @@ function Board() {
         this.currentPiece.show();
         showProjection(this.currentPiece);
 
-        if (this.currentPiece.landed(blockMap) && !calledAlready) {
+        if (this.currentPiece.landed() && !calledAlready) {
             calledAlready = true;
             gravityTimeout = setTimeout(() => {
                 this.addPieceToBlockMap(this.currentPiece);
@@ -202,19 +202,20 @@ function Board() {
 
         function showProjection(piece) {
             const projectionColors = {
-                I: "rgba(0,250,255,.1)",
-                J: "rgba(7,74,253,.1)",
-                L: "rgba(36,242,47,.1)",
-                O: "rgba(255,247,39,.1)",
-                S: "rgba(149,79,246,.1)",
-                Z: "rgba(245,96,61,.1)"
+                I: "rgba(0,250,255,.5)",
+                J: "rgba(7,74,253,.5)",
+                L: "rgba(36,242,47,.5)",
+                O: "rgba(255,247,39,.5)",
+                S: "rgba(149,79,246,.5)",
+                Z: "rgba(245,96,61,.5)"
             };
             const remainingYBlocks = (gridDims.h - (piece.y+piece.h))
             var projectedPiece = Object.assign({}, piece);
             projectedPiece.color = projectionColors[projectedPiece.type];
             for (let i = 0; i < remainingYBlocks + 1; i++) {
-                if (projectedPiece.landed()) {
+                if (projectedPiece.landed(piece.x, piece.y + i)) {
                     projectedPiece.show();
+                    break;
                 } else {
                     projectedPiece.y += 1
                 } 
@@ -348,7 +349,8 @@ function Piece() {
                     if (blockMap[this.y+row][this.x+col] !== null) {
                         gameOver = true;
                     };
-                    fill(this.color)
+                    fill(this.color);
+                    console.log(this.color);
                     rect(screen.x + (col+this.x)*blockDims.w, screen.y + (row+this.y)*blockDims.h, screen.w/10, screen.h/20)
                 }
             }
@@ -360,17 +362,17 @@ function Piece() {
 
 
 
-    this.landed = function() {
+    this.landed = function(x = this.x, y = this.y) {
         for (let row = 0; row < this.shape.length; row++) {
             for (let col = 0; col < this.shape[row].length; col++) {
                 const invertedRow = this.shape.length - row - 1;
                 const squareIsSolid = (this.shape[invertedRow][col] === true);
                 if (squareIsSolid) {
-                    const rowBelow = this.y + invertedRow + 1;
+                    const rowBelow = y + invertedRow + 1;
                     if (rowBelow > 19) {
                         return true;
                     } else {
-                        const squareBelow = blockMap[rowBelow][this.x + col]
+                        const squareBelow = blockMap[rowBelow][x + col]
                         const areaBelowSquareIsSolid = (squareBelow !== null)
                         if (areaBelowSquareIsSolid) {
                             return true;
