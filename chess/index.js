@@ -946,10 +946,12 @@ class Timer {
     }
 
     initializeTimer() {
-        const box = createDiv().parent(this.parent);
-        box.style("display", "table-cell");
+        const tableCell = createDiv().parent(this.parent);
+        tableCell.style("display", "table-cell");
+        const box = createDiv().parent(tableCell);
         box.style("border", "3px solid green");
         box.style("font-size", "22px");
+        box.style("max-height", "100px")
 
 
         const title = createDiv(this.color).parent(box);
@@ -997,7 +999,6 @@ class MoveRecord {
     }
 
     createRow(parent, id) {
-        console.log("BANG");
         function createCol(parent) {
             const col = createDiv("").parent(parent).id(id);
             col.style("display", "table-cell");
