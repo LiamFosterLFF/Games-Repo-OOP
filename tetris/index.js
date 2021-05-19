@@ -10,6 +10,7 @@ let gameOver = false;
 var gravity;
 var gravityTimeout;
 
+
 const blockMap = new Array(20).fill(null).map((row) => new Array(10).fill(null))
 let calledAlready = false;
 
@@ -38,13 +39,13 @@ function draw() {
 
 function arrowMovement() {
     if (keyIsDown(DOWN_ARROW)) {
-        board.currentPiece.moveDown();
+        board.currentPiece.moveDown(1);
     }
     if (keyIsDown(RIGHT_ARROW)) {
-        board.currentPiece.moveRight();
+        board.currentPiece.moveRight(1);
     }
     if (keyIsDown(LEFT_ARROW)) {
-        board.currentPiece.moveLeft();
+        board.currentPiece.moveLeft(1);
     }
 }
 
@@ -62,7 +63,6 @@ function drawScreen() {
     frameRate(15)
     clear();
     board.show();
-
     arrowMovement();
 }
 
@@ -208,12 +208,11 @@ function Board() {
                 S: "rgba(149,79,246,.5)",
                 Z: "rgba(245,96,61,.5)"
             };
-            const remainingYBlocks = (gridDims.h - (piece.y+piece.h))
+            const remainingYBlocks = (gridDims.h - (piece.y))
             var projectedPiece = Object.assign({}, piece);
             projectedPiece.color = projectionColors[projectedPiece.type];
             for (let i = 0; i < remainingYBlocks + 1; i++) {
                 if (projectedPiece.landed(piece.x, piece.y + i)) {
-                    console.log("HIT");
                     projectedPiece.show();
                     break;
                 } else {
@@ -301,7 +300,6 @@ function Piece() {
     this.color = this.colors[this.type];
     this.x = 4;
     this.y = 0;
-    this.speed = {"x": 1, "y": 1}
 
     this.projectedPiece = {x: 0, y: 0}
 
@@ -371,16 +369,17 @@ function Piece() {
         // Iterate through edges, if off board or solid, return true
         for (let e = 0; e < lowestBottomEdges.length; e++) {
             const [row, col] = lowestBottomEdges[e];
-            if (y+row+1 >= blockMap.length || blockMap[y+row+1][x+col] === true) {
+            console.log(y, row, y+row+1);
+            if (y+row+1 >= blockMap.length || blockMap[y+row+1][x+col] !== null) {
                 return true;
             }
         }
         return false;
     }
 
-    this.moveRight = function() {
+    this.moveRight = function(x) {
         if (this.canMoveRight()) {
-            this.x += this.speed.x
+            this.x += x
         }
     }
 
@@ -401,9 +400,9 @@ function Piece() {
         return true;
     }
 
-    this.moveLeft = function() {
+    this.moveLeft = function(x) {
         if (this.canMoveLeft()) {
-            this.x -= this.speed.x
+            this.x -= x
         }
     }
 
@@ -424,10 +423,10 @@ function Piece() {
         return true;
     }
 
-    this.moveDown = function() {
+    this.moveDown = function(y) {
         if (this.canMoveDown()) {
             clearInterval(gravity)
-            this.y += this.speed.y
+            this.y += y;
             startGravity();
         }
     }
@@ -488,7 +487,6 @@ function Piece() {
 // Back button 
 
 // Bugs: 
-//      -- Left and right speeds are a little fast
 //      -- T-spins don't work so good (can't check row below)
 //      -- Piece should set after it is pushed downward to last row
 // 
