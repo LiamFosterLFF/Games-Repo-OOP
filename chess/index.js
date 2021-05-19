@@ -1038,7 +1038,6 @@ class MoveRecord {
         this.record[color].push(move);
         const numRows = this.record["white"].length
         const rowStr = "#" + "row" + String(numRows) + color;
-        console.log(rowStr);
         if (color === "white" && numRows > 1) {
             this.createRow(this.display, "row" + String(numRows));
         }
