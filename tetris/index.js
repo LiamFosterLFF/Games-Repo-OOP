@@ -46,6 +46,8 @@ function initializeSpeedupInterval() {
 function draw() {
     if (!gameOver) {
         drawScreen();
+    } else {
+        drawGameOver();
     }
 }
 
@@ -78,6 +80,13 @@ function drawScreen() {
     arrowMovement();
 }
 
+function drawGameOver() {
+    textSize(100);
+    fill(0);
+    text("GAME OVER", 0, 70);
+    textSize(50);
+    text("Click to play again", 80, dims.y-20);
+}
 
 function Block(color) {
     this.color = color;
@@ -194,7 +203,6 @@ function Board() {
                             const square = piece.shape[row][col]
                             if (square === true) {
                                 fill(piece.color)
-                                console.log(piece.type);
                                 if (piece.type === "I") {
                                     rect(box.x +  (col)*blockDims.w, box.y -10 + (row)*blockDims.h, blockDims.w, blockDims.h);
                                 } else if (piece.type === "L" || piece.type === "J") {
@@ -501,18 +509,14 @@ function Piece() {
 }
 
 
-// Increase levels
-// Center frame
-// Back button 
+// Increase levels?
 
 // Bugs: 
-//      -- T-spins don't work so good (can't check row below)
 //      -- Piece should set after it is pushed downward to last row
 // 
 // Aesthetics: 
 //      - Add a sidebar to delineate edges of screen
 //      - Add a game over screen
-//      - Fix preview and holding boxes so the piece appears in the middle
 //      - Clean up functions?
 //      - Animation for lines being filled (and pieces being set)
 //
