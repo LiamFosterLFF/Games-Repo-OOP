@@ -7,6 +7,7 @@ var board = null;
 var previewPiece = null;
 let gameSpeed = 500;
 let gameOver = false;
+var font;
 var gravity;
 var speedupInterval;
 var gravityTimeout;
@@ -21,6 +22,10 @@ function setup() {
     board = new Board();
     startGravity();
     initializeSpeedupInterval();
+}
+
+function preload() {
+    font = loadFont('tetris/assets/slkscr.ttf');
 }
 
 function startGravity() {
@@ -83,9 +88,10 @@ function drawScreen() {
 function drawGameOver() {
     textSize(100);
     fill(0);
+    textFont(font);
     text("GAME OVER", 0, 70);
     textSize(50);
-    text("Click to play again", 80, dims.y-20);
+    text("Click to play again", 0, dims.y-20);
 }
 
 function Block(color) {
